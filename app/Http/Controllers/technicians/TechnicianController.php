@@ -448,4 +448,21 @@ class TechnicianController extends Controller
         $json = json_encode($closestDistances, JSON_PRETTY_PRINT);
         echo "<pre>$json</pre>";
     }
+
+    public function getLocation(Request $request)
+    {
+        $apiKey = config('services.locationiq.api_key');
+        $address = $request->input('address');
+        $encodedAddress = urlencode($address);
+        $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
+
+        $response = file_get_contents($url);
+
+        return response()->json(json_decode($response, true));
+    }
+
+    public function getLocationAutocomplete(Request $request)
+    {
+        dd('ok');
+    }
 }

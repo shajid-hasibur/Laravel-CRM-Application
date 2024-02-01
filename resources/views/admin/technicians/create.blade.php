@@ -4,6 +4,61 @@
 <link rel="stylesheet" href="{{asset('assetsNew/main_css/technician/create.css')}}">
 @endsection
 @section('content')
+<style>
+.loading {
+ --speed-of-animation: 0.9s;
+ --gap: 6px;
+ --first-color: #4c86f9;
+ --second-color: #49a84c;
+ --third-color: #f6bb02;
+ --fourth-color: #f6bb02;
+ --fifth-color: #2196f3;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ width: 110px;
+ gap: 6px;
+ height: 110px;
+}
+
+.loading span {
+ width: 4px;
+ height: 50px;
+ background: var(--first-color);
+ animation: scale var(--speed-of-animation) ease-in-out infinite;
+}
+
+.loading span:nth-child(2) {
+ background: var(--second-color);
+ animation-delay: -0.8s;
+}
+
+.loading span:nth-child(3) {
+ background: var(--third-color);
+ animation-delay: -0.7s;
+}
+
+.loading span:nth-child(4) {
+ background: var(--fourth-color);
+ animation-delay: -0.6s;
+}
+
+.loading span:nth-child(5) {
+ background: var(--fifth-color);
+ animation-delay: -0.5s;
+}
+
+@keyframes scale {
+ 0%, 40%, 100% {
+  transform: scaleY(0.05);
+ }
+
+ 20% {
+  transform: scaleY(1);
+ }
+}
+}
+</style>
 <div class="content-wrapper" style="background-color: white;">
     @include('admin.includeNew.breadcrumb')
     <div class="container-fluid">
@@ -261,8 +316,30 @@
                                 </div>
                                 <div class="form-group col-6">
                                     <label for="">Search Address</label>
-                                    <input type="text" class="form-control" placeholder="Please enter address to get coordinates" id="google-autocomplete">
+                                    <input type="text" class="form-control" placeholder="Please enter address to get coordinates" id="address-input">
+                                    <span id="responed-address"></span>
                                 </div>
+                                <div class="form-group col-3">
+                                    <button type="button" class="btn btn-secondary" id="coordinate-btn" style="margin-top: 32px">Get Co-ordinate</button>
+                                </div>
+                                <div class="form-group col-3">
+                                    <div class="loading d-none" id="loader">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-3">
+                                    <label for="Latitude">Latitude</label>
+                                    <input type="text" class="form-control" id="latitude" readonly>
+                                </div>
+                                <div class="form-group col-3">
+                                    <label for="Longitude">Longitude</label>
+                                    <input type="text" class="form-control" id="longitude" readonly>
+                                </div>
+                                {{-- <input type="hidden" id="SearchBox"> --}}
                                 <div class="form-group col-12 custom-form-group">
                                     <label for="skills" class="custom-label">
                                         <h6 class="custom-label-text">Skill Sets</h6>
@@ -407,5 +484,37 @@
             });
         });
     });
+</script>
+
+<script>
+
+
+$('#coordinate-btn').on('click', function () {
+    const address = $('#address-input').val();
+
+    if (address.length > 0) {
+        $('#loader').removeClass('d-none');
+        $.ajax({
+            url: "{{ route('technician.coordinate.get') }}",
+            method: 'GET',
+            data: { address: address },
+            success: function (response) {
+                console.log(response);
+                const firstObject = response[0];
+                $('#latitude').val(firstObject.lat);
+                $('#longitude').val(firstObject.lon);
+                $('#responed-address').text(firstObject.display_name);
+                $('#loader').addClass('d-none');
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+});
+
+$('#coordinate-btn').on('input')
+
+
 </script>
 @endsection

@@ -35,4 +35,8 @@ return [
         'api_key' => env('DISTANCE_MATRIX_KEY'),
     ],
 
+    'locationiq' => [
+        'api_key' => env('LOCATION_IQ_KEY'),
+    ],
+
 ];
