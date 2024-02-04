@@ -71,7 +71,8 @@ Route::middleware('admin')->group(function () {
             Route::get('/distance', 'findClosestLocations');
             Route::get('/coordinates/response', 'getLocation')->name('coordinate.get');
             Route::get('/geocode/view', 'geocodeIndex')->name('geocode.index');
-            Route::get('/autocomplete','techAutocomplete')->name('autocomplete');
+            Route::get('/autocomplete', 'techAutocomplete')->name('autocomplete');
+            Route::post('/assign/coordinate', 'assignLatLong')->name('assign.coordinate');
             // Route::get('/location/autocomplete','getLocationAutocomplete')->name('location.autocomplete');
         });
     });

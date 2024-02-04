@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\TechnicianService;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use PDF;
 
@@ -482,5 +483,28 @@ class TechnicianController extends Controller
             })->limit(10)->get();
 
         return response()->json(['results' => $results], 200);
+    }
+
+    public function assignLatLong(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'techId' => 'required',
+            'tech_lat' => 'required',
+            'tech_long' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            Technician::where('id', $request->techId)->update([
+                'co_ordinates' => DB::raw("ST_GeomFromText('POINT($request->tech_long $request->tech_lat)', 4326)"),
+            ]);
+
+            return response()->json(['success' => 'Co-Ordinates updated for this technician.'], 200);
+        } catch (QueryException $e) {
+            return response()->json(['exceptions' => 'Failed to update co-ordinates.'], 500);
+        }
     }
 }
