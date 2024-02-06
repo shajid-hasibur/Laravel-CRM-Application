@@ -313,7 +313,7 @@
                                     <span style="color:red; font-size:14px">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <div class="form-group col-6">
+                                {{-- <div class="form-group col-6">
                                     <label for="">Search Address</label>
                                     <input type="text" class="form-control" placeholder="Please enter address to get coordinates" id="address-input">
                                     <span id="responed-address"></span>
@@ -337,7 +337,7 @@
                                 <div class="form-group col-3">
                                     <label for="Longitude">Longitude</label>
                                     <input type="text" class="form-control" id="longitude" readonly>
-                                </div>
+                                </div> --}}
                                 {{-- <input type="hidden" id="SearchBox"> --}}
                                 <div class="form-group col-12 custom-form-group">
                                     <label for="skills" class="custom-label">
@@ -485,7 +485,7 @@
     });
 </script>
 
-<script>
+{{-- <script>
 
 
 $('#coordinate-btn').on('click', function () {
@@ -512,5 +512,5 @@ $('#coordinate-btn').on('click', function () {
     }
 });
 
-</script>
+</script> --}}
 @endsection

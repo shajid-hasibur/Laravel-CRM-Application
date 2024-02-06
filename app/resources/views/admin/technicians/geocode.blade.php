@@ -50,6 +50,27 @@
                         </form>
                     </div>
                 </div>
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h5>Multi Address Coversion</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="form-group col-4">
+                                
+                                {{-- <input type="number" name="iteration" id="iteration" class="form-control" placeholder="Enter amount how much technician address you want to convert"> --}}
+                            </div>
+                            <div class="form-group col-12 text-center">
+                                <h6>Click the below button to convert the address for all technicians</h6>
+                                <button type="button" class="btn btn-success" id="multi-convert">Start Coversion</button>
+                                <button id="multi-assign-loader" class="btn btn-warning d-none" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Please Wait !
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -61,6 +82,28 @@
             $('#tech_autocomplete,#latitude,#longitude,#address-input,#techId').val("");
             $('#technician_error,#technician_lat_error,#technician_long_error').text("");
             $('#responed-address').text("");
+        });
+
+        $('#multi-convert').on('click',function(){
+            $('#multi-assign-loader').removeClass('d-none');
+            $.ajax({
+                url: "{{ route('technician.multiAssign.coordinate') }}",
+                type: "GET",
+                success:function(data){
+                    $('#multi-assign-loader').addClass('d-none');
+                    iziToast.success({
+                        message: data.message,
+                        position: "topRight"
+                    });
+                },
+                error:function(data){
+                    $('#multi-assign-loader').addClass('d-none');
+                    iziToast.warning({
+                        message: data.responseJSON.warning,
+                        position: "topRight"
+                    });
+                }
+            });
         });
 
         $('#tech-coordinates-form').on('submit',function(e){

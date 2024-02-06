@@ -73,7 +73,7 @@ Route::middleware('admin')->group(function () {
             Route::get('/geocode/view', 'geocodeIndex')->name('geocode.index');
             Route::get('/autocomplete', 'techAutocomplete')->name('autocomplete');
             Route::post('/assign/coordinate', 'assignLatLong')->name('assign.coordinate');
-            // Route::get('/location/autocomplete','getLocationAutocomplete')->name('location.autocomplete');
+            Route::get('/multi/assign/coordinate', 'multiAssignCoordinate')->name('multiAssign.coordinate');
         });
     });
 });

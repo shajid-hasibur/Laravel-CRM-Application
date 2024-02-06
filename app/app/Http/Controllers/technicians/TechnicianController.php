@@ -244,12 +244,13 @@ class TechnicianController extends Controller
     {
         $id = $request->tech_id;
         $technician = Technician::with('skills', 'review')->findOrFail($id);
+        $tech = collect($technician)->except('co_ordinates');
         $skill_sets = $technician->skills->pluck('skill_name')->toArray();
         $skill_sets_string = implode(", ", $skill_sets);
 
         return response()->json(
             [
-                'technician' => $technician,
+                'technician' => $tech,
                 'skill_sets' => $skill_sets_string,
             ],
             200
@@ -439,7 +440,7 @@ class TechnicianController extends Controller
         }
 
         asort($distances);
-        dd($distances);
+        // dd($distances);
         $closestDistances = Technician::select(
             'id',
             DB::raw('ST_X(co_ordinates) as longitude'),
@@ -462,10 +463,6 @@ class TechnicianController extends Controller
         return response()->json(json_decode($response, true));
     }
 
-    public function getLocationAutocomplete(Request $request)
-    {
-        dd('ok');
-    }
 
     public function geocodeIndex()
     {
@@ -505,6 +502,38 @@ class TechnicianController extends Controller
             return response()->json(['success' => 'Co-Ordinates updated for this technician.'], 200);
         } catch (QueryException $e) {
             return response()->json(['exceptions' => 'Failed to update co-ordinates.'], 500);
+        }
+    }
+
+    public function multiAssignCoordinate()
+    {
+        $apiKey = config('services.locationiq.api_key');
+        $technicians = Technician::whereRaw("ST_X(co_ordinates) IS NULL OR ST_Y(co_ordinates) IS NULL")->get(['id', 'address_data']);
+
+        if (count($technicians) != 0) {
+            foreach ($technicians as $technician) {
+                $address['zipcode'] = $technician->address_data->zip_code;
+                $address['city'] = $technician->address_data->city;
+                $address['state'] = $technician->address_data->state;
+                $address['country'] = $technician->address_data->country;
+
+                $address_string = implode(", ", $address);
+                $encodedAddress = urlencode($address_string);
+
+                $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
+                $response = file_get_contents($url);
+                $coordinates = json_decode($response, true);
+
+                $latitude = $coordinates[0]['lat'];
+                $longitude = $coordinates[0]['lon'];
+
+                Technician::where('id', $technician->id)->update([
+                    'co_ordinates' => DB::raw("ST_GeomFromText('POINT($longitude $latitude)', 4326)"),
+                ]);
+            }
+            return response()->json(['message' => 'Coordinates updated successfully'], 200);
+        } else {
+            return response()->json(['warning' => 'No technician found with empty coordinates !'], 422);
         }
     }
 }
