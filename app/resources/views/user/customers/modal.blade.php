@@ -168,6 +168,12 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="submit" class="btn btn-primary">Submit</button>
+                <div class="d-none" id="newCusModalSpinner">
+                    <button class="btn btn-warning" type="button" disabled>
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        Please wait!!
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -366,7 +372,7 @@ $(document).ready(function(){
 
     $('#customerRegForm').on('submit',function(e){
         e.preventDefault();
-        
+        $('#newCusModalSpinner').removeClass('d-none');
         let formData = new FormData(this);
         $.ajax({
             url: "{{ route('user.customer.reg') }}",
@@ -375,6 +381,7 @@ $(document).ready(function(){
             processData: false,
             contentType: false,
             success:function(data){
+                $('#newCusModalSpinner').addClass('d-none');
                 iziToast.success({
                     message: data.success,
                     position: "topRight"
@@ -388,6 +395,7 @@ $(document).ready(function(){
             },
             error:function(xhr, status, error){
                 if (xhr.status === 422) {
+                    $('#newCusModalSpinner').addClass('d-none');
                     errors = xhr.responseJSON.errors;
                     $('#cus_company_name_error').text(errors.company_name);
                     $('#cus_address_error').text(errors.address);

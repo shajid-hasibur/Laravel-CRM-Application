@@ -221,6 +221,12 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Submit</button>
+                        <div class="d-none" id="newTechModalSpinner">
+                            <button class="btn btn-warning" type="button" disabled>
+                                <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                Please wait!!
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -541,7 +547,7 @@
 
         $('#newTechnicianModalForm').on('submit', function(e) {
             e.preventDefault();
-
+            $('#newTechModalSpinner').removeClass('d-none');
             let formData = new FormData(this);
 
             $.ajax({
@@ -551,13 +557,16 @@
                 contentType: false,
                 processData: false,
                 success: function(data) {
+                    $('#newTechModalSpinner').addClass('d-none');
                     iziToast.success({
                         message: data.success,
                         position: "topRight"
                     });
+                    $('#newTechnicianModalForm')[0].reset();
                 },
                 error: function(data) {
                     if (data.status == 422) {
+                        $('#newTechModalSpinner').addClass('d-none');
                         errors = data.responseJSON.errors;
                         $("#company_name_error,#address_error,#country_error,#city_error,#state_error,#zip_code_error,#email_error,#phone_error,#primary_contact_error,#primary_contact_email_error,#title_error,#cell_phone_error,#rate_error,#radius_error,#travel_fee_error,#status_error,#coi_expire_date_error,#coi_file_error,#msa_expire_date_error,#msa_file_error,#nda_error,#nda_file_error,#terms_error,#preference_error,#skill_id_error").empty();
 
@@ -565,7 +574,6 @@
 
                         fields.forEach(field => {
                             if (errors[field]) {
-                                console.log(errors[field]);
                                 $('#' + field + '_error').text(errors[field]);
                             }
                         });

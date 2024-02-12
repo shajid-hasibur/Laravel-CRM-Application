@@ -126,6 +126,12 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="d-none" id="newSitesModalSpinner">
+          <button class="btn btn-warning" type="button" disabled>
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              Please wait!!
+          </button>
+      </div>
       </div>
     </div>
   </div>
@@ -171,6 +177,7 @@
       //site registration script
       $(document).on('submit','#site-reg-form',function(e){
         e.preventDefault();
+        $('#newSitesModalSpinner').removeClass('d-none');
         let formData = new FormData(this);
         $.ajax({
           url: "{{ route('user.store.site') }}",
@@ -180,6 +187,7 @@
           contentType: false,
           dataType: "json",
           success:function(data){
+            $('#newSitesModalSpinner').addClass('d-none');
             if(data.success){
               $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
 
@@ -192,6 +200,7 @@
           },
           error:function(data){
             if(data.status === 422){
+              $('#newSitesModalSpinner').addClass('d-none');
               errors = data.responseJSON.errors;
               $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
 

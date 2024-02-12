@@ -916,6 +916,13 @@
           </table>
         </div>
       </div>
+      <div class="d-none" id="confirmation-div">
+        <div class="card">
+          <div class="card-body">
+            <p class="text-bold" id="message"></p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

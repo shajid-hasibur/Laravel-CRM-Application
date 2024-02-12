@@ -1332,8 +1332,17 @@ class UserController extends Controller
         $tAvailable->available = Status::DISABLE;
         $tAvailable->save();
 
-        return response()->json(['message' => 'Technician assigning successful for the selected work order.'], 200);
+        $id = [
+            $workOrder->id,
+        ];
+        $response = [
+            'id' => $id,
+            'message' => 'Technician assigning successful for the selected work order.'
+        ];
+
+        return response()->json($response, 200);
     }
+
 
     public function sendMail(Request $request)
     {

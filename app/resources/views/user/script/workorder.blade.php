@@ -145,9 +145,9 @@
             });
         }
 
-        function closestTech(destination){
+        function closestTech(destination) {
             $('#loader').removeClass('d-none');
-            
+
             $.ajax({
                 url: "{{ route('user.findTech.withDistance') }}",
                 type: "POST",
@@ -232,17 +232,17 @@
             }
         });
 
-        $('#send_mail_form').on('submit',function(e){
+        $('#send_mail_form').on('submit', function(e) {
             e.preventDefault();
             $('#email-sending-loader').removeClass('d-none');
             let formData = new FormData(this);
             $.ajax({
                 url: "{{ route('user.sendmail.tech') }}",
                 type: "POST",
-                data:formData,
-                contentType:false,
-                processData:false,
-                success:function(data){
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data) {
                     $('#email-sending-loader').addClass('d-none');
                     iziToast.success({
                         message: data.message,
@@ -252,7 +252,7 @@
             });
         });
 
-        $('#user_dispatch_form').on('click',function(e){
+        $('#user_dispatch_form').on('click', function(e) {
             e.preventDefault();
 
             let formData = new FormData(this);
@@ -268,22 +268,14 @@
                         message: data.message,
                         position: "topRight"
                     });
+                    $('#message').text('Technician Assigned!!');
+                    $('#removable-div').addClass('d-none');
+                    $('#confirmation-div').removeClass('d-none');
+                    var workOrderId = data.id;
+                    siteHistory(workOrderId);
                 }
             });
         });
-
-        function assignTechData(id){
-            $.ajax({
-                url: "{{ route('user.assigned.tech') }}",
-                type: "GET",
-                data:{
-                    "id": id
-                },
-                success:function(data){
-                    console.log(data);
-                }
-            });
-        }
 
         function customerParts(id) {
             $.ajax({
