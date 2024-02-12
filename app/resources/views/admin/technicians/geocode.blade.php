@@ -37,7 +37,7 @@
                                 <div class="form-group col-8">
                                     <label for="Longitude">Give An Address</label>
                                     <input type="text" id="address-input" class="form-control">
-                                    <span id="responed-address"></span>
+                                    <span id="responed-address" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-weight: 400"></span>
                                 </div>
                                 <div class="form-group col-4">
                                     <button type="button" class="btn btn-primary" id="coordinate-btn" style="margin-top: 32px;">Get Co-Ordinates</button>
