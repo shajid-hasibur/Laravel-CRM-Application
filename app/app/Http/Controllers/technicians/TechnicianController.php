@@ -586,4 +586,29 @@ class TechnicianController extends Controller
             return response()->json(['warning' => 'No technician found with empty coordinates !'], 422);
         }
     }
+
+    public function geoReverse()
+    {
+        $lat = "23.8698486";
+        $long = "90.3978032";
+        $token = config('services.locationiq.api_key');
+
+        $url = 'https://us1.locationiq.com/v1/reverse?key=' . urlencode($token) . '&lat=' . urlencode($lat) . '&lon=' . urlencode($long) . '&format=json';
+
+        $curl = curl_init($url);
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER    =>  true,
+            CURLOPT_FOLLOWLOCATION    =>  true,
+            CURLOPT_MAXREDIRS         =>  10,
+            CURLOPT_TIMEOUT           =>  30,
+            CURLOPT_CUSTOMREQUEST     =>  'GET',
+        ));
+
+        $response = curl_exec($curl);
+
+        $error = curl_error($curl);
+
+        curl_close($curl);
+        echo $response;
+    }
 }

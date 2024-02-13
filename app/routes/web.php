@@ -22,7 +22,7 @@ Route::get('/api', [DistanceMatrixController::class, 'results']);
 
 Route::controller('ApiControllers\DistanceMatrixController')->prefix('distance')->name('distance.')->group(function () {
     Route::get('/', 'index')->name('index');
-    Route::post('/get/response', 'getResponse')->name('get.response');
+    Route::post('/get/response', 'findClosestLocations')->name('get.response');
     Route::get('/google/places/autocomplete', 'placesAutocomplete')->name('places.autoComplete');
 });
 
