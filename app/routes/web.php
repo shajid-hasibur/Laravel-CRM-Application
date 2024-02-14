@@ -24,6 +24,7 @@ Route::controller('ApiControllers\DistanceMatrixController')->prefix('distance')
     Route::get('/', 'index')->name('index');
     Route::post('/get/response', 'findClosestLocations')->name('get.response');
     Route::get('/google/places/autocomplete', 'placesAutocomplete')->name('places.autoComplete');
+    Route::post('/locationiq/autocomplete/search', 'autocomplete')->name('locationiq.autocomplete');
 });
 
 // User Support Ticket

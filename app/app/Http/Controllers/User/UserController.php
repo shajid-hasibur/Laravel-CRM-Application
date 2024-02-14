@@ -965,9 +965,10 @@ class UserController extends Controller
     public function techData(Request $request)
     {
         $technician = Technician::with('skills')->findOrFail($request->id);
+
         $skill_sets = $technician->skills->pluck('skill_name')->toArray();
         $imploded = implode(", ", $skill_sets);
-        $response = collect($technician)->except('created_at', 'updated_at', 'available');
+        $response = collect($technician)->except('created_at', 'updated_at', 'available', 'co_ordinates');
 
         $array = [
             'tech' => $response,
@@ -1012,13 +1013,13 @@ class UserController extends Controller
         $excelFile = $request->all();
 
         $rules = [
-            'customer_csv_file' => 'required|mimes:csv|max:5120',
+            'customer_csv_file' => 'required',
         ];
 
         $message = [
             'customer_csv_file.required' => 'Please select a file to upload.',
             'customer_csv_file.mimes' => 'The uploaded file must be in CSV format.',
-            'customer_csv_file.max' => 'The file size cannot exceed 5MB.',
+            // 'customer_csv_file.max' => 'The file size cannot exceed 5MB.',
         ];
 
         $validator = Validator::make($excelFile, $rules, $message);

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 04, 2024 at 12:54 PM
+-- Generation Time: Feb 14, 2024 at 07:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -173,7 +173,9 @@ CREATE TABLE `customers` (
 INSERT INTO `customers` (`id`, `customer_id`, `company_name`, `address`, `email`, `customer_type`, `phone`, `s_rate`, `e_rate`, `travel`, `billing_term`, `type_phone`, `type_pos`, `type_wireless`, `type_cctv`, `team`, `sales_person`, `project_manager`, `created_at`, `updated_at`) VALUES
 (1, 60001, 'Lynch and Levine LLC', '{\"address\":\"Tempora voluptas sed\",\"country\":\"Ullam voluptate aspe\",\"city\":\"Non dolorem quasi qu\",\"state\":\"Provident elit eu\",\"zip_code\":\"71701\"}', 'bybacyru@mailinator.com', 'Etc', '61', 94.00000000, 68.00000000, 73.00000000, 'NET30', '+1 (615) 489-8569', 'Natus nobis quibusda', 'Deserunt sunt ut do', 'Animi ullamco ut in', 'Etc', 'Distinctio Cupidita', 'Aliquam sed magni te', '2023-11-22 07:47:16', '2023-11-22 07:47:16'),
 (2, 60002, 'Deleon Justice LLC', '{\"address\":\"Odit adipisci offici\",\"country\":\"Irure nisi totam vol\",\"city\":\"Id eos molestias vol\",\"state\":\"Qui elit proident\",\"zip_code\":\"80370\"}', 'varecufybe@mailinator.com', 'Etc', '32', 6.00000000, 44.00000000, 11.00000000, 'Etc', '+1 (732) 874-7937', 'Tenetur labore earum', 'Similique adipisicin', 'Necessitatibus quis', 'Blue Team', 'Odio temporibus temp', 'Ipsa qui ut est acc', '2023-11-22 13:50:49', '2023-11-22 13:50:49'),
-(3, 60003, 'Molina and Sexton LLC', '{\"address\":\"Sunt inventore dolor\",\"country\":\"Molestiae totam quos\",\"city\":\"Et maiores recusanda\",\"state\":\"Enim aut incidunt a\",\"zip_code\":\"51271\"}', 'baryqipo@mailinator.com', 'Prospecting', '35', 3.00000000, 69.00000000, 25.00000000, 'Etc', '+1 (712) 389-2552', 'Quo vel et quis in d', 'Non elit in adipisi', 'Blanditiis officia b', 'Blue Team', 'Fugit consequatur', 'Sapiente sed laborum', '2023-11-22 14:33:53', '2023-11-22 14:33:53');
+(3, 60003, 'Molina and Sexton LLC', '{\"address\":\"Sunt inventore dolor\",\"country\":\"Molestiae totam quos\",\"city\":\"Et maiores recusanda\",\"state\":\"Enim aut incidunt a\",\"zip_code\":\"51271\"}', 'baryqipo@mailinator.com', 'Prospecting', '35', 3.00000000, 69.00000000, 25.00000000, 'Etc', '+1 (712) 389-2552', 'Quo vel et quis in d', 'Non elit in adipisi', 'Blanditiis officia b', 'Blue Team', 'Fugit consequatur', 'Sapiente sed laborum', '2023-11-22 14:33:53', '2023-11-22 14:33:53'),
+(10129, 60004, 'Maldonado Orr Traders', '{\"address\":\"Sharp and Burnett LLC\",\"country\":\"England and Lang Inc\",\"city\":\"Lawson and Cooke Associates\",\"state\":\"Reiciendis harum vol\",\"zip_code\":\"Hooper and Nunez Traders\"}', 'paxene@mailinator.com', 'Customer', '34631', 36333.00000000, 82985.00000000, 93466.00000000, 'NET30', 'Waters Norman Inc', 'Pruitt and Delacruz Trading', 'Schneider Murphy Plc', 'Lloyd and Sheppard Trading', 'Blue Team', 'Morales Blevins Associates', 'Conway Bartlett Co', '2024-02-12 08:42:38', '2024-02-12 08:42:38'),
+(10130, 610130, 'Tucker Thompson Co', '{\"address\":\"Sargent Kane Co\",\"country\":\"Juarez and Gates Associates\",\"city\":\"Cortez Leonard Associates\",\"state\":\"Voluptas architecto\",\"zip_code\":\"Dillon Berry Co\"}', 'syhokig@mailinator.com', 'Customer', '69774', 13309.00000000, 60526.00000000, 98295.00000000, 'Etc', 'Ashley and Prince Traders', 'Beard Fields Inc', 'Lucas Nash Trading', 'Sanford Gamble Plc', 'Red Team', 'Osborne Spence Inc', 'Small and Palmer Trading', '2024-02-12 08:43:21', '2024-02-12 08:43:21');
 
 -- --------------------------------------------------------
 
@@ -271,7 +273,18 @@ INSERT INTO `customer_sites` (`id`, `site_id`, `customer_id`, `description`, `lo
 (43, '789456', 2, 'des7', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', NULL, '2023-12-10 07:35:23', '2023-12-10 07:35:23'),
 (44, '852369', 2, 'des8', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', NULL, '2023-12-10 07:35:23', '2023-12-10 07:35:23'),
 (45, '789963', 2, 'des9', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', NULL, '2023-12-10 07:35:23', '2023-12-10 07:35:23'),
-(46, '515415', 2, 'des9', 'location2', 'address1', 'address2', 'city2', 'state2', 'zipcode2', NULL, '2023-12-10 07:35:23', '2023-12-10 07:35:23');
+(46, '515415', 2, 'des9', 'location2', 'address1', 'address2', 'city2', 'state2', 'zipcode2', NULL, '2023-12-10 07:35:23', '2023-12-10 07:35:23'),
+(47, '458484', 10129, 'bfdgfdghdfg', 'uttara', 'uttara', 'uttara', 'uttara', 'Dhaka', '1230', NULL, '2024-02-12 09:59:00', '2024-02-12 09:59:00'),
+(48, '102457', 2, 'des1', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(49, '414751', 2, 'des2', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(50, '225554', 2, 'des3', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(51, '457455', 2, 'des4', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(52, '448565', 2, 'des5', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(53, '111141', 2, 'des6', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(54, '789456', 2, 'des7', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(55, '852369', 2, 'des8', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(56, '789963', 2, 'des9', 'location1', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22'),
+(57, '515415', 2, 'des9', 'location2', 'address1', 'address2', 'city2', 'state2', 'zipcode2', 'EST.', '2024-02-14 05:18:22', '2024-02-14 05:18:22');
 
 -- --------------------------------------------------------
 
@@ -1051,9 +1064,9 @@ CREATE TABLE `reviews` (
 --
 
 INSERT INTO `reviews` (`id`, `technician_id`, `star_value`, `comments`, `created_at`, `updated_at`) VALUES
-(1, 1, 3, '123', '2023-09-30 21:05:45', '2024-01-04 11:42:18'),
-(2, 2, 3, '4566', '2023-09-30 21:09:00', '2023-09-30 21:29:49'),
-(3, 3, 4, 'cddc', '2023-09-30 21:10:21', '2023-09-30 21:29:58'),
+(1, 1, 5, '123', '2023-09-30 21:05:45', '2024-02-06 05:44:08'),
+(2, 2, 3, '4566', '2023-09-30 21:09:00', '2024-02-07 10:02:33'),
+(3, 3, 5, 'cddc', '2023-09-30 21:10:21', '2024-02-07 10:03:45'),
 (4, 4, 0, NULL, '2023-09-30 21:11:07', '2023-09-30 21:11:07'),
 (5, 5, 0, NULL, '2023-09-30 21:12:46', '2023-09-30 21:12:46'),
 (6, 6, 0, NULL, '2023-09-30 21:14:17', '2023-09-30 21:14:17'),
@@ -1209,7 +1222,7 @@ INSERT INTO `reviews` (`id`, `technician_id`, `star_value`, `comments`, `created
 (156, 156, 0, NULL, '2024-01-10 08:16:14', '2024-01-10 08:16:14'),
 (157, 157, 0, NULL, '2024-01-10 08:16:14', '2024-01-10 08:16:14'),
 (158, 158, 0, NULL, '2024-01-10 08:16:14', '2024-01-10 08:16:14'),
-(159, 159, 0, NULL, '2024-01-15 09:38:27', '2024-01-15 09:38:27'),
+(159, 159, 5, '123', '2024-01-15 09:38:27', '2024-02-07 09:53:50'),
 (160, 160, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
 (161, 161, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
 (162, 162, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
@@ -1219,7 +1232,11 @@ INSERT INTO `reviews` (`id`, `technician_id`, `star_value`, `comments`, `created
 (166, 166, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
 (167, 167, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
 (168, 168, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
-(169, 169, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23');
+(169, 169, 0, NULL, '2024-01-15 09:39:23', '2024-01-15 09:39:23'),
+(170, 170, 0, NULL, '2024-02-12 07:14:26', '2024-02-12 07:14:26'),
+(171, 171, 0, NULL, '2024-02-12 08:07:07', '2024-02-12 08:07:07'),
+(172, 172, 0, NULL, '2024-02-12 08:14:00', '2024-02-12 08:14:00'),
+(173, 173, 5, '123', '2024-02-12 08:16:40', '2024-02-13 05:12:14');
 
 -- --------------------------------------------------------
 
@@ -1471,12 +1488,16 @@ CREATE TABLE `technicians` (
 --
 
 INSERT INTO `technicians` (`id`, `technician_id`, `review_id`, `company_name`, `address_data`, `email`, `primary_contact_email`, `phone`, `primary_contact`, `title`, `cell_phone`, `rate`, `radius`, `travel_fee`, `status`, `preference`, `coi_file`, `msa_file`, `nda_file`, `coi_expire_date`, `msa_expire_date`, `nda`, `terms`, `created_at`, `updated_at`, `available`, `co_ordinates`) VALUES
-(1, 50001, 1, 'Ellis Mcgowan Plc', '{\"address\":\"Avye Sears\",\"country\":\"USA\",\"city\":\"San Diego\",\"state\":\"CA\",\"zip_code\":\"92101\"}', 'puburizi@mailinator.com', 'vadaga@mailinator.com', '0122', 'Gage Reeves', 'August Strong', '01554', 12.000, '86', 82.000, 'Pending', 'No', '50001_Work Order View.pdf', '50001_SW Examples.pdf', '50001_Tram-1 (1).pdf', '1990-05-02', '1982-11-11', 'Yes', '45', '2023-09-30 21:05:45', '2024-02-04 11:31:34', 0, 0xe61000000101000000a654c3e65e4a5dc09f1ece97455c4040),
-(2, 50002, 2, 'Parks and Howell Inc', '{\"address\":\"Steven Best\",\"country\":\"USA\",\"city\":\"Los Angeles\",\"state\":\"CA\",\"zip_code\":\"90001\"}', 'shajid.hasibur1996@gmail.com', 'hevelimym@mailinator.com', '7845', 'Eaton Dennis', 'Tamekah Decker', '014547', 55.000, '15', 47.000, 'Inactive', 'No', NULL, NULL, NULL, '2020-07-13', '1983-09-11', 'Yes', '45', '2023-09-30 21:09:00', '2024-02-04 10:11:39', 1, 0xe61000000101000000cbf0e488bf8f5dc0290eb9a2cdfc4040),
-(3, 50003, 3, 'Nixon Aguilar Traders', '{\"address\":\"Shana Massey\",\"country\":\"USA\",\"city\":\"Chicago\",\"state\":\"Illinois\",\"zip_code\":\"60601\"}', 'ziwahus@mailinator.com', 'syhobuvo@mailinator.com', '456', 'Miriam Becker', 'Jack Casey', '654', 68.000, '33', 16.000, 'Active', 'No', NULL, NULL, NULL, '1995-05-08', '1973-12-17', 'Yes', '45', '2023-09-30 21:10:21', '2024-01-21 05:52:47', 0, 0xe61000000101000000256f25e0fce755c01f245525dbf04440),
-(4, 50004, NULL, 'Medina and Dodson Plc', '{\"address\":\"Maia Roach\",\"country\":\"USA\",\"city\":\"Houston\",\"state\":\"Texas\",\"zip_code\":\"77001\"}', 'dygazij@mailinator.com', 'lokoriry@mailinator.com', '44', 'Chaim Martinez', 'Branden Lawrence', '54141', 2.000, '14', 49.000, 'Pending', 'No', NULL, NULL, NULL, '1996-04-27', '2006-10-24', 'Yes', '90', '2023-09-30 21:11:07', '2023-11-01 16:53:46', 0, 0xe610000001010000006e8b8dd456d857c07f56f4e21fc53d40),
-(5, 50005, NULL, 'Richards Bonner Inc', '{\"address\":\"Helen Manning\",\"country\":\"Keegan Frazier\",\"city\":\"Miami\",\"state\":\"Florida\",\"zip_code\":\"33101\"}', 'guza@mailinator.com', 'dididim@mailinator.com', '444', 'Gay Potts', 'Nehru Sykes', '211', 99.000, '67', 14.000, 'Pending', 'No', NULL, NULL, NULL, '1973-09-19', '1994-03-26', 'Yes', '45', '2023-09-30 21:12:46', '2023-09-30 21:12:46', 0, 0xe6100000010100000020860c9acc0c54c0c104c99640c73940),
-(159, 50006, NULL, 'Sharpe Cox Traders', '{\"address\":\"Cline and Patton Co\",\"country\":\"USA\",\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10116\"}', 'najmussakib173@gmail.com', 'quho@mailinator.com', '4562', 'Short and Macias Associates', 'Gaines Shaw Co', '54544', 79564.000, '31835', 26438.000, 'Active', 'Yes', NULL, NULL, NULL, '1982-07-02', '2009-12-11', 'No', '90', '2024-01-15 09:38:27', '2024-01-24 05:24:34', 1, 0xe61000000101000000e6adba0e558052c095aeaaa80b604440);
+(1, 50001, 1, 'Ellis Mcgowan Plc', '{\"address\":\"Avye Sears\",\"country\":\"USA\",\"city\":\"San Diego\",\"state\":\"CA\",\"zip_code\":\"92101\"}', 'puburizi@mailinator.com', 'vadaga@mailinator.com', '0122', 'Gage Reeves', 'August Strong', '01554', 12.000, '86', 82.000, 'Pending', 'No', '50001_Work Order View.pdf', '50001_SW Examples.pdf', '50001_Tram-1 (1).pdf', '1990-05-02', '1982-11-11', 'Yes', '45', '2023-09-30 21:05:45', '2024-02-08 07:22:19', 0, 0xe610000001010000006a2b9bde6a4a5dc0b13ed46cd45b4040),
+(2, 50002, 2, 'Parks and Howell Inc', '{\"address\":\"Steven Best\",\"country\":\"USA\",\"city\":\"Los Angeles\",\"state\":\"CA\",\"zip_code\":\"90001\"}', 'shajid.hasibur1996@gmail.com', 'hevelimym@mailinator.com', '7845', 'Eaton Dennis', 'Tamekah Decker', '014547', 55.000, '15', 47.000, 'Inactive', 'No', NULL, NULL, NULL, '2020-07-13', '1983-09-11', 'Yes', '45', '2023-09-30 21:09:00', '2024-02-08 07:22:20', 1, 0xe610000001010000002ba5677a898f5dc0e1cbe957df064140),
+(3, 50003, 3, 'Nixon Aguilar Traders', '{\"address\":\"Shana Massey\",\"country\":\"USA\",\"city\":\"Chicago\",\"state\":\"Illinois\",\"zip_code\":\"60601\"}', 'ziwahus@mailinator.com', 'syhobuvo@mailinator.com', '456', 'Miriam Becker', 'Jack Casey', '654', 68.000, '33', 16.000, 'Active', 'No', NULL, NULL, NULL, '1995-05-08', '1973-12-17', 'Yes', '45', '2023-09-30 21:10:21', '2024-02-08 07:22:24', 0, 0xe6100000010100000083de1b43000856c02d5e2c0c912f4540),
+(4, 50004, NULL, 'Medina and Dodson Plc', '{\"address\":\"Maia Roach\",\"country\":\"USA\",\"city\":\"Houston\",\"state\":\"Texas\",\"zip_code\":\"77001\"}', 'dygazij@mailinator.com', 'lokoriry@mailinator.com', '44', 'Chaim Martinez', 'Branden Lawrence', '54141', 2.000, '14', 49.000, 'Pending', 'No', NULL, NULL, NULL, '1996-04-27', '2006-10-24', 'Yes', '90', '2023-09-30 21:11:07', '2024-02-08 07:22:25', 0, 0xe61000000101000000a9fb00a436d757c0f31e679ab0c13d40),
+(5, 50005, NULL, 'Richards Bonner Inc', '{\"address\":\"Helen Manning\",\"country\":\"USA\",\"city\":\"Miami\",\"state\":\"Florida\",\"zip_code\":\"33101\"}', 'guza@mailinator.com', 'dididim@mailinator.com', '444', 'Gay Potts', 'Nehru Sykes', '211', 99.000, '67', 14.000, 'Pending', 'No', NULL, NULL, NULL, '1973-09-19', '1994-03-26', 'Yes', '45', '2023-09-30 21:12:46', '2024-02-08 07:22:26', 0, 0xe61000000101000000e6be1d29a30b54c08fd3eabe76d73940),
+(159, 50006, 159, 'Sharpe Cox Traders', '{\"address\":\"Cline and Patton Co\",\"country\":\"USA\",\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10116\"}', 'najmussakib173@gmail.com', 'quho@mailinator.com', '4562', 'Short and Macias Associates', 'Gaines Shaw Co', '54544', 79564.000, '31835', 26438.000, 'Active', 'Yes', NULL, NULL, NULL, '1982-07-02', '2009-12-11', 'No', '90', '2024-01-15 09:38:27', '2024-02-08 07:22:27', 1, 0xe61000000101000000d9d1938d628052c05938a4ac3a5b4440),
+(170, 50160, NULL, 'Marks and Rasmussen Traders', '{\"address\":\"Valenzuela and Rose Trading\",\"country\":\"Weeks and Nash Co\",\"city\":\"Lindsey and Morin Inc\",\"state\":\"Barron Salinas Traders\",\"zip_code\":\"1230\"}', 'kunatitu@mailinator.com', 'sajihohid@mailinator.com', '54584848', 'Reid and Galloway Associates', 'Mcgee Oliver Plc', '5484884', 95236.000, '41940', 72394.000, 'Inactive', 'Yes', NULL, NULL, NULL, '2022-11-07', '1980-05-18', 'No', '45', '2024-02-12 07:14:26', '2024-02-13 05:11:03', 1, 0xe61000000101000000124bcadde76756c0f581e49d43dd4340),
+(171, 50171, NULL, 'Peterson and Combs Traders', '{\"address\":\"Pate and Caldwell LLC\",\"country\":\"Bangladesh\",\"city\":\"Dhaka\",\"state\":\"Uttara\",\"zip_code\":\"1230\"}', 'huso@mailinator.com', 'fupypyx@mailinator.com', '5125454', 'Schmidt Guzman Inc', 'Little Kidd Trading', '554154', 30931.000, '30185', 53598.000, 'Active', 'Yes', NULL, NULL, NULL, '1973-08-03', '2004-03-25', 'Yes', '30', '2024-02-12 08:07:07', '2024-02-13 05:11:04', 1, 0xe61000000101000000f21c363660995640f05d94ea4cdd3740),
+(172, 50172, NULL, 'Faulkner Marks Co', '{\"address\":\"Oneill Bernard Trading\",\"country\":\"Cash and Conley LLC\",\"city\":\"Collins Gilbert LLC\",\"state\":\"Wheeler and Casey Traders\",\"zip_code\":\"1230\"}', 'duhahagi@mailinator.com', 'xeman@mailinator.com', '5545454', 'Benton Cherry Associates', 'Powell and Macdonald Associates', '5125254', 57270.000, '51442', 32731.000, 'Pending', 'Yes', NULL, NULL, NULL, '2023-05-14', '2017-08-23', 'No', '60', '2024-02-12 08:13:59', '2024-02-13 05:11:05', 1, 0xe61000000101000000f4c0c760c5a9eabfa1dae044f4d14940),
+(173, 50173, 173, 'Hanson Stephens Traders', '{\"address\":\"Jackson Richard Plc\",\"country\":\"Wynn Hays Plc\",\"city\":\"Kidd Clemons Inc\",\"state\":\"Randolph Cobb Plc\",\"zip_code\":\"1250\"}', 'toniqube@mailinator.com', 'dupivip@mailinator.com', '545845454', 'Cash and Hendricks Trading', 'Browning and David Traders', '87878', 26736.000, '29634', 46238.000, 'Inactive', 'Yes', NULL, NULL, NULL, '1975-09-28', '1995-05-01', 'No', '30', '2024-02-12 08:16:40', '2024-02-13 05:12:09', 1, 0xe61000000101000000849a2155147658c000529b38b9eb3d40);
 
 -- --------------------------------------------------------
 
@@ -1533,7 +1554,91 @@ INSERT INTO `technician_skills` (`id`, `skill_id`, `technician_id`, `created_at`
 (818, 2, 159, NULL, NULL),
 (819, 3, 159, NULL, NULL),
 (820, 4, 159, NULL, NULL),
-(821, 5, 159, NULL, NULL);
+(821, 5, 159, NULL, NULL),
+(822, 1, 170, NULL, NULL),
+(823, 2, 170, NULL, NULL),
+(824, 3, 170, NULL, NULL),
+(825, 13, 170, NULL, NULL),
+(826, 1, 171, NULL, NULL),
+(827, 2, 171, NULL, NULL),
+(828, 3, 171, NULL, NULL),
+(829, 13, 171, NULL, NULL),
+(830, 1, 172, NULL, NULL),
+(831, 2, 172, NULL, NULL),
+(832, 3, 172, NULL, NULL),
+(833, 4, 172, NULL, NULL),
+(834, 5, 172, NULL, NULL),
+(835, 7, 172, NULL, NULL),
+(836, 9, 172, NULL, NULL),
+(837, 10, 172, NULL, NULL),
+(838, 11, 172, NULL, NULL),
+(839, 12, 172, NULL, NULL),
+(840, 22, 172, NULL, NULL),
+(841, 24, 172, NULL, NULL),
+(842, 25, 172, NULL, NULL),
+(843, 30, 172, NULL, NULL),
+(844, 32, 172, NULL, NULL),
+(845, 33, 172, NULL, NULL),
+(846, 37, 172, NULL, NULL),
+(847, 39, 172, NULL, NULL),
+(848, 40, 172, NULL, NULL),
+(849, 41, 172, NULL, NULL),
+(850, 44, 172, NULL, NULL),
+(851, 46, 172, NULL, NULL),
+(852, 47, 172, NULL, NULL),
+(853, 48, 172, NULL, NULL),
+(854, 50, 172, NULL, NULL),
+(855, 70, 172, NULL, NULL),
+(856, 71, 172, NULL, NULL),
+(857, 72, 172, NULL, NULL),
+(858, 3, 173, NULL, NULL),
+(859, 4, 173, NULL, NULL),
+(860, 5, 173, NULL, NULL),
+(861, 7, 173, NULL, NULL),
+(862, 8, 173, NULL, NULL),
+(863, 12, 173, NULL, NULL),
+(864, 24, 173, NULL, NULL),
+(865, 25, 173, NULL, NULL),
+(866, 29, 173, NULL, NULL),
+(867, 30, 173, NULL, NULL),
+(868, 31, 173, NULL, NULL),
+(869, 34, 173, NULL, NULL),
+(870, 35, 173, NULL, NULL),
+(871, 37, 173, NULL, NULL),
+(872, 38, 173, NULL, NULL),
+(873, 41, 173, NULL, NULL),
+(874, 43, 173, NULL, NULL),
+(875, 45, 173, NULL, NULL),
+(876, 46, 173, NULL, NULL),
+(877, 50, 173, NULL, NULL),
+(878, 51, 173, NULL, NULL),
+(879, 71, 173, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tech_distances`
+--
+
+CREATE TABLE `tech_distances` (
+  `id` bigint(20) NOT NULL,
+  `tech_id` bigint(20) NOT NULL,
+  `destination_coordinates` point NOT NULL,
+  `distance` varchar(255) NOT NULL,
+  `duration` varchar(255) NOT NULL,
+  `destination_address` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tech_distances`
+--
+
+INSERT INTO `tech_distances` (`id`, `tech_id`, `destination_coordinates`, `distance`, `duration`, `destination_address`, `created_at`, `updated_at`) VALUES
+(1, 171, 0xe61000000101000000d2a92b9fe59856400b7bdae1afc33740, '10.07 mi', '36 mins', 'Dhaka, bangladesh', '2024-02-13 11:16:01', '2024-02-13 11:16:01'),
+(2, 159, 0xe61000000101000000fc123b6414f652c0d816f950fd934540, '270.92 mi', '4 hours 13 mins', 'NY', '2024-02-14 06:36:13', '2024-02-14 06:36:13'),
+(3, 3, 0xe61000000101000000fc123b6414f652c0d816f950fd934540, '696.56 mi', '10 hours 34 mins', 'NY', '2024-02-14 06:36:13', '2024-02-14 06:36:13');
 
 -- --------------------------------------------------------
 
@@ -1997,7 +2102,11 @@ INSERT INTO `user_logins` (`id`, `user_id`, `user_ip`, `city`, `country`, `count
 (305, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-01-24 07:09:51', '2024-01-24 07:09:51'),
 (306, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-01-24 07:19:04', '2024-01-24 07:19:04'),
 (307, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-01-24 07:37:00', '2024-01-24 07:37:00'),
-(308, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-01-24 07:37:30', '2024-01-24 07:37:30');
+(308, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-01-24 07:37:30', '2024-01-24 07:37:30'),
+(309, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-02-06 10:33:58', '2024-02-06 10:33:58'),
+(310, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-02-12 07:05:24', '2024-02-12 07:05:24'),
+(311, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-02-13 04:52:36', '2024-02-13 04:52:36'),
+(312, 35, '127.0.0.1', NULL, '', '', '', '', 'Chrome', 'Windows 10', '2024-02-14 05:13:09', '2024-02-14 05:13:09');
 
 -- --------------------------------------------------------
 
@@ -2158,7 +2267,9 @@ INSERT INTO `work_orders` (`id`, `auth_id`, `order_type`, `priority`, `ftech_id`
 (67, 0, 3, '1', 0, 1, NULL, 'I67191223-723', '3', NULL, 'fdgdf', '543', NULL, NULL, NULL, '<br>', NULL, '<br>', '<br>', NULL, NULL, NULL, '2023-12-19 10:00:18', '2023-12-19 12:02:08', 1, 1, NULL, NULL, 'Email', NULL, '2', '3', '<br>'),
 (69, 0, 2, '1', 0, 3, '12/20/23', 'P69201223-843', '23', NULL, 'dfgdf', '2342', NULL, NULL, NULL, 'xcvx', NULL, 'xcgvx', 'dfgdf', NULL, NULL, NULL, '2023-12-20 05:36:44', '2023-12-20 05:38:12', 1, 1, NULL, NULL, 'Email', NULL, '2', '3', 'cxgdf'),
 (70, 0, 3, '1', 0, 3, '12/20/23', 'I70201223-825', '2', NULL, 'cxc', '23', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2023-12-20 11:17:06', '2023-12-20 11:20:05', 2, 1, NULL, NULL, 'Email', NULL, '2', '3', NULL),
-(90, 0, 3, '1', 3, 1, '01/02/24', 'I90020124-595', '6', NULL, 'Md. Hasibur Rahman', '01254765441', NULL, NULL, NULL, '<ol><li>Demo dispatch 1</li><li>Demo Dispatch 2</li><li>Demo Dispatch 3</li></ol>', NULL, '<ol><li>Cable Tester.</li><li>Wifi-Analyzer.</li><li>Heat Mapping.</li><li><span style=\"font-family: Nunito, sans-serif; text-align: center; text-wrap: nowrap;\">Laptop &amp; Console Cable.</span><br></li></ol>', '<ol><li>Install whole networking infrastructure.</li><li>Ensure performance.</li></ol>', NULL, NULL, NULL, '2024-01-02 05:17:59', '2024-01-21 05:52:46', 1, 2, NULL, 'Shajid', 'Email', '01/03/2024', '10AM', '5', '<ol><li>Router.</li><li>Switch.</li><li>Onu.</li></ol>');
+(90, 0, 3, '1', 3, 1, '01/02/24', 'I90020124-595', '6', NULL, 'Md. Hasibur Rahman', '01254765441', NULL, NULL, NULL, '<ol><li>Demo dispatch 1</li><li>Demo Dispatch 2</li><li>Demo Dispatch 3</li></ol>', NULL, '<ol><li>Cable Tester.</li><li>Wifi-Analyzer.</li><li>Heat Mapping.</li><li><span style=\"font-family: Nunito, sans-serif; text-align: center; text-wrap: nowrap;\">Laptop &amp; Console Cable.</span><br></li></ol>', '<ol><li>Install whole networking infrastructure.</li><li>Ensure performance.</li></ol>', NULL, NULL, NULL, '2024-01-02 05:17:59', '2024-01-21 05:52:46', 1, 2, NULL, 'Shajid', 'Email', '01/03/2024', '10AM', '5', '<ol><li>Router.</li><li>Switch.</li><li>Onu.</li></ol>'),
+(102, 0, 1, NULL, NULL, NULL, '02/12/24', 'S91120224-606', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-02-12 07:16:31', '2024-02-12 07:16:31', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(103, 0, 1, NULL, NULL, NULL, '02/13/24', 'S103130224-593', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-02-13 04:52:45', '2024-02-13 04:52:45', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2411,6 +2522,13 @@ ALTER TABLE `technician_skills`
   ADD KEY `technician_skills_technician_id_foreign` (`technician_id`);
 
 --
+-- Indexes for table `tech_distances`
+--
+ALTER TABLE `tech_distances`
+  ADD PRIMARY KEY (`id`),
+  ADD SPATIAL KEY `destination_coordinates` (`destination_coordinates`);
+
+--
 -- Indexes for table `ticket_notes`
 --
 ALTER TABLE `ticket_notes`
@@ -2504,7 +2622,7 @@ ALTER TABLE `check_in_outs`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10129;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10131;
 
 --
 -- AUTO_INCREMENT for table `customer_invoices`
@@ -2516,7 +2634,7 @@ ALTER TABLE `customer_invoices`
 -- AUTO_INCREMENT for table `customer_sites`
 --
 ALTER TABLE `customer_sites`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `deposits`
@@ -2606,7 +2724,7 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=170;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- AUTO_INCREMENT for table `skill_categories`
@@ -2660,13 +2778,19 @@ ALTER TABLE `support_tickets`
 -- AUTO_INCREMENT for table `technicians`
 --
 ALTER TABLE `technicians`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=170;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=174;
 
 --
 -- AUTO_INCREMENT for table `technician_skills`
 --
 ALTER TABLE `technician_skills`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=822;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=880;
+
+--
+-- AUTO_INCREMENT for table `tech_distances`
+--
+ALTER TABLE `tech_distances`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `ticket_notes`
@@ -2690,7 +2814,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_logins`
 --
 ALTER TABLE `user_logins`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=309;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=313;
 
 --
 -- AUTO_INCREMENT for table `vendor_care_lists`
@@ -2720,7 +2844,7 @@ ALTER TABLE `withdraw_methods`
 -- AUTO_INCREMENT for table `work_orders`
 --
 ALTER TABLE `work_orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
 -- AUTO_INCREMENT for table `work_order_performeds`

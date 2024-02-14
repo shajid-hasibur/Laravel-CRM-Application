@@ -11,6 +11,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\StoreResponseJob;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
 class DistanceMatrixController extends Controller
@@ -286,5 +287,36 @@ class DistanceMatrixController extends Controller
         }
 
         return response()->json(['technicians' => $completeInfo], 200);
+    }
+
+    public function autocomplete(Request $request)
+    {
+        $url = 'https://api.locationiq.com/v1/autocomplete';
+        $key = config('services.locationiq.api_key');
+        $query = $request->input('query');
+        $limit = 5;
+        $dedupe = 1;
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "$url?key=$key&q=$query&limit=$limit&dedupe=$dedupe",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        return response()->json($response);
     }
 }

@@ -1,6 +1,8 @@
 @extends('admin.layoutsNew.app')
 @section('script')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 @endsection
 @section('content')
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -15,9 +17,7 @@
     </symbol>
 </svg>
 <div class="content-wrapper" style="background-color: white;">
-    <!-- Content Header (Page header) -->
     @include('admin.includeNew.breadcrumb')
-    <!-- /.content-header -->
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -32,39 +32,14 @@
                                         <h6 class="text-dark">Provide your project site address below :</h6>
                                     </strong></label>
                                 <input type="text" id="siteAddress" class="form-control" name="site_address" placeholder="Enter project site address">
+                                <input id="latitude" type="text">
+                                <input id="longitude" type="text">
                                 <span style="color:red; font-size:15px" id="errors-container"></span>
                             </div>
-
-
-                            {{-- <div class="form-group col-4">
-                                <label><strong>
-                                        <h6 class="text-dark">Select Mode of Transportation :</h6>
-                                    </strong></label>
-                                <select name="mode" id="mode" class="form-control">
-                                    <option value="">Select Mode</option>
-                                    <option value="driving">Driving</option>
-                                    <option value="transit">Transit</option>
-                                    <option value="walking">Walking</option>
-                                    <option value="bycycling">Cycling</option>
-                                </select>
-                                <span style="color:red; font-size:15px" id="errors-container2"></span>
-                            </div> --}}
-
-
-
                             <div class="form-group col-4">
                                 <button type="button" id="submit" class="btn btn-danger" style="margin-top:39px; margin-left:10px;">Start Execution</button>
                             </div>
                         </div>
-                        {{-- <div id="warning-text">
-                                <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
-                                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-                                    <div class="me-auto">
-                                      Something went wrong!
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            </div> --}}
                         <div class="d-none" id="loader">
                             <h6 class="text-dark"><strong>Please wait for the responses from google</strong></h6>
                             <div class="spinner-grow text-danger" role="status">
@@ -89,9 +64,7 @@
                                         <th class="text-nowrap">Is Within Radius ?</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbody">
-
-                                </tbody>
+                                <tbody id="tbody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -109,16 +82,13 @@
         });
 
         $(document).on('click', '#submit', function() {
-            // destination means site address
             let destination = $('#siteAddress').val();
-            // let mode = $('#mode').val();
             $('#loader').removeClass('d-none');
             $.ajax({
                 url: "{{ route('distance.get.response') }}",
                 type: "POST",
                 data: {
                     "destination": destination,
-                    // "mode": mode
                 },
                 datatype: "JSON",
                 success: function(data) {
@@ -143,9 +113,6 @@
                             '</tr>';
                     });
                     $('#tbody').html(html);
-
-
-
                 },
                 error: function(data) {
                     if (data.status == 422) {
@@ -162,6 +129,36 @@
                     }
                 }
             });
+        });
+
+        $('#siteAddress').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{{ route('distance.locationiq.autocomplete') }}",
+                    method: "POST",
+                    data: {
+                        query: request.term
+                    },
+                    success: function(data) {
+                        var locations = JSON.parse(data);
+                        console.log(data);
+                        response(locations.map(function(item) {
+                            return {
+                                label: item.display_name,
+                                value: item.display_name,
+                                latitude: item.lat,
+                                longitude: item.lon
+                            };
+                        }));
+                    }
+                });
+            },
+            minLength: 3,
+            select:function(event, ui){
+                $("#latitude").val(ui.item.latitude);
+                $("#longitude").val(ui.item.longitude);
+            }
+
         });
     });
 </script>
