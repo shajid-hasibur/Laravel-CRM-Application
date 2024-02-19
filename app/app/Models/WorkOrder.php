@@ -36,6 +36,10 @@ class WorkOrder extends Model
         return $this->belongsTo(SubTicket::class, 'id', 'work_order_id');
     }
     //scope 
+    public function scopeNewTicket($query)
+    {
+        return $query->where('status', Status::NEW);
+    }
     public function scopeOpenTicket($query)
     {
         return $query->where('status', Status::OPEN);

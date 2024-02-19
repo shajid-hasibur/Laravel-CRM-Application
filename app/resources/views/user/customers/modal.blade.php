@@ -38,7 +38,7 @@
                     <label for="country">
                     <h6>Country</h6>
                     </label>
-                    <input type="text" class="form-control" name="country" placeholder="Enter country">
+                    <input type="text" class="form-control" name="country" placeholder="Enter country" value="United States">
                     <span style="color:red; font-size:14px" id="cus_country_error"></span>
                 </div>
                 <div class="form-group col-4">

@@ -32,12 +32,12 @@
                                         <h6 class="text-dark">Provide your project site address below :</h6>
                                     </strong></label>
                                 <input type="text" id="siteAddress" class="form-control" name="site_address" placeholder="Enter project site address">
-                                <input id="latitude" type="text">
-                                <input id="longitude" type="text">
+                                <input id="latitude" type="hidden" name="latitude">
+                                <input id="longitude" type="hidden" name="longitude">
                                 <span style="color:red; font-size:15px" id="errors-container"></span>
                             </div>
                             <div class="form-group col-4">
-                                <button type="button" id="submit" class="btn btn-danger" style="margin-top:39px; margin-left:10px;">Start Execution</button>
+                                <button type="button" id="submit" class="btn btn-danger" style="margin-top:39px; margin-left:10px;"><i class="fas fa-play"></i>&nbsp;Start</button>
                             </div>
                         </div>
                         <div class="d-none" id="loader">
@@ -47,25 +47,27 @@
                             </div>
                         </div>
                         <div class="d-none" id="removable-div">
-                            <table class="table table-bordered text-dark" id="data-table">
-                                <thead>
-                                    <tr>
-                                        <th class="text-nowrap">Technician ID</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th class="text-nowrap">Company Name</th>
-                                        <th>Status</th>
-                                        <th class="text-nowrap">Skill Sets</th>
-                                        <th>Rate</th>
-                                        <th>Travel Fee</th>
-                                        <th>Preferred?</th>
-                                        <th class="text-nowrap">Distance From Address</th>
-                                        <th>Duration</th>
-                                        <th class="text-nowrap">Is Within Radius ?</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody"></tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-dark" id="">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">Technician ID</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th class="text-nowrap">Company Name</th>
+                                            <th>Status</th>
+                                            <th class="text-nowrap">Skill Sets</th>
+                                            <th>Rate</th>
+                                            <th>Travel Fee</th>
+                                            <th>Preferred?</th>
+                                            <th class="text-nowrap">Distance From Address</th>
+                                            <th>Duration</th>
+                                            <th class="text-nowrap">Is Within Radius ?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -83,12 +85,17 @@
 
         $(document).on('click', '#submit', function() {
             let destination = $('#siteAddress').val();
+            let lat = $('#latitude').val();
+            let lon = $('#longitude').val();
             $('#loader').removeClass('d-none');
+
             $.ajax({
                 url: "{{ route('distance.get.response') }}",
                 type: "POST",
                 data: {
                     "destination": destination,
+                    "latitude": lat,
+                    "longitude" : lon,
                 },
                 datatype: "JSON",
                 success: function(data) {
@@ -115,17 +122,9 @@
                     $('#tbody').html(html);
                 },
                 error: function(data) {
+                    $('#loader').addClass('d-none');
                     if (data.status == 422) {
-                        let destination_errors;
-                        let mode_errors;
-                        destination_errors = data.responseJSON.errors.destination;
-                        $.each(destination_errors, function(key, value) {
-                            $('#errors-container').text(value);
-                        });
-                        mode_errors = data.responseJSON.errors.mode;
-                        $.each(mode_errors, function(key, value) {
-                            $('#errors-container2').text(value);
-                        });
+                        $('#errors-container').text(data.responseJSON.errors.destination)
                     }
                 }
             });
@@ -140,8 +139,9 @@
                         query: request.term
                     },
                     success: function(data) {
+                        $("#errors-container").text("");
                         var locations = JSON.parse(data);
-                        console.log(data);
+                        if (Array.isArray(locations)) {
                         response(locations.map(function(item) {
                             return {
                                 label: item.display_name,
@@ -150,7 +150,13 @@
                                 longitude: item.lon
                             };
                         }));
-                    }
+                        } else {
+                            response([]);
+                            if(locations.error){
+                                $("#errors-container").text("Unable to recognize or find the location.");
+                            }
+                        }
+                    },
                 });
             },
             minLength: 3,
@@ -158,7 +164,6 @@
                 $("#latitude").val(ui.item.latitude);
                 $("#longitude").val(ui.item.longitude);
             }
-
         });
     });
 </script>

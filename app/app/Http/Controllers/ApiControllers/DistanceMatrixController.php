@@ -148,8 +148,10 @@ class DistanceMatrixController extends Controller
 
     public function findClosestLocations(Request $request)
     {
-        $givenLatitude = "";
-        $givenLongitude = "";
+        $givenLatitude = $request->input('latitude');
+        $givenLongitude = $request->input('longitude');
+        $destinationAddress = $request->input('destination');
+
         $input = $request->all();
 
         $rules = [
@@ -166,23 +168,23 @@ class DistanceMatrixController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $apiKey = config('services.locationiq.api_key');
-        $address = $request->input('destination');
-        $encodedAddress = urlencode($address);
+        // $apiKey = config('services.locationiq.api_key');
+        // $address = $request->input('destination');
+        // $encodedAddress = urlencode($address);
 
-        $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
+        // $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
 
-        $client = new Client();
+        // $client = new Client();
 
-        try {
-            $response = $client->get($url);
-            $body = $response->getBody()->getContents();
-            $data = json_decode($body, true);
-            $givenLatitude = $data[0]['lat'];
-            $givenLongitude = $data[0]['lon'];
-        } catch (\Exception $e) {
-            return response()->json(['errors' => "Error fetching data from Location IQ service."], 503);
-        }
+        // try {
+        //     $response = $client->get($url);
+        //     $body = $response->getBody()->getContents();
+        //     $data = json_decode($body, true);
+        //     $givenLatitude = $data[0]['lat'];
+        //     $givenLongitude = $data[0]['lon'];
+        // } catch (\Exception $e) {
+        //     return response()->json(['errors' => "Error fetching data from Location IQ service."], 503);
+        // }
 
         $destination = $givenLatitude . ',' . $givenLongitude;
 
@@ -283,7 +285,7 @@ class DistanceMatrixController extends Controller
         }
 
         foreach ($completeInfo as $response) {
-            StoreResponseJob::dispatch($givenLatitude, $givenLongitude, $address, $response)->onQueue('store_responses');
+            StoreResponseJob::dispatch($givenLatitude, $givenLongitude, $destinationAddress, $response)->onQueue('store_responses');
         }
 
         return response()->json(['technicians' => $completeInfo], 200);
@@ -294,7 +296,7 @@ class DistanceMatrixController extends Controller
         $url = 'https://api.locationiq.com/v1/autocomplete';
         $key = config('services.locationiq.api_key');
         $query = $request->input('query');
-        $limit = 5;
+        $limit = 10;
         $dedupe = 1;
 
         $curl = curl_init();

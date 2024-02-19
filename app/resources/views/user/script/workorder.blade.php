@@ -15,6 +15,12 @@
         $('#workOrderCreateReqDate').datepicker();
         $('#completedByCreateForm').datepicker();
         $('#dashboardReqDate').datepicker();
+        $('#check_in_edit').timepicker({
+            timeFormat: 'H:i:s'
+        });
+        $('#check_out_edit').timepicker({
+            timeFormat: 'H:i:s'
+        });
         $('#dashboardCompletedBy').datepicker();
         $('#workOrderSearchForm').removeClass('d-none');
 
@@ -117,7 +123,7 @@
                     if (xhr.status === 404) {
                         iziToast.error({
                             message: xhr.responseJSON.message,
-                            position: "topRight"
+                            position: "center"
                         });
                     }
                 }
@@ -138,7 +144,7 @@
                     if (xhr.status === 404) {
                         iziToast.error({
                             message: xhr.responseJSON.message,
-                            position: "topRight"
+                            position: "center"
                         });
                     }
                 }
@@ -246,7 +252,7 @@
                     $('#email-sending-loader').addClass('d-none');
                     iziToast.success({
                         message: data.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 }
             });
@@ -266,7 +272,7 @@
                 success: function(data) {
                     iziToast.success({
                         message: data.message,
-                        position: "topRight"
+                        position: "center"
                     });
                     $('#message').text('Technician Assigned!!');
                     $('#removable-div').addClass('d-none');
@@ -325,7 +331,6 @@
             $('#r_tools').html('' + (data.r_tools || ''));
             $('#ftech_company').text('Company Name: ' + (data.fcompany_name || ''));
             $('#Check_in_ftech_company').val((data.fcompany_name || ''));
-            $('#Check_out_ftech_company').val((data.fcompany_name || ''));
             $('#Header_time_zone').text('Time Zone: ' + (data.time_zone || ''));
             $('#time_zone').val((data.time_zone || ''));
             $('#ftech_id').text('Feild Technician ID: ' + (data.technician_id || ''));
@@ -337,7 +342,6 @@
             $('#ftech_zipcode').text('Zipcode: ' + (data.ftech_zipcode || ''));
             $('#w_id').val(data.w_id);
             $('#check_in_w_id').val(data.w_id);
-            $('#check_out_w_id').val(data.w_id);
         }
         //end site history script
 
@@ -355,58 +359,42 @@
                         orderable: false,
                         searchable: false
                     },
-
                     {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.date;
-                        }
+                        data: 'date'
+                    },
+                    {
+                        data: 'company_name'
+                    },
+                    {
+                        data: 'tech_name'
+                    },
+                    {
+                        data: 'check_in'
+                    },
+                    {
+                        data: 'check_out'
+                    },
+                    {
+                        data: 'total_hours'
+                    },
+                    {
+                        data: 'time_zone'
                     },
                     {
                         data: null,
                         render: function(data, type, row) {
-                            return data.company_name;
+                            return '<button class="btn btn-success btn-sm checkout-btn m-1">Check-out</button>' +
+                                '<button class="btn btn-primary btn-sm edit-btn m-1">Edit</button>';
                         }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.tech_name;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.check_in;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.check_out;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.total_hours;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return data.time_zone;
-                        }
-                    },
-
-
+                    }
                 ],
                 columnDefs: [{
                     targets: '_all',
-                    "orderable": false
+                    orderable: false
                 }]
             });
         }
+
 
         function subTicketTable(id) {
             if ($.fn.DataTable.isDataTable('#sub_ticket_table')) {
@@ -870,7 +858,7 @@
                     fieldPopulator(response.id);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 },
                 error: function(xhr, status, error) {}
@@ -887,7 +875,6 @@
                 },
                 success: function(response) {
                     // customerAutoComplete();
-                    // dashboardSiteAutoComplete();
                     // siteAutoComplete();
                     $('#workOrderCreateInput').val(response.order_id);
                     $('#workOrderCreateReqDate').val(response.open_date);
@@ -903,10 +890,10 @@
 
 
         function dashboardSiteAutoComplete() {
-            $('#dashboardSiteId').autocomplete({
+            $('#dashboardCustomerId').autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        url: "{{ route('user.site.autocomplete2') }}",
+                        url: "{{ route('user.customer.autocomplete.wosearch') }}",
                         type: "GET",
                         dataType: "json",
                         data: {
@@ -915,9 +902,9 @@
                         success: function(data) {
                             response($.map(data.results, function(item) {
                                 return {
-                                    label: item.site_id,
-                                    value: item.site_id,
-                                    siteID: item.id,
+                                    label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                    value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                    cusId: item.id,
                                 }
                             }));
                         }
@@ -925,11 +912,79 @@
                 },
                 minLength: 1,
                 select: function(event, ui) {
-                    var selectedSiteId = ui.item.siteID;
-                    loadSiteAndCustomer2(selectedSiteId);
+                    var selectedCusId = ui.item.cusId;
+                    loadCustomer(selectedCusId, 1);
+                    createDynamicInput(selectedCusId, "wo-search-cusId", "#dashboardCustomerId");
                 }
             });
         }
+
+
+        //site autocomplete for search workorder form
+        $('#dashboardSiteId').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{{ route('user.site.autocomplete') }}",
+                    type: "GET",
+                    dataType: "json",
+                    data: {
+                        "query": request.term,
+                        "id" : $('#wo-search-cusId').val(),
+                    },
+                    success: function(data) {
+                        $('#dashboardSiteIdErrors').text("");
+                        response($.map(data.results, function(item) {
+                            return {
+                                label: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                value: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                siteID: item.id,
+                            }
+                        }));
+                    },
+                    error:function(xhr, status, errors){
+                        if(xhr.status == 422){
+                            $('#dashboardSiteIdErrors').text(xhr.responseJSON.errors);
+                        }
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                var selectedSiteId = ui.item.siteID;
+                loadSite(selectedSiteId, 1);
+
+            }
+        });
+
+
+        //customer autocomplete for work order create form
+        $('#CustomerIdCreateForm').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{{ route('user.customer.autocomplete.wosearch') }}",
+                    type: "GET",
+                    dataType: "json",
+                    data: {
+                        "query": request.term,
+                    },
+                    success: function(data) {
+                        response($.map(data.results, function(item) {
+                            return {
+                                label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                cusId: item.id,
+                            }
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                var selectedCusId = ui.item.cusId;
+                loadCustomer(selectedCusId, 2);
+                createDynamicInput(selectedCusId, "createFormCusId", "#CustomerIdCreateForm");
+            }
+        });
 
         function siteAutoComplete() {
             $('#siteIdCreateForm').autocomplete({
@@ -940,27 +995,33 @@
                         dataType: "json",
                         data: {
                             "query": request.term,
+                            "id" : $('#createFormCusId').val(),
                         },
                         success: function(data) {
                             response($.map(data.results, function(item) {
                                 return {
-                                    label: item.site_id,
-                                    value: item.site_id,
+                                    label: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                    value: item.site_id + "-" + item.location + "-" + item.zipcode,
                                     siteID: item.id,
                                 }
                             }));
+                        },
+                        error:function(xhr, status, errors){
+                            if(xhr.status == 422){
+                                $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors);
+                            }
                         }
                     });
                 },
                 minLength: 1,
                 select: function(event, ui) {
                     var selectedSiteId = ui.item.siteID;
-                    loadSiteAndCustomer(selectedSiteId);
+                    loadSite(selectedSiteId, 2);
                 }
             });
         }
 
-        function loadSiteAndCustomer(id) {
+        function loadSite(id, type) {
             $.ajax({
                 url: "{{ route('user.get.site' )}}",
                 type: "GET",
@@ -968,56 +1029,101 @@
                     "id": id
                 },
                 success: function(data) {
-                    $('#siteCompanyName').val(data.result.company_name);
-                    $('#siteAddressCreateForm').val(data.result.address_1);
-                    $('#siteCityCreateForm').val(data.result.city);
-                    $('#siteStateCreateForm').val(data.result.state);
-                    $('#siteZipcodeCreateForm').val(data.result.zipcode);
-                    $('#customerPhoneCreateForm').val(data.result.cus_phone);
-                    $('#customerStateCreateForm').val(data.result.cus_state);
-                    $('#customerCityCreateForm').val(data.result.cus_city);
-                    $('#customerAddressCreateForm').val(data.result.cus_address);
-                    $('#customerZipcodeCreateForm').val(data.result.cus_zipcode);
-                    $('#CustomerIdCreateForm').val(data.result.cus_id);
+                    if(type === 1){
+                        $('#dashboardSiteAddress').val(data.result.address);
+                        $('#dashboardSiteCity').val(data.result.city);
+                        $('#dashboardSiteState').val(data.result.state);
+                        $('#dashboardSiteZipcode').val(data.result.zipcode);
+                    }else{
+                        $('#siteAddressCreateForm').val(data.result.address);
+                        $('#siteCityCreateForm').val(data.result.city);
+                        $('#siteStateCreateForm').val(data.result.state);
+                        $('#siteZipcodeCreateForm').val(data.result.zipcode);
+                    }
                 }
             });
         }
 
-        function loadSiteAndCustomer2(id) {
+        //load customer for both workorder search panel and create wo panel when user search for a customer
+        function loadCustomer(id, type) {
             $.ajax({
-                url: "{{ route('user.get.site' )}}",
+                url: "get/customer/details",
                 type: "GET",
                 data: {
                     "id": id
                 },
                 success: function(data) {
-                    $('#siteCompanyName').val(data.result.company_name);
-                    $('#dashboardSiteAddress').val(data.result.address_1);
-                    $('#dashboardSiteCity').val(data.result.city);
-                    $('#dashboardSiteState').val(data.result.state);
-                    $('#dashboardSiteZipcode').val(data.result.zipcode);
-                    $('#dashboardCustomerPhone').val(data.result.cus_phone);
-                    $('#dashboardCustomerState').val(data.result.cus_state);
-                    $('#dashboardCustomerCity').val(data.result.cus_city);
-                    $('#dashboardCustomerAddress').val(data.result.cus_address);
-                    $('#dashboardCustomerZipcode').val(data.result.cus_zipcode);
-                    $('#dashboardCustomerId').val(data.result.cus_id);
+                    if(type === 1){
+                        $('#dashboardCustomerPhone').val(data.phone);
+                        $('#dashboardCustomerState').val(data.address.state);
+                        $('#dashboardCustomerCity').val(data.address.city);
+                        $('#dashboardCustomerAddress').val(data.address.address);
+                        $('#dashboardCustomerZipcode').val(data.address.zip_code);
+                        $('#dashboardPm').val(data.project_manager);
+                        $('#dashboardSp').val(data.sales_person);
+                    }else{
+                        $('#customerPhoneCreateForm').val(data.phone);
+                        $('#customerStateCreateForm').val(data.address.state);
+                        $('#customerCityCreateForm').val(data.address.city);
+                        $('#customerAddressCreateForm').val(data.address.address);
+                        $('#customerZipcodeCreateForm').val(data.address.zip_code);
+                        $('#customerPmCreateForm').val(data.project_manager);
+                        $('#customerSpCreateForm').val(data.sales_person);
+                    }
                 }
             });
         }
+
+        // generate dynamic input element
+        function createDynamicInput(value, inputId, placement) {
+            
+            let dynamicInput = $("<input>").attr({
+                type: "hidden",
+                value: value,
+                id: inputId
+            });
+
+            dynamicInput.insertAfter(placement);
+        }
+
 
         //note button script
+        $("#general").click(function() {
+            $("#generalNote").removeClass('d-none');
+            $("#closeOut").addClass('d-none');
+            $("#dNote").addClass('d-none');
+            $("#tNote").addClass('d-none');
+            $("#bNote").addClass('d-none');
+
+
+        });
         $("#close").click(function() {
             $("#closeOut").removeClass('d-none');
+            $("#dNote").addClass('d-none');
+            $("#tNote").addClass('d-none');
+            $("#bNote").addClass('d-none');
+            $("#generalNote").addClass('d-none');
         });
         $("#dispatch").click(function() {
             $("#dNote").removeClass('d-none');
+            $("#tNote").addClass('d-none');
+            $("#bNote").addClass('d-none');
+            $("#generalNote").addClass('d-none');
+            $("#closeOut").addClass('d-none');
         });
         $("#tech").click(function() {
             $("#tNote").removeClass('d-none');
+            $("#bNote").addClass('d-none');
+            $("#generalNote").addClass('d-none');
+            $("#closeOut").addClass('d-none');
+            $("#dNote").addClass('d-none');
         });
         $("#bill").click(function() {
             $("#bNote").removeClass('d-none');
+            $("#generalNote").addClass('d-none');
+            $("#closeOut").addClass('d-none');
+            $("#dNote").addClass('d-none');
+            $("#tNote").addClass('d-none');
         });
         //end note button script
 
@@ -1037,7 +1143,7 @@
                     refresher(response.id);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 },
                 error: function(xhr) {
@@ -1058,11 +1164,16 @@
                     'X-CSRF-TOKEN': csrfToken
                 },
                 success: function(response) {
+                    $("#generalNote").addClass('d-none');
+                    $("#closeOut").addClass('d-none');
+                    $("#dNote").addClass('d-none');
+                    $("#tNote").addClass('d-none');
+                    $("#bNote").addClass('d-none');
                     refresher(response.id);
                     console.log(response.message);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 },
                 error: function(xhr) {
@@ -1096,7 +1207,7 @@
                     subTicketTable(response.id);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 },
                 error: function(xhr, status, error) {
@@ -1107,7 +1218,7 @@
                     iziToast.error({
                         title: 'Error',
                         message: errorMessage,
-                        position: 'topRight'
+                        position: 'center'
                     });
                 }
             });
@@ -1130,7 +1241,7 @@
                     checkInOutTable(response.id);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
                     });
                 },
                 error: function(xhr, status, error) {
@@ -1139,9 +1250,9 @@
                         errorMessage = xhr.responseJSON.error;
                     }
                     iziToast.error({
-                        title: 'Error',
+                        title: 'Technician has already checked in within the past 24 hours',
                         message: errorMessage,
-                        position: 'topRight'
+                        position: 'center'
                     });
                 }
             });
@@ -1149,14 +1260,18 @@
         //end checkin script
 
         //checkout script
-        $('#create_check_out').on('submit', function(event) {
+        $('#checkInOutTable').on('click', '.checkout-btn', function(event) {
             event.preventDefault();
-            var formData = $(this).serialize();
+            var rowData = $('#checkInOutTable').DataTable().row($(this).closest('tr')).data();
+            //console.log(rowData.id);
+            initiateCheckOut(rowData.id);
+        });
+
+        function initiateCheckOut(id) {
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
-                url: 'create/check/out',
+                url: 'create/check/out/' + id,
                 type: 'POST',
-                data: formData,
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
                 },
@@ -1164,7 +1279,63 @@
                     checkInOutTable(response.id);
                     iziToast.success({
                         message: response.message,
-                        position: "topRight"
+                        position: "center"
+                    });
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = "";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    iziToast.error({
+                        title: 'Already Check-out Success',
+                        message: errorMessage,
+                        position: 'center'
+                    });
+                }
+            });
+        }
+
+        //end checkout script
+
+        //check-in-out edit script
+        $('#checkInOutTable').on('click', '.edit-btn', function(event) {
+            event.preventDefault();
+            var rowData = $('#checkInOutTable').DataTable().row($(this).closest('tr')).data();
+
+            if (rowData) {
+                openEditModal(rowData);
+            } else {
+                console.error('Row data not found.');
+            }
+        });
+
+        function openEditModal(rowData) {
+            $('#editModal').modal('show');
+            $('#edit_w_id').val(rowData.work_order_id);
+            $('#edit_id').val(rowData.id);
+            $('#tech_name').val(rowData.tech_name);
+            $('#check_in_edit').val(rowData.check_in);
+            $('#check_out_edit').val(rowData.check_out);
+            console.log('Editing row:', rowData);
+        }
+        $('#check_in_out_edit_form').on('submit', function(event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
+            var r_id = $("#edit_id").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: 'check/in/out/update/' + r_id,
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(response) {
+                    checkInOutTable($("#edit_w_id").val());
+                    iziToast.success({
+                        message: response.message,
+                        position: "center"
                     });
                 },
                 error: function(xhr, status, error) {
@@ -1175,12 +1346,39 @@
                     iziToast.error({
                         title: 'Error',
                         message: errorMessage,
-                        position: 'topRight'
+                        position: 'center'
                     });
                 }
             });
         });
-        //end checkout script
+
+        $("#delete_check_in_out").click(function() {
+            var r_id = $("#edit_id").val();
+            $.ajax({
+                url: 'check/in/out/delete/' + r_id,
+                type: 'GET',
+                success: function(response) {
+                    $('#editModal').modal('hide');
+                    checkInOutTable($("#edit_w_id").val());
+                    iziToast.success({
+                        message: response.message,
+                        position: "center"
+                    });
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = "";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    iziToast.error({
+                        title: 'Error',
+                        message: errorMessage,
+                        position: 'center'
+                    });
+                }
+            });
+        });
+        //end check-in-out edit script
 
         // work order update script end
 
@@ -1245,6 +1443,10 @@
                 });
             });
         }
+
+        $('#dashboardCustomerId').autocomplete({
+            
+        });
 
         //ready callback end block all the code should be written above.  
     });

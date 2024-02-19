@@ -45,6 +45,7 @@ class Status
     const DISPATCH_TEAM = 2;
 
     //work order status
+    const NEW = 7;
     const OPEN = 1;
     const DISPATCHED = 2;
     const ONSITE = 3;

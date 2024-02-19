@@ -52,7 +52,7 @@ class UserController extends Controller
             $p = $orderId->id;
             $f = $p + 1;
         }
-        $date = date('dmy');
+        $date = date('mdy');
         $id = $date . "-" . $rand;
         $service = new WorkOrder();
         $service->order_id = "S" . $f . $id;
@@ -199,6 +199,20 @@ class UserController extends Controller
     {
         $company = WorkOrder::where('id', $request->work_order_id)->with('technician')->first();
         $companyName = $company->technician->company_name;
+
+        $currentTime = Carbon::now()->format('h:i:s');
+
+        $existingCheckIn = CheckInOut::where('tech_name', $request->tech_name)
+            ->whereDate('check_in', $currentTime)
+            ->first();
+        if ($existingCheckIn) {
+            $response = [
+                'message' => 'Technician has already checked in within the past 24 hours',
+                'existing_check_in' => $existingCheckIn
+            ];
+            return response()->json($response, 400); // Return error response with status code 400
+        }
+
         $checkIn = new CheckInOut();
 
         $checkIn->work_order_id = $request->work_order_id;
@@ -208,6 +222,12 @@ class UserController extends Controller
         $checkIn->company_name = $companyName;
         $checkIn->check_in = $request->check_in;
         $checkIn->save();
+
+        $id = $company->id;
+        $workOrder = WorkOrder::find($id);
+        $workOrder->status = Status::ONSITE;
+        $workOrder->save();
+
         $response = [
             'message' => 'Check In successfully',
             'id' => $request->work_order_id
@@ -215,12 +235,10 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function checkOut(Request $request)
+    public function checkOut($id)
     {
-        $techName = $request->tech_name;
-        $checkOutTime = $request->check_out;
-
-        $lastCheckIn = CheckInOut::where('tech_name', $techName)
+        $checkOutTime = date('H:i:s');
+        $lastCheckIn = CheckInOut::where('id', $id)
             ->whereNotNull('check_in')
             ->whereNull('check_out')
             ->latest()
@@ -237,17 +255,47 @@ class UserController extends Controller
             $lastCheckIn->save();
 
             $response = [
-                'message' => 'Check Out successfully for ' . $techName,
+                'message' => 'Check Out successfully for ' . $lastCheckIn->tech_name,
                 'id' => $lastCheckIn->work_order_id,
                 'total_hours' => $lastCheckIn->total_hours,
             ];
         } else {
             $response = [
-                'message' => 'No check-in found for ' . $techName,
+                'message' => 'No check-in found for ' . $lastCheckIn->tech_name,
             ];
         }
 
         return response()->json($response);
+    }
+
+    public function checkOutEdit(Request $request, $id)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'tech_name' => 'required|string',
+            'check_in' => 'required|date_format:H:i:s',
+        ]);
+
+        $checkInOut = CheckInOut::findOrFail($id);
+
+        $checkInOut->tech_name = $request->tech_name;
+        $checkInOut->check_in = $request->check_in;
+        $checkInOut->check_out = $request->check_out;
+        $checkInTime = Carbon::createFromFormat('H:i:s', $request->check_in);
+        $checkOutTime = Carbon::createFromFormat('H:i:s', $request->check_out);
+        $totalMinutes  = $checkInTime->diffInMinutes($checkOutTime);
+        $totalHours = floor($totalMinutes / 60);
+        $remainingMinutes = $totalMinutes % 60;
+        $checkInOut->total_hours = $totalHours . ':' . $remainingMinutes;
+        $checkInOut->save();
+        return response()->json(['message' => 'Check-in/out record updated successfully'], 200);
+    }
+
+    public function checkOutDelete($id)
+    {
+        $delete = CheckInOut::find($id);
+        $delete->delete();
+        return response()->json(['message' => 'Check-in/out record deleted successfully'], 200);
     }
 
 
@@ -503,8 +551,10 @@ class UserController extends Controller
             'zipcode' => $customer->address->zip_code,
             'phone' => $customer->phone,
             'email' => $customer->email,
+            'project_manager' => $customer->project_manager,
+            'sales_person' => $customer->sales_person,
         ];
-        return response()->json($data);
+        return response()->json($data, 200);
     }
 
     public function storeSite(Request $request)
@@ -541,48 +591,51 @@ class UserController extends Controller
 
     public function getSite(Request $request)
     {
-        $site = CustomerSite::with('customer')->findOrFail($request->id);
-        $siteArray = [
-            'company_name' => $site->customer->company_name,
-            'address_1' => $site->address_1,
+        $site = CustomerSite::findOrFail($request->id);
+        $response = [
+            'address' => $site->address_1,
             'city' => $site->city,
             'state' => $site->state,
             'zipcode' => $site->zipcode,
-            'cus_id' => $site->customer->customer_id,
-            'cus_phone' => $site->customer->phone,
-            'cus_state' => $site->customer->address->state,
-            'cus_city' => $site->customer->address->city,
-            'cus_address' => $site->customer->address->address,
-            'cus_zipcode' => $site->customer->address->zip_code,
         ];
 
-        return response()->json(['result' => $siteArray], 200);
+        return response()->json(['result' => $response], 200);
     }
 
     public function siteAutoComplete(Request $request)
     {
         $query = $request->input('query');
-        $results = CustomerSite::select('id', 'site_id', 'location')
+        $customerId = $request->input('id');
+        $results = CustomerSite::select('id', 'site_id', 'location', 'customer_id', 'zipcode')
+            ->where('customer_id', $customerId)
             ->where(function ($queryBuilder) use ($query) {
                 $queryBuilder->where('site_id', 'like', '%' . $query . '%')
+                    ->orWhere('zipcode', 'like', '%' . $query . '%')
                     ->orWhere('location', 'like', '%' . $query . '%');
             })
             ->limit(10)
             ->get();
+
+        if (!$customerId) {
+            return response()->json(['errors' => 'Please select a customer first.'], 422);
+        }
 
         return response()->json(['results' => $results], 200);
     }
 
-    public function siteAutoComplete2(Request $request)
+    public function customerAutoComplete(Request $request)
     {
         $query = $request->input('query');
-        $results = CustomerSite::select('id', 'site_id', 'location')
-            ->where(function ($queryBuilder) use ($query) {
-                $queryBuilder->where('site_id', 'like', '%' . $query . '%')
-                    ->orWhere('location', 'like', '%' . $query . '%');
-            })
+        $results = Customer::select('id', 'customer_id', 'address', 'company_name')
+            ->where('customer_id', 'like', '%' . $query . '%')
+            ->orWhere('address->zip_code', 'like', '%' . $query . '%')
+            ->orWhere('company_name', 'like', '%' . $query . '%')
             ->limit(10)
             ->get();
+
+        if ($results->isEmpty()) {
+            return response()->json(['error' => 'No results found'], 404);
+        }
 
         return response()->json(['results' => $results], 200);
     }

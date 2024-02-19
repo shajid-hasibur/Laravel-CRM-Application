@@ -58,7 +58,7 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('store/customer/site', 'storeSite')->name('store.site');
                 Route::get('get/site/data', 'getSite')->name('get.site');
                 Route::get('site/autocomplete', 'siteAutoComplete')->name('site.autocomplete');
-                Route::get('site/autocomplete2', 'siteAutoComplete2')->name('site.autocomplete2');
+                Route::get('site/autocomplete2', 'customerAutoComplete')->name('customer.autocomplete.wosearch');
                 Route::post('site/bulk/import', 'siteImport')->name('site.import');
                 Route::get('download/sample/site/import/excel', 'sampleSiteExcel')->name('sample.site.import.excel');
                 Route::get('get/work/order/search', 'getWorkOrderSearch')->name('get.work.order.search');
@@ -72,7 +72,9 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('/get/site/history/{id}', 'orderIdsiteHistory')->name('order.site.history');
                 Route::post('sub/ticket/create', 'subTicket')->name('sub.ticket');
                 Route::post('create/check/in', 'checkIn')->name('checkin');
-                Route::post('create/check/out', 'checkOut')->name('checkout');
+                Route::post('create/check/out/{id}', 'checkOut')->name('checkout');
+                Route::post('check/in/out/update/{id}', 'checkOutEdit')->name('checkout.edit');
+                Route::get('check/in/out/delete/{id}', 'checkOutDelete')->name('checkout.delete');
 
                 Route::get('work/order/sub/ticket/{id}', 'workOrderSubTicket')->name('table.sub.ticket');
                 Route::get('check/in/out/{id}', 'checkInOutTable')->name('table.checkInOut');

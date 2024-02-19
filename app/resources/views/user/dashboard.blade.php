@@ -5,6 +5,7 @@
   .dataTables_wrapper .dataTables_filter {
     float: right;
   }
+
   .dataTables_wrapper .dataTables_filter,
   .dataTables_wrapper .dataTables_length {
     display: inline-block;
@@ -74,12 +75,12 @@
   }
 </style>
 <div class="container-fluid navigation" style="margin-top: 30px;" id="defualtWorkOrder">
-  <ul class="nav   nav-tabs justify-content-center" id="myTab" role="tablist" style="background-color:#AFE1AF;">
+  <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist" style="background-color:#AFE1AF;">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active mt-4" id="work-order-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-brands fa-first-order" style="color: green; margin-bottom:15px "></i> Find Work Order</button>
+      <button class="nav-link active mt-4" id="work-order-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-brands fa-first-order" style="color: green; margin-bottom:15px "></i> WO.Details</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link mt-4" id="notes-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-regular fa-note-sticky" style="color: green; margin-bottom:15px;"></i> Notes</button>
+      <button class="nav-link mt-4" id="notes-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-regular fa-note-sticky" style="color: green; margin-bottom:15px;"></i> WO.History</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="site-history-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-solid fa-stethoscope" style="color: green;margin-bottom:15px;"></i> Site History</button>
@@ -92,7 +93,7 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="fieldTech" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fas fa-user-cog" style="color: green;margin-bottom:15px;"></i> Field Tech</button>
-    </li> 
+    </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="check_out" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fas fa-sign-in-alt" style="color: green;margin-bottom:15px;"></i> Check-In/Out</button>
     </li>
@@ -161,6 +162,7 @@
               <div class="col">
                 <h6>Status</h6>
                 <select name="status" class="form-select form-select-sm" aria-label=".form-select-sm example" id="dashboardWorkOrderStatus">
+                  <option value="7">New</option>
                   <option value="1">Open</option>
                   <option value="2">Dispatched</option>
                   <option value="3">Onsite</option>
@@ -173,19 +175,20 @@
             <div class="row mt-3">
               <div class="col-md-6">
                 <h6>Project Manager</h6>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" id="dashboardPm">
               </div>
               <div class="col-md-6">
                 <h6>Sales Person</h6>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" id="dashboardSp">
               </div>
               <div class="col-md-6">
                 <h5><b>Customer ID</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="dashboardCustomerId">
+                <input name="customer_id" type="text" class="form-control" id="dashboardCustomerId" placeholder="Search with name/id/zipcode">
               </div>
               <div class="col-md-6">
                 <h5><b>Site ID</b></h5>
                 <input name="site_id" type="text" class="form-control" id="dashboardSiteId">
+                <span id="dashboardSiteIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
                 <h6>Address</h6>
@@ -263,35 +266,37 @@
                 <h6>Dispatch Instructions</h6>
                 <textarea name="instruction" class="form-control summernote"></textarea>
               </div>
-              <div class="col-md-12 ">
-                <h6>Notes:</h6>
-                <textarea name="general_notes" class="form-control summernote"></textarea>
-              </div>
+
               <div class="dropdown mt-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   New Notes
                 </button>
                 <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" id="general">General Note</a></li>
                   <li><a class="dropdown-item" id="dispatch">Dispatch Note</a></li>
                   <li><a class="dropdown-item" id="bill">Billing Note</a></li>
                   <li><a class="dropdown-item" id="tech">Tech Support Note</a></li>
                   <li><a class="dropdown-item" id="close">Close Out Note</a></li>
                 </ul>
               </div>
+              <div class="col-md-12   d-none" id="generalNote">
+                <h6>General Notes:</h6><button type="submit" class="btn btn-primary m-2">Save</button>
+                <textarea name="general_notes" class="form-control summernote col-mb-12"></textarea>
+              </div>
               <div class="col-md-12   d-none" id="closeOut">
-                <h6>Closeout Notes:</h6><a class="btn btn-primary m-2" id="customerEmailCreateForm">Email this Note</a>
+                <h6>Closeout Notes:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
                 <textarea name="close_out_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="dNote">
-                <h6>Dispatch Note:</h6><a href="mailto:sa2728@gmail.com" class="btn btn-primary m-2">Email this Note</a>
+                <h6>Dispatch Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
                 <textarea name="dispatch_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="bNote">
-                <h6>Billing Note:</h6><a href="mailto:sa2728@gmail.com" class="btn btn-primary m-2">Email this Note</a>
+                <h6>Billing Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
                 <textarea name="billing_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="tNote">
-                <h6>Tech Support Note:</h6><a href="mailto:sa2728@gmail.com" class="btn btn-primary m-2">Email this Note</a>
+                <h6>Tech Support Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
                 <textarea name="tech_support_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-12">
@@ -363,6 +368,7 @@
               <div class="col">
                 <h6>Status</h6>
                 <select name="status" class="form-select form-select-sm" aria-label=".form-select-sm example" id="workOrderCreateStatus">
+                  <option value="7">New</option>
                   <option value="1">Open</option>
                   <option value="2">Dispatched</option>
                   <option value="3">Onsite</option>
@@ -375,19 +381,20 @@
             <div class="row mt-3">
               <div class="col-md-6">
                 <h6>Project Manager</h6>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" id="customerPmCreateForm">
               </div>
               <div class="col-md-6">
                 <h6>Sales Person</h6>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" id="customerSpCreateForm">
               </div>
               <div class="col-md-6">
                 <h5><b>Customer ID</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="CustomerIdCreateForm" readonly>
+                <input name="customer_id" type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off">
               </div>
               <div class="col-md-6">
                 <h5><b>Site ID</b></h5>
                 <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off">
+                <span id="siteIdCreateFormErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
                 <h6>Address</h6>
@@ -464,14 +471,6 @@
               <div class="col-md-12 ">
                 <h6>Dispatch Instructions</h6>
                 <textarea name="instruction" class="form-control summernote"></textarea>
-              </div>
-              <div class="col-md-12 ">
-                <h6>Notes:</h6>
-                <textarea name="general_notes" class="form-control summernote"></textarea>
-              </div>
-              <div class="col-md-12 ">
-                <h6>Closeout Notes:</h6>
-                <textarea class="form-control summernote"></textarea>
               </div>
               <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit">Submit</button>
@@ -788,7 +787,7 @@
       $time = Carbon::now()->format('H:i:s');
       @endphp
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="card ">
             <div class="card-body">
               <form action="" id="create_check_in">
@@ -811,28 +810,6 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <form action="" id="create_check_out">
-            <div class="card">
-              <div class="card-body">
-                <input type="hidden" id="check_out_w_id" name="work_order_id">
-                <div class="form-group">
-                  <div class="form-label">Date</div>
-                  <input type="text" class="form-control" name="date" value="{{$date}}" readonly>
-                  <div class="form-label">Company Name</div>
-                  <input type="text" class="form-control" id="Check_out_ftech_company" readonly>
-                  <div class="form-label">Technician Name</div>
-                  <input type="text" class="form-control" name="tech_name">
-                  <div class="form-label">Check Out</div>
-                  <input type="time" class="form-control" name="check_out" value="{{$time}}">
-                  <button type="submit" class="btn btn-primary mt-4 w-100">
-                    Out <i class="fa-solid fa-share"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
         <div class="col-md-12 mt-5">
           <table class="table table-bordered" id="checkInOutTable" style="width: 100%">
             <thead class="text-nowrap">
@@ -845,6 +822,7 @@
                 <th>Check Out</th>
                 <th>Tot. Hours</th>
                 <th>Timezone</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -852,6 +830,7 @@
             </tbody>
           </table>
         </div>
+        @include('user.check-in-out-modal.edit')
       </div>
     </div>
   </div>
@@ -890,7 +869,7 @@
       <div class="d-none" id="loader">
         <h6 class="text-dark"><strong>Please wait for the responses from google</strong></h6>
         <div class="spinner-grow text-danger" role="status">
-            <span class="visually-hidden">Loading...</span>
+          <span class="visually-hidden">Loading...</span>
         </div>
       </div>
       <div class="d-none" id="removable-div">

@@ -83,7 +83,7 @@
                             </div>
                             <div class="form-group col-4">
                                 <label>Country</label>
-                                <input type="text" class="form-control" placeholder="Enter country" name="country">
+                                <input type="text" class="form-control" placeholder="Enter country" name="country" value="United States">
                                 <span style="color: red; font-size: 14px" id="country_error"></span>
                             </div>
                             <div class="form-group col-4">
