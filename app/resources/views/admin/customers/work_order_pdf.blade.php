@@ -170,10 +170,9 @@
 
                 <div class="scope-of-work">
                     <h3>Scope Of Work:</h3>
-                    <ol>
-                        <li type="square">{{$views->scope_work}}</li>
+       
+                        {!! $views->scope_work !!}
 
-                    </ol>
                     <h3>Upon Arrival on Site:</h3>
                     <ol>
                         <li>Check in with PM {{$views->customer->project_manager}} at {{$views->customer->phone}} upon arrival.</li>

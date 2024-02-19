@@ -46,6 +46,7 @@ class Status
 
     //work order status
     const NEW = 7;
+    const COMPLETE = 8;
     const OPEN = 1;
     const DISPATCHED = 2;
     const ONSITE = 3;

@@ -138,6 +138,11 @@ class UserController extends Controller
             $siteId = $siteFind->id;
         }
         $id = $find->id;
+        $request->validate([
+            'site_id' => 'required|integer',
+            'slug' => 'required|integer',
+        ]);
+
         $update = WorkOrder::find($id);
         $update->priority = $request->priority;
         $update->open_date = $request->open_date;
@@ -156,7 +161,21 @@ class UserController extends Controller
         $update->r_tools = $request->r_tools;
         $update->instruction = $request->instruction;
         $update->deliverables = $request->deliverables;
+        if ($request->hasFile('pictures')) {
+            $pictureFiles = $request->file('pictures');
+
+            $fileNames = [];
+
+            foreach ($pictureFiles as $pictureFile) {
+                $fileNamePicture = $id . '_' . $pictureFile->getClientOriginalName();
+                $pictureFile->move(public_path('imgs'), $fileNamePicture);
+
+                $fileNames[] = $fileNamePicture;
+            }
+            $update->pictures = json_encode($fileNames);
+        }
         $update->save();
+
         if ($request->general_notes || $request->billing_notes || $request->tech_support_notes || $request->close_out_notes || $request->dispatch_notes) {
             $note = new TicketNotes();
             $note->work_order_id = $id;
@@ -200,31 +219,29 @@ class UserController extends Controller
         $company = WorkOrder::where('id', $request->work_order_id)->with('technician')->first();
         $companyName = $company->technician->company_name;
 
-        $currentTime = Carbon::now()->format('h:i:s');
+        $currentTime = Carbon::now()->toTimeString();
 
         $existingCheckIn = CheckInOut::where('tech_name', $request->tech_name)
-            ->whereDate('check_in', $currentTime)
+            ->whereDate('created_at', Carbon::today())
             ->first();
+
         if ($existingCheckIn) {
             $response = [
                 'message' => 'Technician has already checked in within the past 24 hours',
                 'existing_check_in' => $existingCheckIn
             ];
-            return response()->json($response, 400); // Return error response with status code 400
+            return response()->json($response, 400);
         }
-
         $checkIn = new CheckInOut();
-
         $checkIn->work_order_id = $request->work_order_id;
         $checkIn->time_zone = $request->time_zone;
         $checkIn->date = $request->date;
         $checkIn->tech_name = $request->tech_name;
         $checkIn->company_name = $companyName;
-        $checkIn->check_in = $request->check_in;
+        $checkIn->check_in = $currentTime;
         $checkIn->save();
 
-        $id = $company->id;
-        $workOrder = WorkOrder::find($id);
+        $workOrder = WorkOrder::find($request->work_order_id);
         $workOrder->status = Status::ONSITE;
         $workOrder->save();
 
@@ -254,8 +271,48 @@ class UserController extends Controller
             $lastCheckIn->total_hours = $totalHours . ':' . $remainingMinutes;
             $lastCheckIn->save();
 
+            $workOrder = WorkOrder::find($lastCheckIn->work_order_id);
+            $workOrder->status = Status::COMPLETE;
+            $workOrder->save();
+
             $response = [
                 'message' => 'Check Out successfully for ' . $lastCheckIn->tech_name,
+                'id' => $lastCheckIn->work_order_id,
+                'total_hours' => $lastCheckIn->total_hours,
+            ];
+        } else {
+            $response = [
+                'message' => 'No check-in found for ' . $lastCheckIn->tech_name,
+            ];
+        }
+
+        return response()->json($response);
+    }
+    public function roundTripCheckOut($id)
+    {
+        $checkOutTime = date('H:i:s');
+        $lastCheckIn = CheckInOut::where('id', $id)
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
+            ->latest()
+            ->first();
+
+        if ($lastCheckIn) {
+            $lastCheckIn->check_out = $checkOutTime;
+            $checkInTime = Carbon::createFromFormat('H:i:s', $lastCheckIn->check_in);
+            $checkOutTime = Carbon::createFromFormat('H:i:s', $checkOutTime);
+            $totalMinutes  = $checkInTime->diffInMinutes($checkOutTime);
+            $totalHours = floor($totalMinutes / 60);
+            $remainingMinutes = $totalMinutes % 60;
+            $lastCheckIn->total_hours = $totalHours . ':' . $remainingMinutes;
+            $lastCheckIn->save();
+
+            $workOrder = WorkOrder::find($lastCheckIn->work_order_id);
+            $workOrder->status = Status::ONSITE;
+            $workOrder->save();
+
+            $response = [
+                'message' => 'Round Trip Check Out successfully for ' . $lastCheckIn->tech_name,
                 'id' => $lastCheckIn->work_order_id,
                 'total_hours' => $lastCheckIn->total_hours,
             ];
@@ -672,10 +729,16 @@ class UserController extends Controller
     public function getWorkOrderSearch(Request $request)
     {
         $query = $request->input('query');
-        $results = WorkOrder::select('id', 'order_id')
-            ->where('order_id', 'like', '%' . $query . '%')
+
+        $results = WorkOrder::leftJoin('customer_sites', 'work_orders.site_id', '=', 'customer_sites.id')
+            ->leftJoin('customers', 'work_orders.slug', '=', 'customers.id')
+            ->select('work_orders.id', 'work_orders.order_id', 'work_orders.site_id', 'work_orders.slug', 'customers.company_name')
+            ->where('work_orders.order_id', 'like', '%' . $query . '%')
+            ->orWhere('customer_sites.zipcode', 'like', '%' . $query . '%')
+            ->orWhere('customers.company_name', 'like', '%' . $query . '%')
             ->limit(10)
             ->get();
+
         return response()->json(['results' => $results], 200);
     }
 
@@ -1250,6 +1313,10 @@ class UserController extends Controller
 
         if ($workOrder->technician == '') {
             $site = $workOrder->site;
+
+            if (!$site) {
+                return response()->json(['message' => 'Site information is missing. Please update the work order.'], 400);
+            }
 
             $addressParts = [
                 $site->address_1,

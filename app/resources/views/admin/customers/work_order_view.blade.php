@@ -163,10 +163,10 @@
                     </nav>
                     <div class="scope-of-work">
                         <h3>Scope Of Work:</h3>
-                        <ol>
-                            <li type="square">{{$views->scope_work}}</li>
 
-                        </ol>
+                        {!! $views->scope_work !!}
+
+
                         <h3>Upon Arrival on Site:</h3>
                         <ol>
                             <li>Check in with PM {{@$views->customer->project_manager}} at {{@$views->customer->phone}} upon arrival.</li>
@@ -175,6 +175,10 @@
                             <li>Check out with the onsite contact.</li>
                             <li>Check out with {{@$views->customer->project_manager}} at {{@$views->customer->phone}}.</li>
                         </ol>
+                    </div>
+                    <div class="del">
+                        <h3>Deliverables:</h3>
+                        {!! $views->deliverables !!}
                     </div>
                     <div class="form-group col-md-12">
                         <h3>Random Picture: </h3>

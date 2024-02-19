@@ -73,6 +73,7 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('sub/ticket/create', 'subTicket')->name('sub.ticket');
                 Route::post('create/check/in', 'checkIn')->name('checkin');
                 Route::post('create/check/out/{id}', 'checkOut')->name('checkout');
+                Route::post('create/round/trip/check/out/{id}', 'roundTripCheckOut')->name('checkout.roundtrip');
                 Route::post('check/in/out/update/{id}', 'checkOutEdit')->name('checkout.edit');
                 Route::get('check/in/out/delete/{id}', 'checkOutDelete')->name('checkout.delete');
 

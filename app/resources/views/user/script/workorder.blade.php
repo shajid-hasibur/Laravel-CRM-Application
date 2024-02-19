@@ -9,8 +9,6 @@
             }
         });
 
-        dashboardSiteAutoComplete();
-        siteAutoComplete();
         var route = "";
         $('#workOrderCreateReqDate').datepicker();
         $('#completedByCreateForm').datepicker();
@@ -88,8 +86,8 @@
                     success: function(data) {
                         response($.map(data.results, function(item) {
                             return {
-                                label: item.order_id,
-                                value: item.order_id,
+                                label: item.order_id + "-" + item.company_name,
+                                value: item.order_id + "-" + item.company_name,
                                 workOrderId: item.id,
                             }
                         }));
@@ -121,6 +119,12 @@
                 },
                 error: function(xhr, status, error) {
                     if (xhr.status === 404) {
+                        iziToast.error({
+                            message: xhr.responseJSON.message,
+                            position: "center"
+                        });
+                    }
+                    if(xhr.status === 400){
                         iziToast.error({
                             message: xhr.responseJSON.message,
                             position: "center"
@@ -888,36 +892,33 @@
             });
         }
 
-
-        function dashboardSiteAutoComplete() {
-            $('#dashboardCustomerId').autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: "{{ route('user.customer.autocomplete.wosearch') }}",
-                        type: "GET",
-                        dataType: "json",
-                        data: {
-                            "query": request.term,
-                        },
-                        success: function(data) {
-                            response($.map(data.results, function(item) {
-                                return {
-                                    label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
-                                    value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
-                                    cusId: item.id,
-                                }
-                            }));
-                        }
-                    });
-                },
-                minLength: 1,
-                select: function(event, ui) {
-                    var selectedCusId = ui.item.cusId;
-                    loadCustomer(selectedCusId, 1);
-                    createDynamicInput(selectedCusId, "wo-search-cusId", "#dashboardCustomerId");
-                }
-            });
-        }
+        $('#dashboardCustomerId').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{{ route('user.customer.autocomplete.wosearch') }}",
+                    type: "GET",
+                    dataType: "json",
+                    data: {
+                        "query": request.term,
+                    },
+                    success: function(data) {
+                        response($.map(data.results, function(item) {
+                            return {
+                                label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                cusId: item.id,
+                            }
+                        }));
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                var selectedCusId = ui.item.cusId;
+                loadCustomer(selectedCusId, 1);
+                createDynamicInput(selectedCusId, "wo-search-cusId", "#dashboardCustomerId");
+            }
+        });
 
 
         //site autocomplete for search workorder form
@@ -986,40 +987,40 @@
             }
         });
 
-        function siteAutoComplete() {
-            $('#siteIdCreateForm').autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: "{{ route('user.site.autocomplete') }}",
-                        type: "GET",
-                        dataType: "json",
-                        data: {
-                            "query": request.term,
-                            "id" : $('#createFormCusId').val(),
-                        },
-                        success: function(data) {
-                            response($.map(data.results, function(item) {
-                                return {
-                                    label: item.site_id + "-" + item.location + "-" + item.zipcode,
-                                    value: item.site_id + "-" + item.location + "-" + item.zipcode,
-                                    siteID: item.id,
-                                }
-                            }));
-                        },
-                        error:function(xhr, status, errors){
-                            if(xhr.status == 422){
-                                $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors);
+        //site autocomplete for create workorder form
+        $('#siteIdCreateForm').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{{ route('user.site.autocomplete') }}",
+                    type: "GET",
+                    dataType: "json",
+                    data: {
+                        "query": request.term,
+                        "id" : $('#createFormCusId').val(),
+                    },
+                    success: function(data) {
+                        $('#siteIdCreateFormErrors').text("");
+                        response($.map(data.results, function(item) {
+                            return {
+                                label: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                value: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                siteID: item.id,
                             }
+                        }));
+                    },
+                    error:function(xhr, status, errors){
+                        if(xhr.status == 422){
+                            $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors);
                         }
-                    });
-                },
-                minLength: 1,
-                select: function(event, ui) {
-                    var selectedSiteId = ui.item.siteID;
-                    loadSite(selectedSiteId, 2);
-                }
-            });
-        }
+                    }
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                var selectedSiteId = ui.item.siteID;
+                loadSite(selectedSiteId, 2);
+            }
+        });
 
         function loadSite(id, type) {
             $.ajax({
@@ -1074,19 +1075,6 @@
             });
         }
 
-        // generate dynamic input element
-        function createDynamicInput(value, inputId, placement) {
-            
-            let dynamicInput = $("<input>").attr({
-                type: "hidden",
-                value: value,
-                id: inputId
-            });
-
-            dynamicInput.insertAfter(placement);
-        }
-
-
         //note button script
         $("#general").click(function() {
             $("#generalNote").removeClass('d-none');
@@ -1094,8 +1082,6 @@
             $("#dNote").addClass('d-none');
             $("#tNote").addClass('d-none');
             $("#bNote").addClass('d-none');
-
-
         });
         $("#close").click(function() {
             $("#closeOut").removeClass('d-none');
@@ -1154,12 +1140,14 @@
 
         $('#defaultWO').on('submit', function(event) {
             event.preventDefault();
-            var formData = $(this).serialize();
+            var formData = new FormData(this);
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                 url: 'work/order/update',
                 type: 'POST',
                 data: formData,
+                processData: false,
+                contentType: false,
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
                 },
@@ -1177,10 +1165,19 @@
                     });
                 },
                 error: function(xhr) {
-                    console.log('Error:', xhr.responseText);
+                    let errorMessage = "";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    iziToast.error({
+                        title: 'Make sure The customer and site ID must be include',
+                        message: errorMessage,
+                        position: 'center'
+                    });
                 }
             });
         });
+
 
         function refresher(id) {
             generalNotes(id);
@@ -1250,7 +1247,7 @@
                         errorMessage = xhr.responseJSON.error;
                     }
                     iziToast.error({
-                        title: 'Technician has already checked in within the past 24 hours',
+                        title: 'Error',
                         message: errorMessage,
                         position: 'center'
                     });
@@ -1264,13 +1261,59 @@
             event.preventDefault();
             var rowData = $('#checkInOutTable').DataTable().row($(this).closest('tr')).data();
             //console.log(rowData.id);
-            initiateCheckOut(rowData.id);
+            if (rowData) {
+                openRoundTripModal(rowData);
+            } else {
+                console.error('Row data not found.');
+            }
         });
+
+        function openRoundTripModal(rowData) {
+            $('#roundTripModal').modal('show');
+            $('#r_trip').val(rowData.id);
+            $('#c_check_out').val(rowData.id);
+            console.log('Editing row:', rowData);
+            $("#c_check_out").click(function() {
+                initiateCheckOut(rowData.id);
+            });
+            $("#r_trip").click(function() {
+                initiateRoundtripCheckOut(rowData.id);
+            });
+        }
 
         function initiateCheckOut(id) {
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                 url: 'create/check/out/' + id,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                success: function(response) {
+                    checkInOutTable(response.id);
+                    iziToast.success({
+                        message: response.message,
+                        position: "center"
+                    });
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = "";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    iziToast.error({
+                        title: 'Already Check-out Success',
+                        message: errorMessage,
+                        position: 'center'
+                    });
+                }
+            });
+        }
+
+        function initiateRoundtripCheckOut(id) {
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: 'create/round/trip/check/out/' + id,
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
@@ -1444,10 +1487,17 @@
             });
         }
 
-        $('#dashboardCustomerId').autocomplete({
+        // generate dynamic input element
+        function createDynamicInput(value, inputId, placement) {
             
-        });
+            let dynamicInput = $("<input>").attr({
+                type: "hidden",
+                value: value,
+                id: inputId
+            });
 
+            dynamicInput.insertAfter(placement);
+        }
         //ready callback end block all the code should be written above.  
     });
 </script>

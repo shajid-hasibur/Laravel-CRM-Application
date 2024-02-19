@@ -122,12 +122,12 @@
       </div>
       @endif
       <div class="card shadow whole-card " style=" border-radius:0px; border-top:none ">
-        <form action="" id="defaultWO">
+        <form action="" id="defaultWO" enctype="multipart/form-data">
           <div class="card-body mt-4 p-4">
             <div class="row">
               <div class="col">
-                <h6>Work Order</h6>
-                <input name="order_id" type="text" class="form-control" id="workOrderSearchInput" placeholder="Search Order ID" autocomplete="off">
+                <h6><i class="fas fa-magnifying-glass" style="font-size: 13px"></i>&nbsp;Work Order</h6>
+                <input name="order_id" type="text" class="form-control" id="workOrderSearchInput" placeholder="OrderId/CompanyName/Zipcode" autocomplete="off">
                 <input type="hidden" name="workOrderId" id="workOrderId">
               </div>
               <div class="col">
@@ -163,6 +163,7 @@
                 <h6>Status</h6>
                 <select name="status" class="form-select form-select-sm" aria-label=".form-select-sm example" id="dashboardWorkOrderStatus">
                   <option value="7">New</option>
+                  <option value="8">Complete</option>
                   <option value="1">Open</option>
                   <option value="2">Dispatched</option>
                   <option value="3">Onsite</option>
@@ -182,53 +183,53 @@
                 <input type="text" class="form-control" id="dashboardSp">
               </div>
               <div class="col-md-6">
-                <h5><b>Customer ID</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="dashboardCustomerId" placeholder="Search with name/id/zipcode">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
+                <input name="customer_id" type="text" class="form-control" id="dashboardCustomerId" placeholder="Search with Customer Name / Customer Id / Zipcode" autocomplete="off">
               </div>
               <div class="col-md-6">
-                <h5><b>Site ID</b></h5>
-                <input name="site_id" type="text" class="form-control" id="dashboardSiteId">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
+                <input name="site_id" type="text" class="form-control" id="dashboardSiteId" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
                 <span id="dashboardSiteIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
                 <h6>Address</h6>
-                <input type="text" class="form-control" id="dashboardCustomerAddress">
+                <input type="text" class="form-control" id="dashboardCustomerAddress" readonly>
               </div>
               <div class="col-md-6">
                 <h6>Address</h6>
-                <input type="text" class="form-control" id="dashboardSiteAddress">
+                <input type="text" class="form-control" id="dashboardSiteAddress" readonly>
               </div>
               <div class="col-md-6">
                 <h6>City</h6>
-                <input type="text" class="form-control" id="dashboardCustomerCity">
+                <input type="text" class="form-control" id="dashboardCustomerCity" readonly>
               </div>
               <div class="col-md-6">
                 <h6>City</h6>
-                <input type="text" class="form-control" id="dashboardSiteCity">
+                <input type="text" class="form-control" id="dashboardSiteCity" readonly>
               </div>
               <div class="col-md-6">
                 <h6>State</h6>
-                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerState">
+                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerState" readonly>
               </div>
               <div class="col-md-6">
                 <h6>State</h6>
-                <input type="text" class="form-control" style="width: 200px;" id="dashboardSiteState">
+                <input type="text" class="form-control" style="width: 200px;" id="dashboardSiteState" readonly>
               </div>
               <div class="col-md-6">
                 <h6>Zip Code</h6>
-                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerZipcode">
+                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerZipcode" readonly>
               </div>
               <div class="col-md-6">
                 <h6>Zip Code</h6>
-                <input type="text" class="form-control" style="width: 200px;" id="dashboardSiteZipcode">
+                <input type="text" class="form-control" style="width: 200px;" id="dashboardSiteZipcode" readonly>
               </div>
               <div class="col-md-6">
                 <h6>Phone</h6>
-                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerPhone">
+                <input type="text" class="form-control" style="width: 200px;" id="dashboardCustomerPhone" readonly>
               </div>
               <div class="col-md-6">
                 <h6>Phone</h6>
-                <input type="text" class="form-control" style="width: 200px;">
+                <input type="text" class="form-control" style="width: 200px;" readonly>
               </div>
               <div class="col-md-3 ">
                 <h6>Site Contact Name</h6>
@@ -266,9 +267,13 @@
                 <h6>Dispatch Instructions</h6>
                 <textarea name="instruction" class="form-control summernote"></textarea>
               </div>
+              <div class="col-md-12">
+                <h3>Insert Image</h3>
+                <input type="file" name="pictures[]" class="form-control" multiple>
+              </div>
 
               <div class="dropdown mt-3">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-primary dropdown-toggle m-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   New Notes
                 </button>
                 <ul class="dropdown-menu">
@@ -388,12 +393,12 @@
                 <input type="text" class="form-control" id="customerSpCreateForm">
               </div>
               <div class="col-md-6">
-                <h5><b>Customer ID</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
+                <input name="customer_id" type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
               </div>
               <div class="col-md-6">
-                <h5><b>Site ID</b></h5>
-                <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
+                <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
                 <span id="siteIdCreateFormErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
@@ -831,6 +836,7 @@
           </table>
         </div>
         @include('user.check-in-out-modal.edit')
+        @include('user.check-in-out-modal.round_trip')
       </div>
     </div>
   </div>
