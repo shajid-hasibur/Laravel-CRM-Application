@@ -87,7 +87,7 @@
                         response($.map(data.results, function(item) {
                             return {
                                 label: item.order_id + "-" + item.company_name,
-                                value: item.order_id + "-" + item.company_name,
+                                value: item.order_id,
                                 workOrderId: item.id,
                             }
                         }));
@@ -99,12 +99,12 @@
                 var workOrderId = ui.item.workOrderId;
                 $('#workOrderId').val(workOrderId);
                 workOrderData(workOrderId);
-                refresher(workOrderId);
-                subTicketTable(workOrderId);
-                checkInOutTable(workOrderId);
-                siteHistory(workOrderId);
-                customerParts(workOrderId);
             }
+        });
+
+        $('#findClosestTechBtn').click(function(){
+           window.confirm("Are you sure want to find closest technician?");
+           findWorkOrder();
         });
 
         function findWorkOrder() {
@@ -116,15 +116,17 @@
                 },
                 success: function(data) {
                     closestTech(data);
+                    $("#tech_distance_view").removeClass('d-none');
                 },
                 error: function(xhr, status, error) {
                     if (xhr.status === 404) {
+                        $("#tech_distance_view").addClass('d-none');
                         iziToast.error({
                             message: xhr.responseJSON.message,
                             position: "center"
                         });
                     }
-                    if(xhr.status === 400){
+                    if (xhr.status === 400) {
                         iziToast.error({
                             message: xhr.responseJSON.message,
                             position: "center"
@@ -134,19 +136,20 @@
             });
         }
 
-        function ifNullWorkOrder() {
+        function ifNullWorkOrder(orderId) {
+            $('#work-order-tab').addClass('active');
+            $('#notes-tab, #site-history-tab, #parts, #ticket, #fieldTech, #check_out').removeClass('active');
+            
             $.ajax({
                 url: "{{ route('user.workOrder.check') }}",
                 type: "POST",
                 data: {
-                    "id": $('#workOrderId').val()
+                    "id": orderId
                 },
-                success: function(data) {
-
-                },
+                success: function(data) {},
                 error: function(xhr, status, error) {
                     if (xhr.status === 404) {
-                        iziToast.error({
+                        iziToast.warning({
                             message: xhr.responseJSON.message,
                             position: "center"
                         });
@@ -191,6 +194,15 @@
                     });
                     $('#tbody').html(html);
                 },
+                error: function(xhr, status, error) {
+                    if (xhr.status === 404) {
+                        $('#tech_distance_view').addClass('d-none');
+                        iziToast.warning({
+                            message: xhr.responseJSON.errors,
+                            position: "center"
+                        });
+                    }
+                }
             });
         }
 
@@ -265,6 +277,7 @@
         $('#user_dispatch_form').on('click', function(e) {
             e.preventDefault();
 
+            $('#assignTechLoader').removeClass('d-none');
             let formData = new FormData(this);
 
             $.ajax({
@@ -274,6 +287,7 @@
                 contentType: false,
                 processData: false,
                 success: function(data) {
+                    $('#assignTechLoader').addClass("d-none");
                     iziToast.success({
                         message: data.message,
                         position: "center"
@@ -295,7 +309,6 @@
                     "work_order_id": id
                 },
                 success: function(data) {
-                    console.log(data);
                     $('#partsCusIdTd').text(data.customerinventory.customer.customer_id);
                     $('#parts-customer-id').val(data.customerinventory.customer.id);
                     $('#partsCusNameTd').text(data.customerinventory.customer.company_name);
@@ -311,39 +324,49 @@
                 url: '/user/get/site/history/' + id,
                 method: 'GET',
                 success: function(data) {
+                    $('#assignedTechMessage').text(data.message);
                     setSiteData(data.result);
                 },
                 error: function(xhr, status, error) {
-                    // Handle errors
-                    console.error(error);
+                    if(xhr.status == 404){
+                        $('#assignedTechMessage').text(xhr.responseJSON.errors);
+                        $('#ftech_id').text("");
+                        $('#ftech_email').text("");
+                        $('#ftech_address').text("");
+                        $('#ftech_country').text("");
+                        $('#ftech_city').text("");
+                        $('#ftech_state').text("");
+                        $('#ftech_zipcode').text("");
+                        $('#ftech_company').text("");
+                    }
                 }
             });
         }
 
         function setSiteData(data) {
-            $('#siteHCompany').text('Site Company: ' + (data.company_name || ''));
-            $('#siteHLocation').text('Site Location: ' + (data.location || ''));
-            $('#siteHAddress').text('Site Address: ' + (data.address_1 || ''));
-            $('#siteHZipcode').text('Site Zipcode: ' + (data.zipcode || ''));
-            $('#siteHCity').text('Site City: ' + (data.city || ''));
-            $('#siteHState').text('Site State: ' + (data.state || ''));
-            $('#siteHtech').text('Technician Required: ' + (data.num_tech_required || ''));
-            $('#siteHname').text('Site Contact Name: ' + (data.site_contact_name || ''));
-            $('#siteHphone').text('Site Contact Phone: ' + (data.site_contact_phone || ''));
-            $('#siteHwork').text('Total Work Order: ' + (data.wT || ''));
-            $('#siteHwcomplete').text('Total Work Order Complete: ' + (data.wC || ''));
+            $('#siteHCompany').text('Site Company : ' + (data.company_name || ''));
+            $('#siteHLocation').text('Site Location : ' + (data.location || ''));
+            $('#siteHAddress').text('Site Address : ' + (data.address_1 || ''));
+            $('#siteHZipcode').text('Site Zipcode : ' + (data.zipcode || ''));
+            $('#siteHCity').text('Site City : ' + (data.city || ''));
+            $('#siteHState').text('Site State : ' + (data.state || ''));
+            $('#siteHtech').text('Technician Required : ' + (data.num_tech_required || ''));
+            $('#siteHname').text('Site Contact Name : ' + (data.site_contact_name || ''));
+            $('#siteHphone').text('Site Contact Phone : ' + (data.site_contact_phone || ''));
+            $('#siteHwork').text('Total Work Order : ' + (data.wT || ''));
+            $('#siteHwcomplete').text('Total Work Order Complete : ' + (data.wC || ''));
             $('#r_tools').html('' + (data.r_tools || ''));
-            $('#ftech_company').text('Company Name: ' + (data.fcompany_name || ''));
+            $('#ftech_company').text('Company Name : ' + (data.fcompany_name || ''));
             $('#Check_in_ftech_company').val((data.fcompany_name || ''));
-            $('#Header_time_zone').text('Time Zone: ' + (data.time_zone || ''));
+            $('#Header_time_zone').text('Time Zone : ' + (data.time_zone || ''));
             $('#time_zone').val((data.time_zone || ''));
-            $('#ftech_id').text('Feild Technician ID: ' + (data.technician_id || ''));
-            $('#ftech_email').text('Email: ' + (data.ftech_email || ''));
-            $('#ftech_address').text('Address: ' + (data.ftech_address || ''));
-            $('#ftech_country').text('Country: ' + (data.ftech_country || ''));
-            $('#ftech_city').text('City: ' + (data.ftech_city || ''));
-            $('#ftech_state').text('State: ' + (data.ftech_state || ''));
-            $('#ftech_zipcode').text('Zipcode: ' + (data.ftech_zipcode || ''));
+            $('#ftech_id').text('Feild Technician ID : ' + (data.technician_id || ''));
+            $('#ftech_email').text('Email : ' + (data.ftech_email || ''));
+            $('#ftech_address').text('Address : ' + (data.ftech_address || ''));
+            $('#ftech_country').text('Country : ' + (data.ftech_country || ''));
+            $('#ftech_city').text('City : ' + (data.ftech_city || ''));
+            $('#ftech_state').text('State : ' + (data.ftech_state || ''));
+            $('#ftech_zipcode').text('Zipcode : ' + (data.ftech_zipcode || ''));
             $('#w_id').val(data.w_id);
             $('#check_in_w_id').val(data.w_id);
         }
@@ -680,14 +703,18 @@
 
         //function for populate all the dashboard field
         function setField(data) {
+
+            $('.summernote').eq(1).summernote('code', data.result.deliverables);
+            $('.summernote').eq(2).summernote('code', data.result.tools_required);
+            $('.summernote').eq(0).summernote('code', data.result.scope_work);
+            $('.summernote').eq(3).summernote('code', data.result.instruction);
+
             $('#dashboardCustomerAddress').val(data.result.customer_address);
             $('#dashboardCustomerCity').val(data.result.customer_city);
             $('#dashboardCustomerState').val(data.result.customer_state);
             $('#dashboardCustomerZipcode').val(data.result.customer_zipcode);
             $('#dashboardCustomerPhone').val(data.result.customer_phone);
             $('#dashboardCustomerId').val(data.result.customer_id);
-            $('#dashboardScopeOfWork').val(data.result.scope_work);
-            $('#dashboardToolsRequired').val(data.result.tools_required);
             $('#dashboardSiteId').val(data.result.customer_site_id);
             $('#dashboardSiteAddress').val(data.result.customer_site_address);
             $('#dashboardSiteCity').val(data.result.customer_site_city);
@@ -701,6 +728,8 @@
             $('#dashboardReqDate').val(data.result.requested_date);
             $('#dashboardReqBy').val(data.result.requested_by);
             $('#dashboardCompletedBy').val(data.result.completed_by);
+            $('#dashboardPm').val(data.result.project_manager);
+            $('#dashboardSp').val(data.result.sales_person);
 
             $('#dashboardEmailPhoneSelect option').each(function() {
                 if ($(this).val() === data.result.request_type) {
@@ -725,8 +754,15 @@
         }
 
         $(document).on('click', '#notes-tab', function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
+
+            const orderId = $('#workOrderId').val();
+
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+                $('#notes-container').addClass('d-none');
+            }else{
+                refresher(orderId);
+                $('#workOrderSearchForm').addClass('d-none');
             $('#site_history_view').addClass('d-none');
             $('#notes-container').removeClass('d-none');
             $("#parts_view").addClass('d-none');
@@ -734,6 +770,7 @@
             $("#ticket_view").addClass('d-none');
             $("#check_out_view").addClass('d-none');
             $("#tech_distance_view").addClass('d-none');
+            }
         });
 
         $(document).on('click', '#work-order-tab', function() {
@@ -748,71 +785,105 @@
         });
 
         $('#site-history-tab').click(function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').removeClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+            const orderId = $('#workOrderId').val();
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+                $('#site_history_view').addClass('d-none');
+            }else{
+                siteHistory(orderId);
+                $('#workOrderSearchForm').addClass('d-none');
+                $('#notes-container').addClass('d-none');
+                $('#site_history_view').removeClass('d-none');
+                $("#parts_view").addClass('d-none');
+                $("#fieldTech_view").addClass('d-none');
+                $("#ticket_view").addClass('d-none');
+                $("#check_out_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
+            }
         });
+
         $("#parts").click(function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $("#parts_view").removeClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+            const orderId = $('#workOrderId').val();
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+                $("#parts_view").addClass('d-none');
+            }else{
+                customerParts(orderId);
+                siteHistory(orderId);
+                $('#workOrderSearchForm').addClass('d-none');
+                $('#notes-container').addClass('d-none');
+                $('#site_history_view').addClass('d-none');
+                $("#parts_view").removeClass('d-none');
+                $("#fieldTech_view").addClass('d-none');
+                $("#ticket_view").addClass('d-none');
+                $("#check_out_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
+            }
         });
+
         $("#fieldTech").click(function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").removeClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+            const orderId = $('#workOrderId').val();
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+                $("#fieldTech_view").addClass('d-none');
+            }else{
+                siteHistory(orderId);
+                $("#fieldTech_view").removeClass('d-none');
+                $('#workOrderSearchForm').addClass('d-none');
+                $('#notes-container').addClass('d-none');
+                $('#site_history_view').addClass('d-none');
+                $("#parts_view").addClass('d-none');
+                $("#ticket_view").addClass('d-none');
+                $("#check_out_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
+            }
         });
+
         $("#ticket").click(function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").removeClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+            const orderId = $('#workOrderId').val();
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+                $("#ticket_view").addClass('d-none');
+            }else{
+                subTicketTable(orderId);
+                $('#workOrderSearchForm').addClass('d-none');
+                $('#notes-container').addClass('d-none');
+                $('#site_history_view').addClass('d-none');
+                $("#parts_view").addClass('d-none');
+                $("#fieldTech_view").addClass('d-none');
+                $("#ticket_view").removeClass('d-none');
+                $("#check_out_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
+            }
         });
+
         $("#check_out").click(function() {
-            ifNullWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").removeClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+            const orderId = $('#workOrderId').val();
+            if(orderId == ""){
+                ifNullWorkOrder(orderId);
+            }else{
+                checkInOutTable(orderId);
+                $("#check_out_view").removeClass('d-none');
+                $('#workOrderSearchForm').addClass('d-none');
+                $('#notes-container').addClass('d-none');
+                $('#site_history_view').addClass('d-none');
+                $("#parts_view").addClass('d-none');
+                $("#fieldTech_view").addClass('d-none');
+                $("#ticket_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
+            }
         });
-        $("#tech_distance").click(function() {
-            findWorkOrder();
-            $('#workOrderSearchForm').addClass('d-none');
-            $('#notes-container').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").removeClass('d-none');
-        });
+        // $("#tech_distance").click(function() {
+        //     findWorkOrder();
+        //     $('#workOrderSearchForm').addClass('d-none');
+        //     $('#notes-container').addClass('d-none');
+        //     $('#site_history_view').addClass('d-none');
+        //     $("#parts_view").addClass('d-none');
+        //     $("#fieldTech_view").addClass('d-none');
+        //     $("#ticket_view").addClass('d-none');
+        //     $("#check_out_view").addClass('d-none');
+        //     $("#tech_distance_view").removeClass('d-none');
+        // });
 
         //search work Order start
         $("#Wsearch").click(function() {
@@ -831,18 +902,25 @@
 
         //service create script
         $('#serviceButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+
+            serviceButton
             route = '{{ route("user.work.order.service") }}';
             createWorkOrder(route);
         });
 
         //project create script
         $('#projectButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+
             route = '{{ route("user.work.order.project") }}';
             createWorkOrder(route);
         });
 
         //install create script
         $('#installButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+
             route = '{{ route("user.work.order.install") }}';
             createWorkOrder(route);
         });
@@ -905,7 +983,7 @@
                         response($.map(data.results, function(item) {
                             return {
                                 label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
-                                value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                value: item.customer_id,
                                 cusId: item.id,
                             }
                         }));
@@ -930,20 +1008,20 @@
                     dataType: "json",
                     data: {
                         "query": request.term,
-                        "id" : $('#wo-search-cusId').val(),
+                        "id": $('#wo-search-cusId').val(),
                     },
                     success: function(data) {
                         $('#dashboardSiteIdErrors').text("");
                         response($.map(data.results, function(item) {
                             return {
                                 label: item.site_id + "-" + item.location + "-" + item.zipcode,
-                                value: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                value: item.site_id,
                                 siteID: item.id,
                             }
                         }));
                     },
-                    error:function(xhr, status, errors){
-                        if(xhr.status == 422){
+                    error: function(xhr, status, errors) {
+                        if (xhr.status == 422) {
                             $('#dashboardSiteIdErrors').text(xhr.responseJSON.errors);
                         }
                     }
@@ -972,7 +1050,7 @@
                         response($.map(data.results, function(item) {
                             return {
                                 label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
-                                value: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                value: item.customer_id,
                                 cusId: item.id,
                             }
                         }));
@@ -996,20 +1074,20 @@
                     dataType: "json",
                     data: {
                         "query": request.term,
-                        "id" : $('#createFormCusId').val(),
+                        "id": $('#createFormCusId').val(),
                     },
                     success: function(data) {
                         $('#siteIdCreateFormErrors').text("");
                         response($.map(data.results, function(item) {
                             return {
                                 label: item.site_id + "-" + item.location + "-" + item.zipcode,
-                                value: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                value: item.site_id,
                                 siteID: item.id,
                             }
                         }));
                     },
-                    error:function(xhr, status, errors){
-                        if(xhr.status == 422){
+                    error: function(xhr, status, errors) {
+                        if (xhr.status == 422) {
                             $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors);
                         }
                     }
@@ -1030,12 +1108,12 @@
                     "id": id
                 },
                 success: function(data) {
-                    if(type === 1){
+                    if (type === 1) {
                         $('#dashboardSiteAddress').val(data.result.address);
                         $('#dashboardSiteCity').val(data.result.city);
                         $('#dashboardSiteState').val(data.result.state);
                         $('#dashboardSiteZipcode').val(data.result.zipcode);
-                    }else{
+                    } else {
                         $('#siteAddressCreateForm').val(data.result.address);
                         $('#siteCityCreateForm').val(data.result.city);
                         $('#siteStateCreateForm').val(data.result.state);
@@ -1054,7 +1132,7 @@
                     "id": id
                 },
                 success: function(data) {
-                    if(type === 1){
+                    if (type === 1) {
                         $('#dashboardCustomerPhone').val(data.phone);
                         $('#dashboardCustomerState').val(data.address.state);
                         $('#dashboardCustomerCity').val(data.address.city);
@@ -1062,7 +1140,7 @@
                         $('#dashboardCustomerZipcode').val(data.address.zip_code);
                         $('#dashboardPm').val(data.project_manager);
                         $('#dashboardSp').val(data.sales_person);
-                    }else{
+                    } else {
                         $('#customerPhoneCreateForm').val(data.phone);
                         $('#customerStateCreateForm').val(data.address.state);
                         $('#customerCityCreateForm').val(data.address.city);
@@ -1133,7 +1211,12 @@
                     });
                 },
                 error: function(xhr) {
-                    console.log('Error:', xhr.responseText);
+                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred.';
+                    iziToast.error({
+                        title: 'Error',
+                        message: errorMessage,
+                        position: 'center'
+                    });
                 }
             });
         });
@@ -1142,6 +1225,10 @@
             event.preventDefault();
             var formData = new FormData(this);
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Show Bootstrap loader
+            $('.loader').removeClass('d-none');
+
             $.ajax({
                 url: 'work/order/update',
                 type: 'POST',
@@ -1152,19 +1239,28 @@
                     'X-CSRF-TOKEN': csrfToken
                 },
                 success: function(response) {
+                    $('#defaultWO')[0].reset();
+                    $('.summernote').each(function() {
+                        $(this).summernote('code', '');
+                    });
+                    $('#workOrderId').val("");
+                    $('#notes-container').addClass('d-none');
+                    $('.loader').addClass('d-none');
+
                     $("#generalNote").addClass('d-none');
                     $("#closeOut").addClass('d-none');
                     $("#dNote").addClass('d-none');
                     $("#tNote").addClass('d-none');
                     $("#bNote").addClass('d-none');
-                    refresher(response.id);
-                    console.log(response.message);
+                    
                     iziToast.success({
                         message: response.message,
                         position: "center"
                     });
                 },
                 error: function(xhr) {
+                    $('.loader').addClass('d-none');
+
                     let errorMessage = "";
                     if (xhr.responseJSON && xhr.responseJSON.error) {
                         errorMessage = xhr.responseJSON.error;
@@ -1177,6 +1273,7 @@
                 }
             });
         });
+
 
 
         function refresher(id) {
@@ -1261,27 +1358,22 @@
             event.preventDefault();
             var rowData = $('#checkInOutTable').DataTable().row($(this).closest('tr')).data();
             //console.log(rowData.id);
-            if (rowData) {
-                openRoundTripModal(rowData);
-            } else {
-                console.error('Row data not found.');
-            }
+            $('#roundTripModal').modal('show');
+            $("#c_check_out").data('id', rowData.id);
+            $("#r_trip").data('id', rowData.id);
         });
 
-        function openRoundTripModal(rowData) {
-            $('#roundTripModal').modal('show');
-            $('#r_trip').val(rowData.id);
-            $('#c_check_out').val(rowData.id);
-            console.log('Editing row:', rowData);
-            $("#c_check_out").click(function() {
-                initiateCheckOut(rowData.id);
-            });
-            $("#r_trip").click(function() {
-                initiateRoundtripCheckOut(rowData.id);
-            });
-        }
+        $("#c_check_out").click(function() {
+            var id = $(this).data('id');
+            initiateCheckOut(id, 'complete');
+        });
 
-        function initiateCheckOut(id) {
+        $("#r_trip").click(function() {
+            var id = $(this).data('id');
+            initiateCheckOut(id, 'round_trip');
+        });
+
+        function initiateCheckOut(id, type) {
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                 url: 'create/check/out/' + id,
@@ -1289,34 +1381,8 @@
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
                 },
-                success: function(response) {
-                    checkInOutTable(response.id);
-                    iziToast.success({
-                        message: response.message,
-                        position: "center"
-                    });
-                },
-                error: function(xhr, status, error) {
-                    let errorMessage = "";
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
-                    }
-                    iziToast.error({
-                        title: 'Already Check-out Success',
-                        message: errorMessage,
-                        position: 'center'
-                    });
-                }
-            });
-        }
-
-        function initiateRoundtripCheckOut(id) {
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
-            $.ajax({
-                url: 'create/round/trip/check/out/' + id,
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
+                data: {
+                    type: type
                 },
                 success: function(response) {
                     checkInOutTable(response.id);
@@ -1331,7 +1397,7 @@
                         errorMessage = xhr.responseJSON.error;
                     }
                     iziToast.error({
-                        title: 'Already Check-out Success',
+                        title: 'Error',
                         message: errorMessage,
                         position: 'center'
                     });
@@ -1489,7 +1555,7 @@
 
         // generate dynamic input element
         function createDynamicInput(value, inputId, placement) {
-            
+
             let dynamicInput = $("<input>").attr({
                 type: "hidden",
                 value: value,
@@ -1572,9 +1638,9 @@
             ['font', ['bold', 'underline', 'clear']],
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['fullscreen', 'codeview', 'help']]
+            // ['table', ['table']],
+            // ['insert', ['link', 'picture', 'video']],
+            // ['view', ['fullscreen', 'codeview', 'help']]
         ]
     });
 </script>

@@ -25,6 +25,10 @@
             <hr>
             <div class="d-flex">
               <button type="submit" class="btn btn-primary">Assign</button>
+              <button class="btn btn-primary mx-2 d-none" id="assignTechLoader" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Loading...
+              </button>
             </div>
           </form>
         </div>

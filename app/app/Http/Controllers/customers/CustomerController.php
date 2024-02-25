@@ -753,7 +753,7 @@ class CustomerController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $date = date('d/m/y');
+        $date = date('m/d/y');
 
         $wp = workOrderPerformed::where('work_order_id', $request->work_order_id)->orderByDesc('created_at')->first();
         if (!empty($wp->date)) {

@@ -74,11 +74,6 @@
               <span style="color:red; font-size:16px" id="customer_id-error"></span>
             </div>
             <div class="form-group col-4">
-              <label for="">Company Name</label>
-              <input type="text" class="form-control" placeholder="Enter company name" name="company_name" id="company_name">
-              <span style="color:red; font-size:16px" id="company_name-error"></span>
-            </div>
-            <div class="form-group col-4">
               <label for="">Site Id</label>
               <input type="text" class="form-control" placeholder="Enter the site id" name="site_id" id="site_id">
               <span style="color:red; font-size:16px" id="site_id-error"></span>
@@ -128,201 +123,203 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <div class="d-none" id="newSitesModalSpinner">
           <button class="btn btn-warning" type="button" disabled>
-              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-              Please wait!!
+            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+            Please wait!!
           </button>
-      </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+@push('site_modal_script')
 <script>
-    $(document).ready(function(){
-      $(document).on('click','#sampleSiteExel',function(){
-        window.location.href = "{{ route('user.sample.site.import.excel') }}";
-      });
-      //site import code
-      $(document).on('submit','#site-import-form',function(e){
-        e.preventDefault();
-        var formData = new FormData(this);
-        $.ajax({
-          url: "{{ route('user.site.import') }}",
-          type: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
-          success:function(data){
+  $(document).ready(function() {
+    $(document).on('click', '#sampleSiteExel', function() {
+      window.location.href = "{{ route('user.sample.site.import.excel') }}";
+    });
+    //site import code
+    $(document).on('submit', '#site-import-form', function(e) {
+      e.preventDefault();
+      var formData = new FormData(this);
+      $.ajax({
+        url: "{{ route('user.site.import') }}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+          $('#siteExcelCustomerError').text('');
+          $('#siteExcelError').text('');
+          $('#siteExcelFileInput').val('');
+          $('#cusIdSearchInput').val('');
+          iziToast.success({
+            message: data.success,
+            position: "topRight"
+          });
+        },
+        error: function(data) {
+          if (data.status === 422) {
+            errors = data.responseJSON.errors;
             $('#siteExcelCustomerError').text('');
             $('#siteExcelError').text('');
-            $('#siteExcelFileInput').val('');
-            $('#cusIdSearchInput').val('');
+            $('#siteExcelCustomerError').text(errors.customer_id);
+            $('#siteExcelError').text(errors.site_excel_file);
+          }
+        }
+      });
+    });
+
+    //site registration script
+    $(document).on('submit', '#site-reg-form', function(e) {
+      e.preventDefault();
+      $('#newSitesModalSpinner').removeClass('d-none');
+      let formData = new FormData(this);
+      $.ajax({
+        url: "{{ route('user.store.site') }}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function(data) {
+          $('#newSitesModalSpinner').addClass('d-none');
+          if (data.success) {
+            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+
+            $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description').val("");
             iziToast.success({
-                message: data.success,
-                position: "topRight"
+              message: data.success,
+              position: "topRight"
             });
-          },
-          error:function(data){
-            if(data.status === 422){
-              errors = data.responseJSON.errors;
-              $('#siteExcelCustomerError').text('');
-              $('#siteExcelError').text('');
-              $('#siteExcelCustomerError').text(errors.customer_id);
-              $('#siteExcelError').text(errors.site_excel_file);
-            }
           }
-        });
-      });
-
-      //site registration script
-      $(document).on('submit','#site-reg-form',function(e){
-        e.preventDefault();
-        $('#newSitesModalSpinner').removeClass('d-none');
-        let formData = new FormData(this);
-        $.ajax({
-          url: "{{ route('user.store.site') }}",
-          type: "POST",
-          data: formData,
-          processData: false,
-          contentType: false,
-          dataType: "json",
-          success:function(data){
+        },
+        error: function(data) {
+          if (data.status === 422) {
             $('#newSitesModalSpinner').addClass('d-none');
-            if(data.success){
-              $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+            errors = data.responseJSON.errors;
+            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
 
-              $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description').val("");
-              iziToast.success({
-                message: data.success,
-                position: "topRight"
-              });
-            }
-          },
-          error:function(data){
-            if(data.status === 422){
-              $('#newSitesModalSpinner').addClass('d-none');
-              errors = data.responseJSON.errors;
-              $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+            const fieldsToHandle = ['customer_id', 'company_name', 'site_id', 'location', 'state', 'address_1', 'address_2', 'city', 'zipcode', 'description'];
 
-              const fieldsToHandle = ['customer_id','company_name','site_id','location','state','address_1','address_2','city','zipcode','description'];
-
-              fieldsToHandle.forEach(field => {
-                  if (errors[field]) {
-                      console.log(errors[field]);
-                      $('#' + field + '-error').text(errors[field]);
-                  }
-              });
-            }
-          }
-        });
-      });
-
-      //site import module open
-      $(document).on('click','#siteImportButton',function(){
-        $('#site-modal-title').text('Import Site');
-        $('#site-reg-container').addClass('d-none');
-        $('#site-search-container').addClass('d-none');
-        $('#site-import-container').removeClass('d-none');
-        $('#newSiteModal').modal('show');
-      });
-      //new site module open
-      $(document).on('click','#siteNewButton',function(){
-        $('#site-modal-title').text('Register Site');
-        $('#site-import-container').addClass('d-none');
-        $('#site-search-container').addClass('d-none');
-        $('#site-reg-container').removeClass('d-none');
-        $('#newSiteModal').modal('show');
-      });
-      //site search button open
-      $(document).on('click','#siteSearchButton',function(){
-        $('#site-modal-title').text('Search Site');
-        $('#site-import-container').addClass('d-none');
-        $('#site-reg-container').addClass('d-none');
-        $('#site-search-container').removeClass('d-none');
-        $('#newSiteModal').modal('show');
-      });
-
-      //clear the site modal when close
-      $(document).on('click','.btn-close',function(){
-        $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
-        $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description').val("");
-      });
-      
-      //select customer autocomplete
-      $('.searchInput').autocomplete({
-          source: function(request, response) {
-            $.ajax({
-                url: "{{ route('user.customer.autocomplete') }}",
-                type: "GET",
-                dataType: "json",
-                data: {
-                  "query": request.term,
-                  "customer": "1"
-                },
-                success: function(data) {
-                  response($.map(data.results, function(item) {
-                      return {
-                        label: item.company_name + "-" + item.customer_id,
-                        value: item.company_name + "-" + item.customer_id,
-                        customerID: item.id,
-                      }
-                  }));
-                }
+            fieldsToHandle.forEach(field => {
+              if (errors[field]) {
+                console.log(errors[field]);
+                $('#' + field + '-error').text(errors[field]);
+              }
             });
-          },
-          minLength: 1,
-          select: function(event, ui) {
-            var selectedCustomerId = ui.item.customerID;
-            $('#siteRegCusId').val(selectedCustomerId);
-            $('#siteImportCustomerId').val(selectedCustomerId);
           }
+        }
       });
+    });
 
-      //get specific site information
-      function loadSite(id){
+    //site import module open
+    $(document).on('click', '#siteImportButton', function() {
+      $('#site-modal-title').text('Import Site');
+      $('#site-reg-container').addClass('d-none');
+      $('#site-search-container').addClass('d-none');
+      $('#site-import-container').removeClass('d-none');
+      $('#newSiteModal').modal('show');
+    });
+    //new site module open
+    $(document).on('click', '#siteNewButton', function() {
+      $('#site-modal-title').text('Register Site');
+      $('#site-import-container').addClass('d-none');
+      $('#site-search-container').addClass('d-none');
+      $('#site-reg-container').removeClass('d-none');
+      $('#newSiteModal').modal('show');
+    });
+    //site search button open
+    $(document).on('click', '#siteSearchButton', function() {
+      $('#site-modal-title').text('Search Site');
+      $('#site-import-container').addClass('d-none');
+      $('#site-reg-container').addClass('d-none');
+      $('#site-search-container').removeClass('d-none');
+      $('#newSiteModal').modal('show');
+    });
+
+    //clear the site modal when close
+    $(document).on('click', '.btn-close', function() {
+      $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+      $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description').val("");
+    });
+
+    //select customer autocomplete
+    $('.searchInput').autocomplete({
+      source: function(request, response) {
         $.ajax({
-          url: "{{ route('user.get.site' )}}",
+          url: "{{ route('user.customer.autocomplete') }}",
           type: "GET",
+          dataType: "json",
           data: {
-            "id": id
+            "query": request.term,
+            "customer": "1"
           },
-          success:function(data){
-            $('#siteCompanyName').val(data.result.company_name);
-            $('#siteAddress').val(data.result.address_1);
-            $('#siteCity').val(data.result.city);
-            $('#siteState').val(data.result.state);
-            $('#siteZipcode').val(data.result.zipcode);
+          success: function(data) {
+            response($.map(data.results, function(item) {
+              return {
+                label: item.company_name + "-" + item.customer_id,
+                value: item.company_name + "-" + item.customer_id,
+                customerID: item.id,
+              }
+            }));
           }
         });
+      },
+      minLength: 1,
+      select: function(event, ui) {
+        var selectedCustomerId = ui.item.customerID;
+        $('#siteRegCusId').val(selectedCustomerId);
+        $('#siteImportCustomerId').val(selectedCustomerId);
       }
+    });
 
-      //site autocomplete search
-      $('#searchSite').autocomplete({
-          source: function(request, response) {
-            $.ajax({
-                url: "{{ route('user.site.autocomplete') }}",
-                type: "GET",
-                dataType: "json",
-                data: {
-                  "query": request.term,
-                  "customer": "1"
-                },
-                success: function(data) {
-                  response($.map(data.results, function(item) {
-                      return {
-                        label: item.site_id,
-                        value: item.site_id,
-                        siteID: item.id,
-                      }
-                  }));
-                }
-            });
-          },
-          minLength: 1,
-          select: function(event, ui) {
-            var selectedSiteId = ui.item.siteID;
-            loadSite(selectedSiteId);
-          }
+    //get specific site information
+    function loadSite(id) {
+      $.ajax({
+        url: "{{ route('user.get.site' )}}",
+        type: "GET",
+        data: {
+          "id": id
+        },
+        success: function(data) {
+          $('#siteCompanyName').val(data.result.company_name);
+          $('#siteAddress').val(data.result.address_1);
+          $('#siteCity').val(data.result.city);
+          $('#siteState').val(data.result.state);
+          $('#siteZipcode').val(data.result.zipcode);
+        }
       });
+    }
+
+    //site autocomplete search
+    $('#searchSite').autocomplete({
+      source: function(request, response) {
+        $.ajax({
+          url: "{{ route('user.site.autocomplete') }}",
+          type: "GET",
+          dataType: "json",
+          data: {
+            "query": request.term,
+            "customer": "1"
+          },
+          success: function(data) {
+            response($.map(data.results, function(item) {
+              return {
+                label: item.site_id,
+                value: item.site_id,
+                siteID: item.id,
+              }
+            }));
+          }
+        });
+      },
+      minLength: 1,
+      select: function(event, ui) {
+        var selectedSiteId = ui.item.siteID;
+        loadSite(selectedSiteId);
+      }
+    });
   });
 </script>
+@endpush

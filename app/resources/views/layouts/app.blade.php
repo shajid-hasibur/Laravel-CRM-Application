@@ -9,8 +9,14 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle }}</title>
+    
     <link rel="shortcut icon" type="image/png" href="{{getImage(getFilePath('logoIcon') .'/favicon.png')}}">
+
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <!-- Updated stylesheet url -->
+    <link rel="stylesheet" href="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
+
     @include('user.include.css')
     @stack('style-lib')
     @stack('style')
@@ -33,11 +39,12 @@
     <!-- jquery ui -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.js"></script>
-    <!-- Include jQuery Timepicker CSS for styling -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.18/jquery.timepicker.min.css">
+    <script src="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
 
     @stack('custom_script')
+    @stack('site_modal_script')
+    @stack('technician_modal_script')
+    @stack('customer_modal_script')
     @stack('script-lib')
     @stack('script')
 </body>

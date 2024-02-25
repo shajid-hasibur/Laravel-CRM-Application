@@ -51,6 +51,7 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::Post('work/order/install', 'install')->name('work.order.install');
                 Route::Post('work/order/update', 'updateWorkOrder')->name('work.order.update');
                 Route::get('work/order/onsite', 'Onsite')->name('work.order.onsite');
+                Route::get('work/order/view/pdf/user/dashboard', 'userViewPdf')->name('work.order.view.pdf');
                 Route::post('onsite/order/ticket/update', 'ticketUpdate')->name('onsite.ticketUpdate');
                 Route::get('work/order/details/{orderId}', 'detailsOrder')->name('work.order.details');
                 Route::get('customer/autocomplete', 'autoComplete')->name('customer.autocomplete');
@@ -72,10 +73,11 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('/get/site/history/{id}', 'orderIdsiteHistory')->name('order.site.history');
                 Route::post('sub/ticket/create', 'subTicket')->name('sub.ticket');
                 Route::post('create/check/in', 'checkIn')->name('checkin');
-                Route::post('create/check/out/{id}', 'checkOut')->name('checkout');
+                Route::post('create/check/out/{id}', 'initiateCheckOut')->name('checkout');
                 Route::post('create/round/trip/check/out/{id}', 'roundTripCheckOut')->name('checkout.roundtrip');
                 Route::post('check/in/out/update/{id}', 'checkOutEdit')->name('checkout.edit');
                 Route::get('check/in/out/delete/{id}', 'checkOutDelete')->name('checkout.delete');
+                Route::get('pdf/user/work/order/download/{id}', 'pdfWorkOrderUser')->name('work.order.pdf.user');
 
                 Route::get('work/order/sub/ticket/{id}', 'workOrderSubTicket')->name('table.sub.ticket');
                 Route::get('check/in/out/{id}', 'checkInOutTable')->name('table.checkInOut');

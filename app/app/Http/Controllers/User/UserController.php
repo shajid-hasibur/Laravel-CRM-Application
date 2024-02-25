@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\User;
-
 use App\Http\Controllers\Controller;
 use App\Imports\SitesImport;
 use Illuminate\Http\Request;
@@ -31,14 +29,29 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
+use PDF;
 
 class UserController extends Controller
 {
-    //
     public function home()
     {
-        $pageTitle = "User Home";
+        $pageTitle = "Tech Yeah User";
         return view('user.dashboard', compact('pageTitle'));
+    }
+    public function userViewPdf()
+    {
+
+        $pageTitle = "New WorkOrder";
+        $work = WorkOrder::latest()->with('customer', 'site')
+            ->searchable([
+                'order_id',
+                'customer:company_name',
+                'customer:address->zip_code',
+                'site:zipcode',
+                'site:location',
+                'site:address_1',
+            ])->dateFilter()->paginate(getPaginate());
+        return view('user.workOrder.list_pdf_view', compact('pageTitle', 'work'));
     }
     public function service()
     {
@@ -58,7 +71,7 @@ class UserController extends Controller
         $service->order_id = "S" . $f . $id;
         $service->open_date = date('m/d/y');
         $service->order_type = Status::SERVICE;
-        $service->status = Status::OPEN;
+        $service->status = Status::NEW;
         $service->save();
         $response = [
             'message' => 'Service work order created successfully without data',
@@ -79,13 +92,13 @@ class UserController extends Controller
             $f = $p + 1;
         }
 
-        $date = date('dmy');
+        $date = date('mdy');
         $id = $date . "-" . $rand;
         $service = new WorkOrder();
         $service->order_id = "P" . $f . $id;
         $service->open_date = date('m/d/y');
         $service->order_type = Status::PROJECT;
-        $service->status = Status::OPEN;
+        $service->status = Status::NEW;
         $service->save();
         $response = [
             'message' => 'Project work order created successfully without data',
@@ -105,13 +118,13 @@ class UserController extends Controller
             $p = $orderId->id;
             $f = $p + 1;
         }
-        $date = date('dmy');
+        $date = date('mdy');
         $id = $date . "-" . $rand;
         $service = new WorkOrder();
         $service->order_id = "I" . $f . $id;
         $service->open_date = date('m/d/y');
         $service->order_type = Status::INSTALL;
-        $service->status = Status::OPEN;
+        $service->status = Status::NEW;
         $service->save();
         $response = [
             'message' => 'Install work order created successfully without data',
@@ -128,71 +141,87 @@ class UserController extends Controller
 
     public function updateWorkOrder(Request $request)
     {
-        $find = WorkOrder::where('order_id', $request->order_id)->first();
-        if ($request->customer_id) {
-            $cusFind = Customer::where('customer_id', $request->customer_id)->first();
-            $cusId = $cusFind->id;
-        }
-        if ($request->site_id) {
-            $siteFind = CustomerSite::where('site_id', $request->site_id)->first();
-            $siteId = $siteFind->id;
-        }
-        $id = $find->id;
-        $request->validate([
-            'site_id' => 'required|integer',
-            'slug' => 'required|integer',
-        ]);
+        try {
+            $find = WorkOrder::where('order_id', $request->order_id)->firstOrFail();
 
-        $update = WorkOrder::find($id);
-        $update->priority = $request->priority;
-        $update->open_date = $request->open_date;
-        $update->requested_by = $request->requested_by;
-        $update->request_type = $request->request_type;
-        $update->complete_by = $request->complete_by;
-        $update->status = $request->status;
-        $update->slug = $cusId;
-        $update->site_id = $siteId;
-        $update->scope_work = $request->scope_work;
-        $update->num_tech_required = $request->num_tech_required;
-        $update->on_site_by = $request->on_site_by;
-        $update->site_contact_name = $request->site_contact_name;
-        $update->site_contact_phone = $request->site_contact_phone;
-        $update->h_operation = $request->h_operation;
-        $update->r_tools = $request->r_tools;
-        $update->instruction = $request->instruction;
-        $update->deliverables = $request->deliverables;
-        if ($request->hasFile('pictures')) {
-            $pictureFiles = $request->file('pictures');
-
-            $fileNames = [];
-
-            foreach ($pictureFiles as $pictureFile) {
-                $fileNamePicture = $id . '_' . $pictureFile->getClientOriginalName();
-                $pictureFile->move(public_path('imgs'), $fileNamePicture);
-
-                $fileNames[] = $fileNamePicture;
+            $cusId = null;
+            if ($request->customer_id) {
+                $cusFind = Customer::where('customer_id', $request->customer_id)->first();
+                if ($cusFind) {
+                    $cusId = $cusFind->id;
+                } else {
+                    throw new \Exception('Customer not found.');
+                }
             }
-            $update->pictures = json_encode($fileNames);
-        }
-        $update->save();
 
-        if ($request->general_notes || $request->billing_notes || $request->tech_support_notes || $request->close_out_notes || $request->dispatch_notes) {
-            $note = new TicketNotes();
-            $note->work_order_id = $id;
-            $note->auth_id = auth()->id();
-            $note->general_notes = $request->general_notes;
-            $note->billing_notes = $request->billing_notes;
-            $note->tech_support_notes = $request->tech_support_notes;
-            $note->close_out_notes = $request->close_out_notes;
-            $note->dispatch_notes = $request->dispatch_notes;
-            $note->save();
-        }
+            $siteId = null;
+            if ($request->site_id) {
+                $siteFind = CustomerSite::where('site_id', $request->site_id)->first();
+                if ($siteFind) {
+                    $siteId = $siteFind->id;
+                } else {
+                    throw new \Exception('Customer site not found.');
+                }
+            }
 
-        $response = [
-            'message' => 'Project work order Updated successfully',
-            'id' => $id
-        ];
-        return response()->json($response);
+            $id = $find->id;
+
+            $update = WorkOrder::find($id);
+            $update->priority = $request->priority;
+            $update->open_date = $request->open_date;
+            $update->requested_by = $request->requested_by;
+            $update->request_type = $request->request_type;
+            $update->complete_by = $request->complete_by;
+            $update->status = $request->status;
+            $update->slug = $cusId;
+            $update->site_id = $siteId;
+            $update->scope_work = $request->scope_work;
+            $update->num_tech_required = $request->num_tech_required;
+            $update->on_site_by = $request->on_site_by;
+            $update->site_contact_name = $request->site_contact_name;
+            $update->site_contact_phone = $request->site_contact_phone;
+            $update->h_operation = $request->h_operation;
+            $update->r_tools = $request->r_tools;
+            $update->instruction = $request->instruction;
+            $update->deliverables = $request->deliverables;
+            if ($request->hasFile('pictures')) {
+                $pictureFiles = $request->file('pictures');
+
+                $fileNames = [];
+
+                foreach ($pictureFiles as $pictureFile) {
+                    $fileNamePicture = $id . '_' . $pictureFile->getClientOriginalName();
+                    $pictureFile->move(public_path('imgs'), $fileNamePicture);
+
+                    $fileNames[] = $fileNamePicture;
+                }
+                $update->pictures = json_encode($fileNames);
+            }
+            $update->save();
+
+            if ($request->general_notes || $request->billing_notes || $request->tech_support_notes || $request->close_out_notes || $request->dispatch_notes) {
+                $note = new TicketNotes();
+                $note->work_order_id = $id;
+                $note->auth_id = auth()->id();
+                $note->general_notes = $request->general_notes;
+                $note->billing_notes = $request->billing_notes;
+                $note->tech_support_notes = $request->tech_support_notes;
+                $note->close_out_notes = $request->close_out_notes;
+                $note->dispatch_notes = $request->dispatch_notes;
+                $note->save();
+            }
+
+            $response = [
+                'message' => 'Work order updated successfully',
+                'id' => $id
+            ];
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [
+                'error' => $e->getMessage()
+            ];
+            return response()->json($response, 500);
+        }
     }
     public function subTicket(Request $request)
     {
@@ -221,10 +250,10 @@ class UserController extends Controller
 
         $currentTime = Carbon::now()->toTimeString();
 
-        $existingCheckIn = CheckInOut::where('tech_name', $request->tech_name)
+        $existingCheckIn = CheckInOut::where('work_order_id', $request->work_order_id)
+            ->where('tech_name', $request->tech_name)
             ->whereDate('created_at', Carbon::today())
             ->first();
-
         if ($existingCheckIn) {
             $response = [
                 'message' => 'Technician has already checked in within the past 24 hours',
@@ -238,7 +267,7 @@ class UserController extends Controller
         $checkIn->date = $request->date;
         $checkIn->tech_name = $request->tech_name;
         $checkIn->company_name = $companyName;
-        $checkIn->check_in = $currentTime;
+        $checkIn->check_in = $request->check_in;
         $checkIn->save();
 
         $workOrder = WorkOrder::find($request->work_order_id);
@@ -252,74 +281,41 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function checkOut($id)
+    public function initiateCheckOut($id)
     {
+        $type = request()->get('type', 'complete');
         $checkOutTime = date('H:i:s');
-        $lastCheckIn = CheckInOut::where('id', $id)
-            ->whereNotNull('check_in')
-            ->whereNull('check_out')
-            ->latest()
-            ->first();
+        $CheckIn = CheckInOut::find($id);
+        if ($CheckIn) {
+            $lastCheckIn = $CheckIn
+                ->whereNotNull('check_in')
+                ->whereNull('check_out')
+                ->first();
+            if ($lastCheckIn) {
+                $lastCheckIn->check_out = $checkOutTime;
+                $checkInTime = Carbon::createFromFormat('H:i:s', $lastCheckIn->check_in);
+                $checkOutTime = Carbon::createFromFormat('H:i:s', $checkOutTime);
+                $totalMinutes  = $checkInTime->diffInMinutes($checkOutTime);
+                $totalHours = floor($totalMinutes / 60);
+                $remainingMinutes = $totalMinutes % 60;
+                $lastCheckIn->total_hours = $totalHours . ':' . $remainingMinutes;
+                $lastCheckIn->save();
 
-        if ($lastCheckIn) {
-            $lastCheckIn->check_out = $checkOutTime;
-            $checkInTime = Carbon::createFromFormat('H:i:s', $lastCheckIn->check_in);
-            $checkOutTime = Carbon::createFromFormat('H:i:s', $checkOutTime);
-            $totalMinutes  = $checkInTime->diffInMinutes($checkOutTime);
-            $totalHours = floor($totalMinutes / 60);
-            $remainingMinutes = $totalMinutes % 60;
-            $lastCheckIn->total_hours = $totalHours . ':' . $remainingMinutes;
-            $lastCheckIn->save();
+                $workOrder = WorkOrder::find($lastCheckIn->work_order_id);
+                $workOrder->status = ($type === 'round_trip') ? Status::ONSITE : Status::COMPLETE;
+                $workOrder->save();
 
-            $workOrder = WorkOrder::find($lastCheckIn->work_order_id);
-            $workOrder->status = Status::COMPLETE;
-            $workOrder->save();
-
-            $response = [
-                'message' => 'Check Out successfully for ' . $lastCheckIn->tech_name,
-                'id' => $lastCheckIn->work_order_id,
-                'total_hours' => $lastCheckIn->total_hours,
-            ];
-        } else {
-            $response = [
-                'message' => 'No check-in found for ' . $lastCheckIn->tech_name,
-            ];
-        }
-
-        return response()->json($response);
-    }
-    public function roundTripCheckOut($id)
-    {
-        $checkOutTime = date('H:i:s');
-        $lastCheckIn = CheckInOut::where('id', $id)
-            ->whereNotNull('check_in')
-            ->whereNull('check_out')
-            ->latest()
-            ->first();
-
-        if ($lastCheckIn) {
-            $lastCheckIn->check_out = $checkOutTime;
-            $checkInTime = Carbon::createFromFormat('H:i:s', $lastCheckIn->check_in);
-            $checkOutTime = Carbon::createFromFormat('H:i:s', $checkOutTime);
-            $totalMinutes  = $checkInTime->diffInMinutes($checkOutTime);
-            $totalHours = floor($totalMinutes / 60);
-            $remainingMinutes = $totalMinutes % 60;
-            $lastCheckIn->total_hours = $totalHours . ':' . $remainingMinutes;
-            $lastCheckIn->save();
-
-            $workOrder = WorkOrder::find($lastCheckIn->work_order_id);
-            $workOrder->status = Status::ONSITE;
-            $workOrder->save();
-
-            $response = [
-                'message' => 'Round Trip Check Out successfully for ' . $lastCheckIn->tech_name,
-                'id' => $lastCheckIn->work_order_id,
-                'total_hours' => $lastCheckIn->total_hours,
-            ];
-        } else {
-            $response = [
-                'message' => 'No check-in found for ' . $lastCheckIn->tech_name,
-            ];
+                $response = [
+                    'message' => ucfirst($type) . ' Check Out successfully for ' . $lastCheckIn->tech_name,
+                    'id' => $lastCheckIn->work_order_id,
+                    'total_hours' => $lastCheckIn->total_hours,
+                ];
+            } else {
+                $response = [
+                    'message' => 'checked out already',
+                    'id' => $CheckIn->work_order_id,
+                ];
+            }
         }
 
         return response()->json($response);
@@ -359,6 +355,9 @@ class UserController extends Controller
     public function orderIdsiteHistory($id)
     {
         $grab = WorkOrder::with('technician')->findOrFail($id);
+        if ($grab->technician === null) {
+            return response()->json(['errors' => 'Currently no tech is assigned to this order.'], 404);
+        }
         $siteId = $grab->site_id;
         $site = CustomerSite::with('customer', 'workOrder.technician')->where('id', $siteId)->first();
         $i = $site->workOrder->status == Status::CLOSED;
@@ -385,9 +384,8 @@ class UserController extends Controller
             'w_id' => @$grab->id,
             'wT' => @$site->workOrder->where('site_id', $siteId)->count(),
             'wC' => @$site->workOrder->where('site_id', $siteId)->where('status', $i)->count(),
-
         ];
-        return response()->json(['result' => $siteIdMain]);
+        return response()->json(['result' => $siteIdMain, 'message' => "Technician Assigned."]);
     }
 
 
@@ -754,6 +752,8 @@ class UserController extends Controller
             'customer_phone' => $workOrder->customer->phone,
             'scope_work' => $workOrder->scope_work,
             'tools_required' => $workOrder->r_tools,
+            'deliverables' => $workOrder->deliverables,
+            'instruction' => $workOrder->instruction,
             'customer_site_id' => $workOrder->site->site_id,
             'customer_site_address' => $workOrder->site->address_1,
             'customer_site_city' => $workOrder->site->city,
@@ -770,13 +770,25 @@ class UserController extends Controller
             'request_type' => $workOrder->request_type,
             'status' => $workOrder->status,
             'priority' => $workOrder->priority,
+            'project_manager' => $workOrder->customer->project_manager,
+            'sales_person' => $workOrder->customer->sales_person,
         ];
         return response()->json(['result' => $dataArray], 200);
     }
 
     public function generalNotes(Request $request)
     {
-        $generalNotes = TicketNotes::with('userData:id,firstname,lastname')->select('id', 'general_notes', 'auth_id', 'created_at', 'updated_at')->where('work_order_id', $request->id)->whereNotNull('general_notes');
+        $generalNotes = TicketNotes::with('userData:id,firstname,lastname')
+            ->select('id', 'general_notes', 'auth_id', 'created_at', 'updated_at')
+            ->where('work_order_id', $request->id)
+            ->whereNotNull('general_notes')
+            ->get();
+
+        $generalNotes = $generalNotes->map(function ($note) {
+            $note->general_notes = strip_tags($note->general_notes);
+            return $note;
+        });
+
         return DataTables::of($generalNotes)
             ->addIndexColumn()
             ->addColumn('formatted_created_at', function ($note) {
@@ -791,7 +803,17 @@ class UserController extends Controller
 
     public function dispatchNotes(Request $request)
     {
-        $dispatchNotes = TicketNotes::with('userData:id,firstname,lastname')->select('id', 'dispatch_notes', 'auth_id', 'created_at', 'updated_at')->where('work_order_id', $request->id)->whereNotNull('dispatch_notes');
+        $dispatchNotes = TicketNotes::with('userData:id,firstname,lastname')
+            ->select('id', 'dispatch_notes', 'auth_id', 'created_at', 'updated_at')
+            ->where('work_order_id', $request->id)
+            ->whereNotNull('dispatch_notes')
+            ->get();
+
+        $dispatchNotes = $dispatchNotes->map(function ($note) {
+            $note->dispatch_notes = strip_tags($note->dispatch_notes);
+            return $note;
+        });
+
         return DataTables::of($dispatchNotes)
             ->addIndexColumn()
             ->addColumn('formatted_created_at', function ($note) {
@@ -806,7 +828,17 @@ class UserController extends Controller
 
     public function billingNotes(Request $request)
     {
-        $billinghNotes = TicketNotes::with('userData:id,firstname,lastname')->select('id', 'billing_notes', 'auth_id', 'created_at', 'updated_at')->where('work_order_id', $request->id)->whereNotNull('billing_notes');
+        $billinghNotes = TicketNotes::with('userData:id,firstname,lastname')
+            ->select('id', 'billing_notes', 'auth_id', 'created_at', 'updated_at')
+            ->where('work_order_id', $request->id)
+            ->whereNotNull('billing_notes')
+            ->get();
+
+        $billinghNotes = $billinghNotes->map(function ($note) {
+            $note->billing_notes = strip_tags($note->billing_notes);
+            return $note;
+        });
+
         return DataTables::of($billinghNotes)
             ->addIndexColumn()
             ->addColumn('formatted_created_at', function ($note) {
@@ -821,7 +853,17 @@ class UserController extends Controller
 
     public function techSupportNotes(Request $request)
     {
-        $techSupportNotes = TicketNotes::with('userData:id,firstname,lastname')->select('id', 'tech_support_notes', 'auth_id', 'created_at', 'updated_at')->where('work_order_id', $request->id)->whereNotNull('tech_support_notes');
+        $techSupportNotes = TicketNotes::with('userData:id,firstname,lastname')
+            ->select('id', 'tech_support_notes', 'auth_id', 'created_at', 'updated_at')
+            ->where('work_order_id', $request->id)
+            ->whereNotNull('tech_support_notes')
+            ->get();
+
+        $techSupportNotes = $techSupportNotes->map(function ($note) {
+            $note->tech_support_notes = strip_tags($note->tech_support_notes);
+            return $note;
+        });
+
         return DataTables::of($techSupportNotes)
             ->addIndexColumn()
             ->addColumn('formatted_created_at', function ($note) {
@@ -836,7 +878,17 @@ class UserController extends Controller
 
     public function closeoutNotes(Request $request)
     {
-        $closeoutNotes = TicketNotes::with('userData:id,firstname,lastname')->select('id', 'close_out_notes', 'auth_id', 'created_at', 'updated_at')->where('work_order_id', $request->id)->whereNotNull('close_out_notes');
+        $closeoutNotes = TicketNotes::with('userData:id,firstname,lastname')
+            ->select('id', 'close_out_notes', 'auth_id', 'created_at', 'updated_at')
+            ->where('work_order_id', $request->id)
+            ->whereNotNull('close_out_notes')
+            ->get();
+
+        $closeoutNotes = $closeoutNotes->map(function ($note) {
+            $note->close_out_notes = strip_tags($note->close_out_notes);
+            return $note;
+        });
+
         return DataTables::of($closeoutNotes)
             ->addIndexColumn()
             ->addColumn('formatted_created_at', function ($note) {
@@ -1311,7 +1363,7 @@ class UserController extends Controller
             return response()->json(['message' => 'Work order not found. Please search the work order first.'], 404);
         }
 
-        if ($workOrder->technician == '') {
+        if ($workOrder->technician === null) {
             $site = $workOrder->site;
 
             if (!$site) {
@@ -1361,6 +1413,9 @@ class UserController extends Controller
         $destination = $request->input('destination');
 
         $technicians = Technician::AvailableFtech()->get(['id', 'address_data']);
+        if ($technicians->isEmpty()) {
+            return response()->json(['errors' => "No available technicians found!"], 404);
+        }
         $origins = [];
 
         // processing the origin data as acceptable format for api
@@ -1456,12 +1511,38 @@ class UserController extends Controller
         $id = [
             $workOrder->id,
         ];
+
         $response = [
             'id' => $id,
             'message' => 'Technician assigning successful for the selected work order.'
         ];
 
+        $this->sendWorkOrder($orderId, $tAvailable->email);
+
         return response()->json($response, 200);
+    }
+
+    private function sendWorkOrder($orderId, $techEmail)
+    {
+        //mail sending code
+        $to = $techEmail;
+        $sub = "Work order details of TechYeah";
+        $body = 'http://127.0.0.1:8000/user/pdf/user/work/order/download/' . $orderId;
+        $sender = "Tech Yeah";
+
+        $emailData = [
+            'subject' => $sub,
+            'body' => $body,
+            'to' => $to,
+            'sender' => $sender,
+        ];
+
+        try {
+            Mail::to($to)->send(new MyTestMail($emailData));
+            return response()->json(['message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Email failed to send', 'error' => $e->getMessage()], 500);
+        }
     }
 
 
@@ -1485,5 +1566,19 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Email failed to send', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function pdfWorkOrderUser($id)
+    {
+
+        $pageTitle = "Download Work Order";
+        $views = WorkOrder::with('site', 'customer')->find($id);
+        $imageFileNames = json_decode($views->pictures); // Decode the JSON array.
+        $pdf = PDF::loadView('user.pdf.work_order', compact('pageTitle', 'views', 'imageFileNames'))->setOptions(['defaultFont' => 'sans-serif']);
+        $pdf->setPaper('A4', 'portrait');
+        $customerCompanyName = @$views->customer->company_name;
+        $fileName = $customerCompanyName . '_Work_Order.pdf';
+
+        return $pdf->download($fileName);
     }
 }

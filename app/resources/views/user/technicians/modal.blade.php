@@ -3,6 +3,7 @@
         font-weight: bold;
         color: #333;
     }
+
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -12,10 +13,10 @@
             opacity: 1;
         }
     }
+
     #techSkillsForm {
         animation: fadeIn 0.5s ease-in-out;
     }
-
 </style>
 
 <script>
@@ -342,7 +343,7 @@
                             </div>
                             <div class="form-group col-6">
                                 <div class="spinner-border spinner-border-sm d-none" role="status" id="cus_import_spinner" style="margin-top: 30px;">
-                                <span class="visually-hidden">Loading...</span>
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
                             <div class="form-group col-12">
@@ -358,27 +359,28 @@
         </div>
     </div>
 </div>
+@push('technician_modal_script')
 <script>
     $(document).ready(function() {
 
-        $('#techDistanceForm').on('submit',function(e){
+        $('#techDistanceForm').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
 
             $.ajax({
                 url: "{{ route('user.tech.distance') }}",
                 type: "POST",
-                data:formData,
+                data: formData,
                 processData: false,
                 contentType: false,
-                success:function(data){
+                success: function(data) {
                     $('#destination_error').text("");
                     console.log(data);
-                    $('#error_message_api').text("Error Message : "+data.error_message);
-                    $('#error_message_api_status').text("Status : "+data.status);
+                    $('#error_message_api').text("Error Message : " + data.error_message);
+                    $('#error_message_api_status').text("Status : " + data.status);
                 },
-                error:function(xhr, status, error){
-                    
+                error: function(xhr, status, error) {
+
                     if (xhr.status === 422) {
                         $('#destination_error').text(xhr.responseJSON.errors.destination);
                     }
@@ -608,3 +610,4 @@
         });
     });
 </script>
+@endpush

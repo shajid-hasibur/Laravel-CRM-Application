@@ -1,83 +1,11 @@
 @extends('layouts.app')
 @section('content')
-
-<style>
-  .dataTables_wrapper .dataTables_filter {
-    float: right;
-  }
-
-  .dataTables_wrapper .dataTables_filter,
-  .dataTables_wrapper .dataTables_length {
-    display: inline-block;
-    margin-bottom: 10px;
-  }
-
-  .dataTables_wrapper .dataTables_length {
-    margin-top: 2px;
-  }
-
-  .dataTables_wrapper .dataTables_paginate {
-    display: inline-block;
-    float: right;
-    margin-top: 1px;
-  }
-
-  .dataTables_wrapper .dataTables_info,
-  .dataTables_wrapper .dataTables_paginate {
-    display: inline-block;
-    vertical-align: middle;
-    margin-top: 1px;
-  }
-
-  #general-notes-table td,
-  th {
-    text-align: center;
-  }
-
-  #dispatch-notes-table td,
-  th {
-    text-align: center;
-  }
-
-  #billing-notes-table td,
-  th {
-    text-align: center;
-  }
-
-  #techSupport-notes-table td,
-  th {
-    text-align: center;
-  }
-
-  #closeout-notes-table td,
-  th {
-    text-align: center;
-  }
-
-  .nav-link {
-    transition: all 0.3s ease-in-out;
-    color: black;
-    padding: 10px;
-    margin: 10px;
-  }
-
-  .nav-link:hover {
-    background-color: white;
-    color: black;
-    transform: translateY(-3px);
-  }
-
-  @media screen and (max-width: 767px) {
-    .nav-tabs {
-
-      margin-top: -20px;
-    }
-  }
-</style>
 <div class="container-fluid navigation" style="margin-top: 30px;" id="defualtWorkOrder">
   <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist" style="background-color:#AFE1AF;">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active mt-4" id="work-order-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-brands fa-first-order" style="color: green; margin-bottom:15px "></i> WO.Details</button>
+      <button class="nav-link active mt-4" id="work-order-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
+        <i class="fa-brands fa-first-order" style="color: green; margin-bottom:15px"></i> WO.Details
+      </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="notes-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fa-regular fa-note-sticky" style="color: green; margin-bottom:15px;"></i> WO.History</button>
@@ -97,9 +25,9 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="check_out" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fas fa-sign-in-alt" style="color: green;margin-bottom:15px;"></i> Check-In/Out</button>
     </li>
-    <li class="nav-item" role="presentation">
+    {{-- <li class="nav-item" role="presentation">
       <button class="nav-link mt-4" id="tech_distance" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><i class="fas fa-tasks" style="color: green;margin-bottom:15px;"></i> T.Assign</button>
-    </li>
+    </li> --}}
   </ul>
   {{-- <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
@@ -305,7 +233,12 @@
                 <textarea name="tech_support_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-12">
-                <button class="btn btn-primary w-100 mt-3" type="submit">Submit</button>
+                <button class="btn btn-primary w-100 mt-3" type="submit" style="position: relative;">
+                  <span>Submit</span>
+                  <div class="spinner-border text-primary  loader d-none" role="status" style="position: absolute; top: 50%; left: 50%;  margin-top:-210px; margin-left:-15px;">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
@@ -467,7 +400,7 @@
               </div>
               <div class="col-md-12 ">
                 <h6>Deliverables</h6>
-                <textarea name="deliverables" class="form-control summernote"></textarea>
+                <textarea name="deliverables" class="form-control summernote" id="dashboardDeliverables"></textarea>
               </div>
               <div class="col-md-12 ">
                 <h6>Tools Required</h6>
@@ -475,7 +408,7 @@
               </div>
               <div class="col-md-12 ">
                 <h6>Dispatch Instructions</h6>
-                <textarea name="instruction" class="form-control summernote"></textarea>
+                <textarea name="instruction" class="form-control summernote" id="dashboardDispatchIns"></textarea>
               </div>
               <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit">Submit</button>
@@ -490,7 +423,7 @@
 </div>
 </div>
 <div class="container-fluid d-none" id="notes-container">
-  <div class="card shadow" style="margin-top:-60px; border-top:none; border-radius:0px ">
+  <div class="card shadow" style="margin-top:-60px; border-top:none; border-radius:0px">
     <div class="card-body mt-4 p-4">
       <div class="row">
         <div class="form-group col-12">
@@ -615,21 +548,34 @@
           <h3>Site History</h3>
         </div>
         <div class="card-body">
-          <div class="row justify-content-between">
-            <div class="col-md-6">
-              <p id="siteHCompany"></p>
-              <p id="siteHLocation"></p>
-              <p id="siteHState"></p>
-              <p id="siteHZipcode"></p>
-              <p id="siteHCity"></p>
-              <p id="siteHAddress"></p>
-            </div>
-            <div class="col-md-6">
-              <p id="siteHtech"></p>
-              <p id="siteHname"></p>
-              <p id="siteHphone"></p>
-              <p id="siteHwork"></p>
-              <p id="siteHwcomplete"></p>
+          <div class="row">
+            <div class="col-6 mx-auto">
+              <table class="table table-bordered text-left">
+                <tr>
+                  <td id="siteHCompany"></td>
+                  <td id="siteHLocation"></td>
+                </tr>
+                <tr>
+                  <td id="siteHState"></td>
+                  <td id="siteHZipcode"></td>
+                </tr>
+                <tr>
+                  <td id="siteHCity"></td>
+                  <td id="siteHAddress"></td>
+                </tr>
+                <tr>
+                  <td id="siteHtech"></td>
+                  <td id="siteHname"></td>
+                </tr>
+                <tr>
+                  <td id="siteHphone"></td>
+                  <td id="siteHwork"></td>
+                </tr>
+                <tr>
+                  <td id="siteHwcomplete"></td>
+                  <td></td>
+                </tr>
+              </table>
             </div>
           </div>
         </div>
@@ -721,24 +667,39 @@
   </div>
 </div>
 <div class="container-fluid d-none" id="fieldTech_view" style="margin-top:-60px">
-  <div class="card" style="border-top:none; border-radius:0px ">
-    <div class="card-header">
+  <div class="card" style="border-top:none; border-radius:0px">
+    <div class="card-header d-flex justify-content-between">
       <h3>Field Technician</h3>
+      <button type="button" class="btn btn-success" id="findClosestTechBtn"><i class="fa fa-magnifying-glass" style="font-size: 13px;"></i>&nbsp;Find Tech</button>
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6">
-          <p id="ftech_company"></p>
-          <p id="ftech_id"></p>
-          <p id="ftech_email"></p>
-          <p id="ftech_address"></p>
+        <div class="col-6 mx-auto">
+          <h5>Assigned Technician Details</h5>
+          <table class="table table-bordered text-left">
+            <tr>
+              <td id="ftech_company"></td>
+              <td id="ftech_country"></td>
+            </tr>
+            <tr>
+              <td id="ftech_id"></td>
+              <td id="ftech_city"></td>
+            </tr>
+            <tr>
+              <td id="ftech_email"></td>
+              <td id="ftech_state"></td>
+            </tr>
+            <tr>
+              <td id="ftech_address"></td>
+              <td id="ftech_zipcode"></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style="text-align: right" id="assignedTechMessage"></td>
+            </tr>
+          </table>
         </div>
-        <div class="col-md-6">
-          <p id="ftech_country"></p>
-          <p id="ftech_city"></p>
-          <p id="ftech_state"></p>
-          <p id="ftech_zipcode"></p>
-        </div>
+
       </div>
     </div>
   </div>
@@ -788,7 +749,7 @@
     <div class="card-body">
       @php
       use Carbon\Carbon;
-      $date = date('d/m/y');
+      $date = date('m/d/y');
       $time = Carbon::now()->format('H:i:s');
       @endphp
       <div class="row">
@@ -841,10 +802,11 @@
     </div>
   </div>
 </div>
-<div class="container-fluid d-none" id="fieldTech_view" style="margin-top:-60px">
+{{-- <div class="container-fluid d-none" id="fieldTech_view" style="margin-top:-60px">
   <div class="card" style="border-top:none; border-radius:0px ">
     <div class="card-header">
       <h3>Field Technician</h3>
+      
     </div>
     <div class="card-body">
       <div class="row">
@@ -863,11 +825,11 @@
       </div>
     </div>
   </div>
-</div>
+</div> --}}
 <div class="container-fluid d-none" id="tech_distance_view" style="margin-top:-60px">
   @include('user.distanceMeasureModal.assign')
   @include('user.distanceMeasureModal.contact')
-  <div class="card" style="border-top: none; border-radius:0px;">
+  <div class="card" style="border-top: none; border-radius:0px; margin-top: 40px;">
     <div class="card-header">
       <h3>Measure Technician Distance</h3>
     </div>

@@ -117,7 +117,7 @@
 
        }
 
-     
+
 
 
        .logo a {
@@ -621,4 +621,87 @@
            float: right;
 
        } */
+
+       .dataTables_wrapper .dataTables_filter {
+           float: right;
+       }
+
+       .dataTables_wrapper .dataTables_filter,
+       .dataTables_wrapper .dataTables_length {
+           display: inline-block;
+           margin-bottom: 10px;
+       }
+
+       .dataTables_wrapper .dataTables_length {
+           margin-top: 2px;
+       }
+
+       .dataTables_wrapper .dataTables_paginate {
+           display: inline-block;
+           float: right;
+           margin-top: 1px;
+       }
+
+       .dataTables_wrapper .dataTables_info,
+       .dataTables_wrapper .dataTables_paginate {
+           display: inline-block;
+           vertical-align: middle;
+           margin-top: 1px;
+       }
+
+       #general-notes-table td,
+       th {
+           text-align: center;
+       }
+
+       #dispatch-notes-table td,
+       th {
+           text-align: center;
+       }
+
+       #billing-notes-table td,
+       th {
+           text-align: center;
+       }
+
+       #techSupport-notes-table td,
+       th {
+           text-align: center;
+       }
+
+       #closeout-notes-table td,
+       th {
+           text-align: center;
+       }
+
+       .nav-link {
+           transition: all 0.3s ease-in-out;
+           color: black;
+           padding: 10px;
+           margin: 10px;
+       }
+
+       .nav-link:hover {
+           background-color: white;
+           color: black;
+           transform: translateY(-3px);
+       }
+
+       @media screen and (max-width: 767px) {
+           .nav-tabs {
+
+               margin-top: -20px;
+           }
+
+           #my-table {
+               width: 100%;
+               border-collapse: collapse;
+           }
+
+           #my-table td {
+               padding: 10px;
+               border: 1px solid black;
+           }
+
+       }
    </style>

@@ -120,6 +120,12 @@
                                 <li><a href='#' id="Wsearch"> <i class="fas fa-search
                        "></i> <span class="mx-3"> Search</span></a>
                                 </li>
+                                <li><a href="{{route('user.work.order.view.pdf')}}"> <i class="fas fa-list
+                       "></i> <span class="mx-3"> All Record</span></a>
+                                </li>
+                                <li><a href="{{route('user.home')}}"> <i class="fas fa-home
+                       "></i> <span class="mx-3">Home</span></a>
+                                </li>
 
                             </ul>
                         </li>
@@ -139,7 +145,7 @@
                                 <li><a href='#' id="techNewButton"><i class="fa-solid fa-envelope-open"></i> <span class="mx-3">New</span></a></li>
                                 <li><a href='#' id="techSearchButton"> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a>
                                 <li><a href='#' id="techImportButton"><i class="fa-solid fa-file-import"></i><span class="mx-3">Import</span></a>
-                                {{-- <li><a href='#' id="techDistanceButton"><i class="fa-solid fas fa-clone"></i><span class="mx-1">TechByDistance</span></a>
+                                    {{-- <li><a href='#' id="techDistanceButton"><i class="fa-solid fas fa-clone"></i><span class="mx-1">TechByDistance</span></a>
                                 </li> --}}
                             </ul>
                         </li>
