@@ -46,6 +46,8 @@ Route::middleware('auth')->name('user.')->group(function () {
             Route::controller('UserController')->group(function () {
                 Route::get('dashboard', 'home')->name('home');
                 //work order manage
+                Route::get('order/delete/{id}', 'wODelete')->name('order.delete');
+
                 Route::Post('work/order/service', 'service')->name('work.order.service');
                 Route::Post('work/order/project', 'project')->name('work.order.project');
                 Route::Post('work/order/install', 'install')->name('work.order.install');
@@ -77,7 +79,6 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('create/round/trip/check/out/{id}', 'roundTripCheckOut')->name('checkout.roundtrip');
                 Route::post('check/in/out/update/{id}', 'checkOutEdit')->name('checkout.edit');
                 Route::get('check/in/out/delete/{id}', 'checkOutDelete')->name('checkout.delete');
-                Route::get('pdf/user/work/order/download/{id}', 'pdfWorkOrderUser')->name('work.order.pdf.user');
 
                 Route::get('work/order/sub/ticket/{id}', 'workOrderSubTicket')->name('table.sub.ticket');
                 Route::get('check/in/out/{id}', 'checkInOutTable')->name('table.checkInOut');
@@ -104,6 +105,7 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::post('find/tech/for/work/worder', 'distanceResponse')->name('findTech.withDistance');
                 Route::post('dispatch/work/order', 'assignTech')->name('dispatch.order');
                 Route::post('send/mail', 'sendMail')->name('sendmail.tech');
+                Route::get('site/modal/auto/autocomplete', 'siteModalAutoComplete')->name('modal.site.search');
                 // Route::get('/assigned/tech')
                 //end work order manage
                 //2FA

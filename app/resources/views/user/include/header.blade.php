@@ -109,42 +109,32 @@
                         @else
                         <li><a href='#'>Work Order</a>
                             <ul>
-                                <li><a href='#'><i class="fa-solid fa-envelope-open
-
-                             "></i> <span class="mx-3"> New</span></a>
+                                <li><a href='#'><i class="fa-solid fa-envelope-open"></i> <span class="mx-3"> New</span></a>
                                     <ul>
                                         <li><a href="#" id="serviceButton"><i class="fa-brands fa-servicestack"></i> <span class="mx-3">Service</span></a></li>
                                         <li><a href="#" id="projectButton"><i class="fa-solid fa-bars-progress"></i> <span class="mx-3"> Project</span></a></li>
                                         <li><a href="#" id="installButton"><i class="fa-brands fa-instalod"></i> <span class="mx-3"> install</span></a></li>
                                     </ul>
-                                <li><a href='#' id="Wsearch"> <i class="fas fa-search
-                       "></i> <span class="mx-3"> Search</span></a>
+                                <li><a href='#' id="Wsearch"> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a></li>
+                                <li><a href="{{route('user.work.order.view.pdf')}}"> <i class="fas fa-list"></i> <span class="mx-3">All Record</span></a>
                                 </li>
-                                <li><a href="{{route('user.work.order.view.pdf')}}"> <i class="fas fa-list
-                       "></i> <span class="mx-3"> All Record</span></a>
-                                </li>
-                                <li><a href="{{route('user.home')}}"> <i class="fas fa-home
-                       "></i> <span class="mx-3">Home</span></a>
-                                </li>
-
+                                <li><a href="{{route('user.home')}}"> <i class="fas fa-home"></i> <span class="mx-3">Home</span></a></li>
                             </ul>
                         </li>
 
                         <li><a href='#'>Site</a>
                             <ul>
-                                <li><a href='#' id="siteNewButton"><i class="fa-solid fa-envelope-open
-
-                                               "></i> <span class="mx-3">New</span></a></li>
+                                <li><a href='#' id="siteNewButton"><i class="fa-solid fa-envelope-open"></i> <span class="mx-3">New</span></a></li>
                                 <li><a href='#' id="siteSearchButton"><i class="fas fa-search"></i> <span class="mx-3">Search</span></a>
-                                <li><a href='#' id="siteImportButton"><i class="fa-solid fa-file-import"></i> <span class="mx-3">import</span></a>
-                                </li>
+                                {{-- <li><a href='#' id="siteImportButton"><i class="fa-solid fa-file-import"></i> <span class="mx-3">import</span></a>
+                                </li> --}}
                             </ul>
                         </li>
                         <li><a href='#'>Field Techs</a>
                             <ul>
                                 <li><a href='#' id="techNewButton"><i class="fa-solid fa-envelope-open"></i> <span class="mx-3">New</span></a></li>
                                 <li><a href='#' id="techSearchButton"> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a>
-                                <li><a href='#' id="techImportButton"><i class="fa-solid fa-file-import"></i><span class="mx-3">Import</span></a>
+                                {{-- <li><a href='#' id="techImportButton"><i class="fa-solid fa-file-import"></i><span class="mx-3">Import</span></a> --}}
                                     {{-- <li><a href='#' id="techDistanceButton"><i class="fa-solid fas fa-clone"></i><span class="mx-1">TechByDistance</span></a>
                                 </li> --}}
                             </ul>
@@ -183,12 +173,12 @@
                         <ul>
                             <li><a href='#' id='cusNewButton'>New Customer</a></li>
                             <li><a href='#' id='cusSearchButton'>Search Customer</a></li>
-                            <li><a href='#' id='cusImportButton'>Import</a></li>
+                            {{-- <li><a href='#' id='cusImportButton'>Import</a></li> --}}
                         </ul>
                     </li>
                     <li><a href='#'>Quotes</a>
                         <ul>
-                            <li><a href='#'>Nea Quotes </a></li>
+                            <li><a href='#'>New Quotes </a></li>
                             <li><a href='#'> Search Quotes </a>
                             </li>
                         </ul>

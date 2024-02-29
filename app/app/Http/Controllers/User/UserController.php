@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\User;
+
 use App\Http\Controllers\Controller;
 use App\Imports\SitesImport;
 use Illuminate\Http\Request;
@@ -94,15 +96,15 @@ class UserController extends Controller
 
         $date = date('mdy');
         $id = $date . "-" . $rand;
-        $service = new WorkOrder();
-        $service->order_id = "P" . $f . $id;
-        $service->open_date = date('m/d/y');
-        $service->order_type = Status::PROJECT;
-        $service->status = Status::NEW;
-        $service->save();
+        $project = new WorkOrder();
+        $project->order_id = "P" . $f . $id;
+        $project->open_date = date('m/d/y');
+        $project->order_type = Status::PROJECT;
+        $project->status = Status::NEW;
+        $project->save();
         $response = [
             'message' => 'Project work order created successfully without data',
-            'id' => $service->id,
+            'id' => $project->id,
         ];
         return response()->json($response);
     }
@@ -120,15 +122,15 @@ class UserController extends Controller
         }
         $date = date('mdy');
         $id = $date . "-" . $rand;
-        $service = new WorkOrder();
-        $service->order_id = "I" . $f . $id;
-        $service->open_date = date('m/d/y');
-        $service->order_type = Status::INSTALL;
-        $service->status = Status::NEW;
-        $service->save();
+        $install = new WorkOrder();
+        $install->order_id = "I" . $f . $id;
+        $install->open_date = date('m/d/y');
+        $install->order_type = Status::INSTALL;
+        $install->status = Status::NEW;
+        $install->save();
         $response = [
             'message' => 'Install work order created successfully without data',
-            'id' => $service->id,
+            'id' => $install->id,
         ];
         return response()->json($response);
     }
@@ -141,40 +143,51 @@ class UserController extends Controller
 
     public function updateWorkOrder(Request $request)
     {
+        // dd($request->all());
         try {
-            $find = WorkOrder::where('order_id', $request->order_id)->firstOrFail();
+            $validator = Validator::make($request->all(), [
+                'workOrderId' => 'required|exists:work_orders,id',
+                'customer_id' => 'required|exists:customers,id',
+                'site_id' => 'required|exists:customer_sites,id',
+            ]);
 
-            $cusId = null;
-            if ($request->customer_id) {
-                $cusFind = Customer::where('customer_id', $request->customer_id)->first();
-                if ($cusFind) {
-                    $cusId = $cusFind->id;
-                } else {
-                    throw new \Exception('Customer not found.');
-                }
+            if ($validator->fails()) {
+                return response(['errors' => $validator->errors()], 422);
             }
 
-            $siteId = null;
-            if ($request->site_id) {
-                $siteFind = CustomerSite::where('site_id', $request->site_id)->first();
-                if ($siteFind) {
-                    $siteId = $siteFind->id;
-                } else {
-                    throw new \Exception('Customer site not found.');
-                }
-            }
+            // $find = WorkOrder::where('order_id', $request->order_id)->firstOrFail();
 
-            $id = $find->id;
+            // $cusId = null;
+            // if ($request->customer_id) {
+            //     $cusFind = Customer::where('customer_id', $request->customer_id)->first();
+            //     if ($cusFind) {
+            //         $cusId = $cusFind->id;
+            //     } else {
+            //         throw new \Exception('Customer not found.');
+            //     }
+            // }
 
-            $update = WorkOrder::find($id);
+            // $siteId = null;
+            // if ($request->site_id) {
+            //     $siteFind = CustomerSite::where('site_id', $request->site_id)->first();
+            //     if ($siteFind) {
+            //         $siteId = $siteFind->id;
+            //     } else {
+            //         throw new \Exception('Customer site not found.');
+            //     }
+            // }
+
+            // $id = $find->id;
+
+            $update = WorkOrder::find($request->workOrderId);
             $update->priority = $request->priority;
             $update->open_date = $request->open_date;
             $update->requested_by = $request->requested_by;
             $update->request_type = $request->request_type;
             $update->complete_by = $request->complete_by;
             $update->status = $request->status;
-            $update->slug = $cusId;
-            $update->site_id = $siteId;
+            $update->slug = $request->customer_id;
+            $update->site_id = $request->site_id;
             $update->scope_work = $request->scope_work;
             $update->num_tech_required = $request->num_tech_required;
             $update->on_site_by = $request->on_site_by;
@@ -186,13 +199,10 @@ class UserController extends Controller
             $update->deliverables = $request->deliverables;
             if ($request->hasFile('pictures')) {
                 $pictureFiles = $request->file('pictures');
-
                 $fileNames = [];
-
                 foreach ($pictureFiles as $pictureFile) {
-                    $fileNamePicture = $id . '_' . $pictureFile->getClientOriginalName();
+                    $fileNamePicture = $request->workOrderId . '_' . $pictureFile->getClientOriginalName();
                     $pictureFile->move(public_path('imgs'), $fileNamePicture);
-
                     $fileNames[] = $fileNamePicture;
                 }
                 $update->pictures = json_encode($fileNames);
@@ -201,7 +211,7 @@ class UserController extends Controller
 
             if ($request->general_notes || $request->billing_notes || $request->tech_support_notes || $request->close_out_notes || $request->dispatch_notes) {
                 $note = new TicketNotes();
-                $note->work_order_id = $id;
+                $note->work_order_id = $request->workOrderId;
                 $note->auth_id = auth()->id();
                 $note->general_notes = $request->general_notes;
                 $note->billing_notes = $request->billing_notes;
@@ -213,12 +223,13 @@ class UserController extends Controller
 
             $response = [
                 'message' => 'Work order updated successfully',
-                'id' => $id
+                'id' => $request->workOrderId
             ];
+
             return response()->json($response);
         } catch (\Exception $e) {
             $response = [
-                'error' => $e->getMessage()
+                'errors' => 'A fatal error occured while we processing your request.'
             ];
             return response()->json($response, 500);
         }
@@ -646,12 +657,13 @@ class UserController extends Controller
 
     public function getSite(Request $request)
     {
-        $site = CustomerSite::findOrFail($request->id);
+        $site = CustomerSite::with('customer')->findOrFail($request->id);
         $response = [
             'address' => $site->address_1,
             'city' => $site->city,
             'state' => $site->state,
             'zipcode' => $site->zipcode,
+            'customer' => $site->customer->company_name,
         ];
 
         return response()->json(['result' => $response], 200);
@@ -674,6 +686,21 @@ class UserController extends Controller
         if (!$customerId) {
             return response()->json(['errors' => 'Please select a customer first.'], 422);
         }
+
+        return response()->json(['results' => $results], 200);
+    }
+
+    public function siteModalAutoComplete(Request $request)
+    {
+        $query = $request->input('query');
+        $results = CustomerSite::select('id', 'site_id', 'location', 'zipcode', 'customer_id')
+            ->where(function ($queryBuilder) use ($query) {
+                $queryBuilder->where('site_id', 'like', '%' . $query . '%')
+                    ->orWhere('zipcode', 'like', '%' . $query . '%')
+                    ->orWhere('location', 'like', '%' . $query . '%');
+            })
+            ->limit(10)
+            ->get();
 
         return response()->json(['results' => $results], 200);
     }
@@ -772,6 +799,8 @@ class UserController extends Controller
             'priority' => $workOrder->priority,
             'project_manager' => $workOrder->customer->project_manager,
             'sales_person' => $workOrder->customer->sales_person,
+            'customerId' => $workOrder->slug,
+            'siteId' => $workOrder->site_id,
         ];
         return response()->json(['result' => $dataArray], 200);
     }
@@ -1567,18 +1596,11 @@ class UserController extends Controller
             return response()->json(['message' => 'Email failed to send', 'error' => $e->getMessage()], 500);
         }
     }
-
-    public function pdfWorkOrderUser($id)
+    public function wODelete($id)
     {
-
-        $pageTitle = "Download Work Order";
-        $views = WorkOrder::with('site', 'customer')->find($id);
-        $imageFileNames = json_decode($views->pictures); // Decode the JSON array.
-        $pdf = PDF::loadView('user.pdf.work_order', compact('pageTitle', 'views', 'imageFileNames'))->setOptions(['defaultFont' => 'sans-serif']);
-        $pdf->setPaper('A4', 'portrait');
-        $customerCompanyName = @$views->customer->company_name;
-        $fileName = $customerCompanyName . '_Work_Order.pdf';
-
-        return $pdf->download($fileName);
+        $w = WorkOrder::find($id);
+        $w->delete();
+        $notify[] = ['success', 'delete success'];
+        return back()->withNotify($notify);
     }
 }

@@ -2,7 +2,7 @@
 @section('content')
 
 <style>
-    .side-img  {
+    .side-img {
         margin-top: 225px;
     }
 </style>
@@ -28,19 +28,14 @@
                                             <div class="form-group">
                                                 <label class="form-label text-white">@lang('Password')</label>
                                                 <input type="password" class="form-control " name="password">
+                                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                                <label class="  form-check-label text-white" for="remember">
+                                                    @lang('Remember Me')
+                                                </label>
+                                                <button type="submit" class="btn btn-primary w-100 mt-4">
+                                                    @lang('Login')
+                                                </button>
                                             </div>
-                                        </div>
-                                        <br>
-                                        <div class="form-group form-check">
-                                            <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                            <label class="form-check-label text-white" for="remember">
-                                                @lang('Remember Me')
-                                            </label>
-                                        </div>
-                                        <div class="form-group text-center">
-                                            <button type="submit" class="btn btn-primary w-100">
-                                                @lang('Login')
-                                            </button>
                                         </div>
                                     </form>
                                     <hr>

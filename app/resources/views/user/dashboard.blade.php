@@ -50,13 +50,15 @@
       </div>
       @endif
       <div class="card shadow whole-card " style=" border-radius:0px; border-top:none ">
-        <form action="" id="defaultWO" enctype="multipart/form-data">
+        <form id="defaultWO" enctype="multipart/form-data">
+          @csrf
           <div class="card-body mt-4 p-4">
             <div class="row">
               <div class="col">
                 <h6><i class="fas fa-magnifying-glass" style="font-size: 13px"></i>&nbsp;Work Order</h6>
                 <input name="order_id" type="text" class="form-control" id="workOrderSearchInput" placeholder="OrderId/CompanyName/Zipcode" autocomplete="off">
                 <input type="hidden" name="workOrderId" id="workOrderId">
+                <span id="dashboardOrderIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col">
                 <h6>Requested Date</h6>
@@ -112,11 +114,14 @@
               </div>
               <div class="col-md-6">
                 <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="dashboardCustomerId" placeholder="Search with Customer Name / Customer Id / Zipcode" autocomplete="off">
+                <input type="text" class="form-control" id="dashboardCustomerId" placeholder="Search with Customer Name / Customer Id / Zipcode" autocomplete="off">
+                <input type="hidden" name="customer_id" id="dashboardCustomerIdInput">
+                <span id="dashboardCustomerIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
                 <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
-                <input name="site_id" type="text" class="form-control" id="dashboardSiteId" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
+                <input type="text" class="form-control" id="dashboardSiteId" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
+                <input type="hidden"  name="site_id" id="dashboardSiteIdInput">
                 <span id="dashboardSiteIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
@@ -233,12 +238,10 @@
                 <textarea name="tech_support_notes" class="form-control summernote col-mb-12"></textarea>
               </div>
               <div class="col-12">
-                <button class="btn btn-primary w-100 mt-3" type="submit" style="position: relative;">
-                  <span>Submit</span>
-                  <div class="spinner-border text-primary  loader d-none" role="status" style="position: absolute; top: 50%; left: 50%;  margin-top:-210px; margin-left:-15px;">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                </button>
+                <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton">
+                  <i class="d-none fa fa-spinner fa-spin" style="font-size:16px"></i>
+                  <span class="button-text">Submit</span>
+                </button>              
               </div>
             </div>
           </div>
@@ -267,12 +270,15 @@
       @endif
 
       <div class="card shadow whole-card p-3">
-        <form action="" id="WOFORM">
+        <form id="WOFORM">
+          @csrf
           <div class="card-body">
-            <div class="row ">
-              <div class="col ">
+            <div class="row">
+              <div class="col">
                 <h6>Work Order</h6>
-                <input name="order_id" type="text" class="form-control" id="workOrderCreateInput" readonly>
+                <input type="text" class="form-control" id="workOrderCreateInput" readonly>
+                <input type="hidden" name="workOrderId" id="workOrderCreateId">
+                <span id="createFormWoIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col">
                 <h6>Requested Date</h6>
@@ -280,7 +286,7 @@
               </div>
               <div class="col">
                 <h6>Requested By</h6>
-                <input name="requested_by" type="text" class="form-control" id="dashboardReqBy">
+                <input name="requested_by" type="text" class="form-control">
               </div>
               <div class="col">
                 <h6>Request Type</h6>
@@ -327,11 +333,14 @@
               </div>
               <div class="col-md-6">
                 <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
-                <input name="customer_id" type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
+                <input type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
+                <input type="hidden" name="customer_id" id="customer_idCreateForm">
+                <span id="createFormCusIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
                 <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
                 <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
+                <input type="hidden" name="site_id" id="site_idCreateForm">
                 <span id="siteIdCreateFormErrors" style="font-size: 14px; color:red;"></span>
               </div>
               <div class="col-md-6">
@@ -410,9 +419,10 @@
                 <h6>Dispatch Instructions</h6>
                 <textarea name="instruction" class="form-control summernote" id="dashboardDispatchIns"></textarea>
               </div>
-              <div class="col-12">
-                <button class="btn btn-primary w-100 mt-3" type="submit">Submit</button>
-              </div>
+              <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton2">
+                <i class="d-none fa fa-spinner fa-spin" style="font-size:16px"></i>
+                <span class="button-text2">Submit</span>
+              </button> 
             </div>
           </div>
       </div>
@@ -549,7 +559,7 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-6 mx-auto">
+            <div class="col-12 mx-auto">
               <table class="table table-bordered text-left">
                 <tr>
                   <td id="siteHCompany"></td>
@@ -593,38 +603,50 @@
         <div class="col-md-6">
           <div class="card">
             <div class="card-header">
-              <h3>Select Parts From Inventory</h3>
+              <h5>Select Parts From Inventory</h5>
             </div>
             <form id="parts-form">
               <div class="card-body">
                 <div class="row">
                   <div class="form-group col-6">
-                    <div class="form-label">Search Parts</div>
+                    <div class="form-label">
+                      <h6>Search Parts</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-search-parts">
                     <input type="hidden" id="parts-customer-id">
                   </div>
                   <div class="form-group col-6">
-                    <div class="form-label">Item Name</div>
+                    <div class="form-label">
+                      <h6>Item Name</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-item-name" readonly>
                   </div>
                   <div class="form-group col-6">
-                    <div class="form-label">Quantity Left</div>
+                    <div class="form-label">
+                      <h6>Quantity Left</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-quantity" readonly>
                   </div>
                   <div class="form-group col-6">
-                    <div class="form-label">Quantity Need</div>
+                    <div class="form-label">
+                      <h6>Quantity Need</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-quantity-need">
                   </div>
                   <div class="form-group col-6">
-                    <div class="form-label">Unit Price</div>
+                    <div class="form-label">
+                      <h6>Unit Price</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-unit-price" readonly>
                   </div>
                   <div class="form-group col-6">
-                    <div class="form-label">Total Price</div>
+                    <div class="form-label">
+                      <h6>Total Price</h6>
+                    </div>
                     <input type="text" class="form-control" id="parts-total-price" readonly>
                   </div>
-                  <div class="col-12">
-                    <button type="button" id="submit-inventory" class="btn btn-primary btn-sm mt-2 w-100"><i class="fas fa-sign-out-alt"></i> Submit</button>
+                  <div class="col-12 mt-2">
+                    <button type="button" id="submit-inventory" class="btn btn-primary btn-sm mt-2 w-100"><i class="fas fa-sign-out-alt "></i> Submit</button>
                   </div>
                 </div>
               </div>
@@ -633,9 +655,10 @@
         </div>
         <div class="col-6">
           <div class="card">
+            <div class="card-header">
+              <h5>Customer Inventory Details</h5>
+            </div>
             <div class="card-body">
-              <label style="font-weight: 600">Customer Inventory Details</label>
-              <hr>
               <table class="table table-bordered">
                 <thead>
                   <tr class="text-center">
@@ -674,7 +697,7 @@
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-6 mx-auto">
+        <div class="col-12 mx-auto">
           <h5>Assigned Technician Details</h5>
           <table class="table table-bordered text-left">
             <tr>

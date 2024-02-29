@@ -1,4 +1,4 @@
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ladda-bootstrap/0.9.4/spin.min.js"></script>
 <script>
     var customerId = "";
     $(document).ready(function() {
@@ -84,7 +84,9 @@
                         "query": request.term,
                     },
                     success: function(data) {
+                        console.log(data);
                         response($.map(data.results, function(item) {
+                            
                             return {
                                 label: item.order_id + "-" + item.company_name,
                                 value: item.order_id,
@@ -102,9 +104,9 @@
             }
         });
 
-        $('#findClosestTechBtn').click(function(){
-           window.confirm("Are you sure want to find closest technician?");
-           findWorkOrder();
+        $('#findClosestTechBtn').click(function() {
+            window.confirm("Are you sure want to find closest technician?");
+            findWorkOrder();
         });
 
         function findWorkOrder() {
@@ -139,7 +141,7 @@
         function ifNullWorkOrder(orderId) {
             $('#work-order-tab').addClass('active');
             $('#notes-tab, #site-history-tab, #parts, #ticket, #fieldTech, #check_out').removeClass('active');
-            
+
             $.ajax({
                 url: "{{ route('user.workOrder.check') }}",
                 type: "POST",
@@ -328,7 +330,7 @@
                     setSiteData(data.result);
                 },
                 error: function(xhr, status, error) {
-                    if(xhr.status == 404){
+                    if (xhr.status == 404) {
                         $('#assignedTechMessage').text(xhr.responseJSON.errors);
                         $('#ftech_id').text("");
                         $('#ftech_email').text("");
@@ -344,29 +346,29 @@
         }
 
         function setSiteData(data) {
-            $('#siteHCompany').text('Site Company : ' + (data.company_name || ''));
-            $('#siteHLocation').text('Site Location : ' + (data.location || ''));
-            $('#siteHAddress').text('Site Address : ' + (data.address_1 || ''));
-            $('#siteHZipcode').text('Site Zipcode : ' + (data.zipcode || ''));
-            $('#siteHCity').text('Site City : ' + (data.city || ''));
-            $('#siteHState').text('Site State : ' + (data.state || ''));
-            $('#siteHtech').text('Technician Required : ' + (data.num_tech_required || ''));
-            $('#siteHname').text('Site Contact Name : ' + (data.site_contact_name || ''));
-            $('#siteHphone').text('Site Contact Phone : ' + (data.site_contact_phone || ''));
-            $('#siteHwork').text('Total Work Order : ' + (data.wT || ''));
-            $('#siteHwcomplete').text('Total Work Order Complete : ' + (data.wC || ''));
-            $('#r_tools').html('' + (data.r_tools || ''));
-            $('#ftech_company').text('Company Name : ' + (data.fcompany_name || ''));
+            $('#siteHCompany').html('<strong><span style="font-size: 16px;">Site Company :</span></strong> ' + (data.company_name || ''));
+            $('#siteHLocation').html('<strong><span style="font-size: 16px;">Site Location :</span></strong> ' + (data.location || ''));
+            $('#siteHAddress').html('<strong><span style="font-size: 16px;">Site Address :</span></strong> ' + (data.address_1 || ''));
+            $('#siteHZipcode').html('<strong><span style="font-size: 16px;">Site Zipcode :</span></strong> ' + (data.zipcode || ''));
+            $('#siteHCity').html('<strong><span style="font-size: 16px;">Site City :</span></strong> ' + (data.city || ''));
+            $('#siteHState').html('<strong><span style="font-size: 16px;">Site State :</span></strong> ' + (data.state || ''));
+            $('#siteHtech').html('<strong><span style="font-size: 16px;">Technician Required :</span></strong> ' + (data.num_tech_required || ''));
+            $('#siteHname').html('<strong><span style="font-size: 16px;">Site Contact Name :</span></strong> ' + (data.site_contact_name || ''));
+            $('#siteHphone').html('<strong><span style="font-size: 16px;">Site Contact Phone :</span></strong> ' + (data.site_contact_phone || ''));
+            $('#siteHwork').html('<strong><span style="font-size: 16px;">Total Work Order :</span></strong> ' + (data.wT || ''));
+            $('#siteHwcomplete').html('<strong><span style="font-size: 16px;">Total Work Order Complete :</span></strong> ' + (data.wC || ''));
+            $('#r_tools').html('<strong><span style="font-size: 16px;">' + (data.r_tools || '') + '</span></strong>');
+            $('#ftech_company').html('<strong><span style="font-size: 16px;">Company Name :</span></strong> ' + (data.fcompany_name || ''));
             $('#Check_in_ftech_company').val((data.fcompany_name || ''));
-            $('#Header_time_zone').text('Time Zone : ' + (data.time_zone || ''));
+            $('#Header_time_zone').html('<strong><span style="font-size: 16px;">Time Zone :</span></strong> ' + (data.time_zone || ''));
             $('#time_zone').val((data.time_zone || ''));
-            $('#ftech_id').text('Feild Technician ID : ' + (data.technician_id || ''));
-            $('#ftech_email').text('Email : ' + (data.ftech_email || ''));
-            $('#ftech_address').text('Address : ' + (data.ftech_address || ''));
-            $('#ftech_country').text('Country : ' + (data.ftech_country || ''));
-            $('#ftech_city').text('City : ' + (data.ftech_city || ''));
-            $('#ftech_state').text('State : ' + (data.ftech_state || ''));
-            $('#ftech_zipcode').text('Zipcode : ' + (data.ftech_zipcode || ''));
+            $('#ftech_id').html('<strong><span style="font-size: 16px;">Feild Technician ID :</span></strong> ' + (data.technician_id || ''));
+            $('#ftech_email').html('<strong><span style="font-size: 16px;">Email :</span></strong> ' + (data.ftech_email || ''));
+            $('#ftech_address').html('<strong><span style="font-size: 16px;">Address :</span></strong> ' + (data.ftech_address || ''));
+            $('#ftech_country').html('<strong><span style="font-size: 16px;">Country :</span></strong> ' + (data.ftech_country || ''));
+            $('#ftech_city').html('<strong><span style="font-size: 16px;">City :</span></strong> ' + (data.ftech_city || ''));
+            $('#ftech_state').html('<strong><span style="font-size: 16px;">State :</span></strong> ' + (data.ftech_state || ''));
+            $('#ftech_zipcode').html('<strong><span style="font-size: 16px;">Zipcode :</span></strong> ' + (data.ftech_zipcode || ''));
             $('#w_id').val(data.w_id);
             $('#check_in_w_id').val(data.w_id);
         }
@@ -730,6 +732,8 @@
             $('#dashboardCompletedBy').val(data.result.completed_by);
             $('#dashboardPm').val(data.result.project_manager);
             $('#dashboardSp').val(data.result.sales_person);
+            $('#dashboardCustomerIdInput').val(data.result.customerId);
+            $('#dashboardSiteIdInput').val(data.result.siteId);
 
             $('#dashboardEmailPhoneSelect option').each(function() {
                 if ($(this).val() === data.result.request_type) {
@@ -757,19 +761,19 @@
 
             const orderId = $('#workOrderId').val();
 
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $('#notes-container').addClass('d-none');
-            }else{
+            } else {
                 refresher(orderId);
                 $('#workOrderSearchForm').addClass('d-none');
-            $('#site_history_view').addClass('d-none');
-            $('#notes-container').removeClass('d-none');
-            $("#parts_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#ticket_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-            $("#tech_distance_view").addClass('d-none');
+                $('#site_history_view').addClass('d-none');
+                $('#notes-container').removeClass('d-none');
+                $("#parts_view").addClass('d-none');
+                $("#fieldTech_view").addClass('d-none');
+                $("#ticket_view").addClass('d-none');
+                $("#check_out_view").addClass('d-none');
+                $("#tech_distance_view").addClass('d-none');
             }
         });
 
@@ -786,10 +790,10 @@
 
         $('#site-history-tab').click(function() {
             const orderId = $('#workOrderId').val();
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $('#site_history_view').addClass('d-none');
-            }else{
+            } else {
                 siteHistory(orderId);
                 $('#workOrderSearchForm').addClass('d-none');
                 $('#notes-container').addClass('d-none');
@@ -804,10 +808,10 @@
 
         $("#parts").click(function() {
             const orderId = $('#workOrderId').val();
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $("#parts_view").addClass('d-none');
-            }else{
+            } else {
                 customerParts(orderId);
                 siteHistory(orderId);
                 $('#workOrderSearchForm').addClass('d-none');
@@ -823,10 +827,10 @@
 
         $("#fieldTech").click(function() {
             const orderId = $('#workOrderId').val();
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $("#fieldTech_view").addClass('d-none');
-            }else{
+            } else {
                 siteHistory(orderId);
                 $("#fieldTech_view").removeClass('d-none');
                 $('#workOrderSearchForm').addClass('d-none');
@@ -841,10 +845,10 @@
 
         $("#ticket").click(function() {
             const orderId = $('#workOrderId').val();
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $("#ticket_view").addClass('d-none');
-            }else{
+            } else {
                 subTicketTable(orderId);
                 $('#workOrderSearchForm').addClass('d-none');
                 $('#notes-container').addClass('d-none');
@@ -859,9 +863,9 @@
 
         $("#check_out").click(function() {
             const orderId = $('#workOrderId').val();
-            if(orderId == ""){
+            if (orderId == "") {
                 ifNullWorkOrder(orderId);
-            }else{
+            } else {
                 checkInOutTable(orderId);
                 $("#check_out_view").removeClass('d-none');
                 $('#workOrderSearchForm').addClass('d-none');
@@ -902,42 +906,35 @@
 
         //service create script
         $('#serviceButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-
-            serviceButton
             route = '{{ route("user.work.order.service") }}';
             createWorkOrder(route);
         });
 
         //project create script
         $('#projectButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-
             route = '{{ route("user.work.order.project") }}';
             createWorkOrder(route);
         });
 
         //install create script
         $('#installButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-
             route = '{{ route("user.work.order.install") }}';
             createWorkOrder(route);
         });
 
         function createWorkOrder(route) {
+            $("#tech_distance_view").addClass('d-none');
             $("#defualtWorkOrder").addClass('d-none');
             $('#notes-container').addClass('d-none');
             $("#workOrderCreateForm").removeClass("d-none");
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
             $.ajax({
                 url: route,
                 type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 success: function(response) {
-                    fieldPopulator(response.id);
+                    let workOrderId = response.id;
+                    fieldPopulator(workOrderId);
+                    $('#workOrderCreateId').val(workOrderId);
                     iziToast.success({
                         message: response.message,
                         position: "center"
@@ -993,6 +990,7 @@
             minLength: 1,
             select: function(event, ui) {
                 var selectedCusId = ui.item.cusId;
+                $('#dashboardCustomerIdInput').val(selectedCusId);
                 loadCustomer(selectedCusId, 1);
                 createDynamicInput(selectedCusId, "wo-search-cusId", "#dashboardCustomerId");
             }
@@ -1031,7 +1029,7 @@
             select: function(event, ui) {
                 var selectedSiteId = ui.item.siteID;
                 loadSite(selectedSiteId, 1);
-
+                $('#dashboardSiteIdInput').val(selectedSiteId);
             }
         });
 
@@ -1060,6 +1058,7 @@
             minLength: 1,
             select: function(event, ui) {
                 var selectedCusId = ui.item.cusId;
+                $('#customer_idCreateForm').val(selectedCusId);
                 loadCustomer(selectedCusId, 2);
                 createDynamicInput(selectedCusId, "createFormCusId", "#CustomerIdCreateForm");
             }
@@ -1096,6 +1095,7 @@
             minLength: 1,
             select: function(event, ui) {
                 var selectedSiteId = ui.item.siteID;
+                $('#site_idCreateForm').val(selectedSiteId);
                 loadSite(selectedSiteId, 2);
             }
         });
@@ -1191,19 +1191,35 @@
         });
         //end note button script
 
-        // work order update script start
+        //create work order update script start
         $('#WOFORM').on('submit', function(event) {
             event.preventDefault();
-            var formData = $(this).serialize();
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            var formData = new FormData(this);
+            var button = $('#orderSubmitButton2');
+            var icon = button.find('i');
+            icon.removeClass('d-none');
+            button.find('.button-text2').text('Please Wait !');
+            
             $.ajax({
                 url: 'work/order/update',
                 type: 'POST',
                 data: formData,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
+                processData: false,
+                contentType: false,
                 success: function(response) {
+                    icon.addClass('d-none');
+                    button.find('.button-text2').text('Submit');
+                    $('#WOFORM')[0].reset();
+                    $('.summernote').each(function() {
+                        $(this).summernote('code', '');
+                    });
+                    $('#workOrderCreateId').val("");
+                    $('#customer_idCreateForm').val("");
+                    $('#site_idCreateForm').val("");
+                    $('#createFormWoIdErrors').text("");
+                    $('#siteIdCreateFormErrors').text("");
+                    $('#createFormCusIdErrors').text("");
+
                     refresher(response.id);
                     iziToast.success({
                         message: response.message,
@@ -1211,23 +1227,33 @@
                     });
                 },
                 error: function(xhr) {
-                    var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred.';
-                    iziToast.error({
-                        title: 'Error',
-                        message: errorMessage,
-                        position: 'center'
-                    });
+                    icon.addClass('d-none');
+                    button.find('.button-text2').text('Submit');
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        Object.values(xhr.responseJSON.errors).forEach((errorMessages) => {
+                            errorMessages.forEach((message) => {
+                                iziToast.error({
+                                    message: message,
+                                    position: 'center'
+                                });
+                            });
+                        });
+
+                        $('#createFormWoIdErrors').text(xhr.responseJSON.errors.workOrderId);
+                        $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors.site_id);
+                        $('#createFormCusIdErrors').text(xhr.responseJSON.errors.customer_id);
+                    }
                 }
             });
         });
-
+        
         $('#defaultWO').on('submit', function(event) {
             event.preventDefault();
             var formData = new FormData(this);
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-            // Show Bootstrap loader
-            $('.loader').removeClass('d-none');
+            var button = $('#orderSubmitButton');
+            var icon = button.find('i');
+            icon.removeClass('d-none');
+            button.find('.button-text').text('Please Wait !');
 
             $.ajax({
                 url: 'work/order/update',
@@ -1235,46 +1261,41 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
                 success: function(response) {
-                    $('#defaultWO')[0].reset();
-                    $('.summernote').each(function() {
-                        $(this).summernote('code', '');
-                    });
-                    $('#workOrderId').val("");
-                    $('#notes-container').addClass('d-none');
-                    $('.loader').addClass('d-none');
-
+                    icon.addClass('d-none');
+                    button.find('.button-text').text('Submit');
+                
                     $("#generalNote").addClass('d-none');
                     $("#closeOut").addClass('d-none');
                     $("#dNote").addClass('d-none');
                     $("#tNote").addClass('d-none');
                     $("#bNote").addClass('d-none');
-                    
+
                     iziToast.success({
                         message: response.message,
                         position: "center"
                     });
                 },
                 error: function(xhr) {
-                    $('.loader').addClass('d-none');
+                    icon.addClass('d-none');
+                    button.find('.button-text').text('Submit');
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        Object.values(xhr.responseJSON.errors).forEach((errorMessages) => {
+                            errorMessages.forEach((message) => {
+                                iziToast.error({
+                                    message: message,
+                                    position: 'center'
+                                });
+                            });
+                        });
 
-                    let errorMessage = "";
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
+                        $('#dashboardOrderIdErrors').text(xhr.responseJSON.errors.workOrderId);
+                        $('#dashboardSiteIdErrors').text(xhr.responseJSON.errors.site_id);
+                        $('#dashboardCustomerIdErrors').text(xhr.responseJSON.errors.customer_id);
                     }
-                    iziToast.error({
-                        title: 'Make sure The customer and site ID must be include',
-                        message: errorMessage,
-                        position: 'center'
-                    });
-                }
+                },
             });
         });
-
-
 
         function refresher(id) {
             generalNotes(id);

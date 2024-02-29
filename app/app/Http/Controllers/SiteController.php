@@ -10,23 +10,26 @@ use App\Models\Page;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Models\WorkOrder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use PDF;
 
 class SiteController extends Controller
 {
-    
-    public function placeholderImage($size = null){
-        $imgWidth = explode('x',$size)[0];
-        $imgHeight = explode('x',$size)[1];
+
+    public function placeholderImage($size = null)
+    {
+        $imgWidth = explode('x', $size)[0];
+        $imgHeight = explode('x', $size)[1];
         $text = $imgWidth . '×' . $imgHeight;
         $fontFile = realpath('assets/font/RobotoMono-Regular.ttf');
         $fontSize = round(($imgWidth - 50) / 8);
         if ($fontSize <= 9) {
             $fontSize = 9;
         }
-        if($imgHeight < 100 && $fontSize > 30){
+        if ($imgHeight < 100 && $fontSize > 30) {
             $fontSize = 30;
         }
 
@@ -49,36 +52,37 @@ class SiteController extends Controller
     {
         $pageTitle = 'Maintenance Mode';
         $general = gs();
-        if($general->maintenance_mode == Status::DISABLE){
+        if ($general->maintenance_mode == Status::DISABLE) {
             return to_route('home');
         }
-        $maintenance = Frontend::where('data_keys','maintenance.data')->first();
-        return view('templates.basic.maintenance',compact('pageTitle','maintenance'));
+        $maintenance = Frontend::where('data_keys', 'maintenance.data')->first();
+        return view('templates.basic.maintenance', compact('pageTitle', 'maintenance'));
     }
 
-    public function policyPages($slug,$id)
+    public function policyPages($slug, $id)
     {
-        $policy = Frontend::where('id',$id)->where('data_keys','policy_pages.element')->firstOrFail();
+        $policy = Frontend::where('id', $id)->where('data_keys', 'policy_pages.element')->firstOrFail();
         $pageTitle = $policy->data_values->title;
-        return view('templates.basic.policy',compact('policy','pageTitle'));
+        return view('templates.basic.policy', compact('policy', 'pageTitle'));
     }
 
-    public function contact(){
+    public function contact()
+    {
         $pageTitle = "Contact Us";
-        return view('contact',compact('pageTitle'));
+        return view('contact', compact('pageTitle'));
     }
 
     public function contactSubmit(Request $request)
     {
         $tech = User::where('email', $request->email)->first();
-        if(!$tech){
+        if (!$tech) {
             $this->validate($request, [
                 'name' => 'required',
                 'email' => 'required',
                 'subject' => 'required|string|max:255',
                 'message' => 'required',
             ]);
-        }else{
+        } else {
             $this->validate($request, [
                 'email' => 'required',
                 'subject' => 'required|string|max:255',
@@ -93,7 +97,7 @@ class SiteController extends Controller
         $ticket = new SupportTicket();
         $ticket->user_id = auth()->id() ?? $tech->id ?? 0;
         $ticket->site_id = $request->site_id ?? 0;
-        $ticket->name = $request->name ?? $tech->firstname .$tech->lastname;
+        $ticket->name = $request->name ?? $tech->firstname . $tech->lastname;
         $ticket->email = $request->email;
         if ($tech) {
             $ticket->priority = Status::PRIORITY_HIGH;
@@ -126,18 +130,39 @@ class SiteController extends Controller
             ]);
         }
 
-        if($tech){
+        if ($tech) {
             $notify[] = ['success', 'Ticket created successfully!'];
-        }else{
+        } else {
             $notify[] = ['success', 'Data submitted successfully!'];
         }
 
         return back()->withNotify($notify);
     }
 
-    public function test(){
+    public function test()
+    {
         $pageTitle = "UUU";
-        return view('test',compact('pageTitle'));
+        return view('test', compact('pageTitle'));
     }
 
+    public function pdfWorkOrderUser($id)
+    {
+
+        $pageTitle = "Download Work Order";
+        $views = WorkOrder::with('site', 'customer')->find($id);
+        $imageFileNames = json_decode($views->pictures);
+        $pdf = PDF::loadView('user.pdf.work_order', compact('pageTitle', 'views', 'imageFileNames'))->setOptions(['defaultFont' => 'sans-serif']);
+        $pdf->setPaper('A4', 'portrait');
+        $customerCompanyName = @$views->customer->company_name;
+        $fileName = $customerCompanyName . '_Work_Order.pdf';
+
+        return $pdf->download($fileName);
+    }
+    public function pdfWorkOrderUserView($id)
+    {
+        $pageTitle = "View Pdf";
+        $views = WorkOrder::with('site', 'customer')->find($id);
+        $imageFileNames = json_decode($views->pictures);
+        return view('user.pdf.view', compact('pageTitle', 'views', 'imageFileNames'));
+    }
 }

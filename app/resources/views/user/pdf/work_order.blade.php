@@ -66,7 +66,7 @@
                         <div class="collapse navbar-collapse" id="navbarScroll">
                             <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                             </ul>
-                            <form class="marketview">
+                            <form class="">
                                 <h5 style="float: right" href="http://www.techyeahinc.com" class="header-text">www.techyeahinc.com</h5>
                             </form>
                         </div>

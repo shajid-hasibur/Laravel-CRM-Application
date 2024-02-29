@@ -16,7 +16,7 @@
         <div class="row d-none" id="site-search-container">
           <div class="form-group col-md-6">
             <label for="">Site</label>
-            <input type="text" class="form-control" id="searchSite">
+            <input type="text" class="form-control" id="searchSite" placeholder="Search with Site Id / Location / Zipcode">
           </div>
           <div class="form-group col-md-6">
             <label for="">Company/Customer</label>
@@ -283,8 +283,8 @@
           "id": id
         },
         success: function(data) {
-          $('#siteCompanyName').val(data.result.company_name);
-          $('#siteAddress').val(data.result.address_1);
+          $('#siteCompanyName').val(data.result.customer);
+          $('#siteAddress').val(data.result.address);
           $('#siteCity').val(data.result.city);
           $('#siteState').val(data.result.state);
           $('#siteZipcode').val(data.result.zipcode);
@@ -296,17 +296,16 @@
     $('#searchSite').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "{{ route('user.site.autocomplete') }}",
+          url: "{{ route('user.modal.site.search') }}",
           type: "GET",
           dataType: "json",
           data: {
             "query": request.term,
-            "customer": "1"
           },
           success: function(data) {
             response($.map(data.results, function(item) {
               return {
-                label: item.site_id,
+                label: item.site_id + "-" + item.location + "-" + item.zipcode,
                 value: item.site_id,
                 siteID: item.id,
               }

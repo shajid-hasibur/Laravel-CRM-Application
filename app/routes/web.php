@@ -57,4 +57,7 @@ Route::controller('SiteController')->group(function () {
 
     Route::get('placeholder-image/{size}', 'placeholderImage')->name('placeholder.image');
     Route::get('test', 'test')->name('test');
+    Route::get('pdf/user/work/order/download/{id}', 'pdfWorkOrderUser')->name('work.order.pdf.user');
+    Route::get('pdf/user/work/order/view/{id}', 'pdfWorkOrderUserView')->name('work.order.pdf.user.view');
+
 });
