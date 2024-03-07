@@ -193,6 +193,7 @@ class DistanceMatrixController extends Controller
             DB::raw('ST_X(co_ordinates) as longitude'),
             DB::raw('ST_Y(co_ordinates) as latitude')
         )->get();
+
         $distances = [];
 
         foreach ($locations as $location) {
@@ -201,11 +202,13 @@ class DistanceMatrixController extends Controller
         }
 
         asort($distances);
+
         $closestDistances = Technician::select(
             'id',
             DB::raw('ST_X(co_ordinates) as longitude'),
             DB::raw('ST_Y(co_ordinates) as latitude')
         )->whereIn('id', array_slice(array_keys($distances), 0, 3))->get();
+
         $technicians = [];
         foreach ($closestDistances as $closestDistance) {
             $technicians[] = Technician::select('id', 'address_data')
@@ -214,8 +217,8 @@ class DistanceMatrixController extends Controller
 
         $mergedTechnicians = collect($technicians)->flatten();
         $origins = [];
+
         foreach ($mergedTechnicians as $technician) {
-            // dd($technician);
             $addressData['country'] = $technician->address_data->country;
             $addressData['city'] = $technician->address_data->city;
             $addressData['state'] = $technician->address_data->state;

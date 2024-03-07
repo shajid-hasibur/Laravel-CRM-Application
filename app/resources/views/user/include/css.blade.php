@@ -1,9 +1,7 @@
    <!-- favicon -->
    <link rel="shortcut icon" type="image/png" href="{{getImage(getFilePath('logoIcon') .'/favicon.png')}}">
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css
-    ">
-
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
    <style>
        h1,
        h2,
@@ -13,7 +11,6 @@
        h6 {
            color: black;
        }
-
        a,
        a:hover,
        a:focus,
@@ -562,92 +559,7 @@
            background: white;
        }
 
-       #checkInModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       }
-
-       #checkInModal .dataTables_wrapper .dataTables_filter,
-       #checkInModal .dataTables_wrapper .dataTables_length {
-           display: inline-block;
-           margin-bottom: 10px;
-       }
-
-       #checkInModal .dataTables_wrapper .dataTables_length {
-           margin-top: 2px;
-       }
-
-       #checkInModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       }
-
-       #workOrderModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       }
-
-       #workOrderModal .dataTables_wrapper .dataTables_filter,
-       #workOrderModal .dataTables_wrapper .dataTables_length {
-           display: inline-block;
-           margin-bottom: 10px;
-       }
-
-       #workOrderModal .dataTables_wrapper .dataTables_length {
-           margin-top: 2px;
-       }
-
-       #workOrderModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       }
-
-       #subTicketModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       }
-
-       #subTicketModal .dataTables_wrapper .dataTables_filter,
-       #subTicketModal .dataTables_wrapper .dataTables_length {
-           display: inline-block;
-           margin-bottom: 10px;
-       }
-
-       #subTicketModal .dataTables_wrapper .dataTables_length {
-           margin-top: 2px;
-       }
-
-       /* #subTicketModal .dataTables_wrapper .dataTables_filter {
-           float: right;
-
-       } */
-
-       .dataTables_wrapper .dataTables_filter {
-           float: right;
-       }
-
-       .dataTables_wrapper .dataTables_filter,
-       .dataTables_wrapper .dataTables_length {
-           display: inline-block;
-           margin-bottom: 10px;
-       }
-
-       .dataTables_wrapper .dataTables_length {
-           margin-top: 2px;
-       }
-
-       .dataTables_wrapper .dataTables_paginate {
-           display: inline-block;
-           float: right;
-           margin-top: 1px;
-       }
-
-       .dataTables_wrapper .dataTables_info,
-       .dataTables_wrapper .dataTables_paginate {
-           display: inline-block;
-           vertical-align: middle;
-           margin-top: 1px;
-       }
+     
 
        #general-notes-table td,
        th {
@@ -703,5 +615,15 @@
                border: 1px solid black;
            }
 
+       }
+
+       /* for recent work order worked order hover section */
+       .filerPageOrderId {
+           cursor: pointer;
+       }
+
+       .filerPageOrderId:hover {
+           text-decoration: underline;
+           color: blue;
        }
    </style>

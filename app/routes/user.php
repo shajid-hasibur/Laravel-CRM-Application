@@ -47,7 +47,6 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('dashboard', 'home')->name('home');
                 //work order manage
                 Route::get('order/delete/{id}', 'wODelete')->name('order.delete');
-
                 Route::Post('work/order/service', 'service')->name('work.order.service');
                 Route::Post('work/order/project', 'project')->name('work.order.project');
                 Route::Post('work/order/install', 'install')->name('work.order.install');

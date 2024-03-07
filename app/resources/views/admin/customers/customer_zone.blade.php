@@ -175,6 +175,11 @@
                             <input type="text" class="form-control" name="state" placeholder="Enter state...." id="state">
                             <span style="color:red; font-size:16px" id="state-error"></span>
                         </div>
+                        <div class="form-group col-md-4">
+                            <label for="">Timezone</label>
+                            <input type="text" class="form-control" name="time_zone" placeholder="Enter timezone...." id="time_zone">
+                            <span style="color:red; font-size:16px" id="time_zone-error"></span>
+                        </div>
                         <div class="form-group col-md-12">
                             <label for="">Property Description</label>
                             <textarea class="form-control" name="description" placeholder="Enter description...." id="description" cols="10" rows="5"></textarea>
@@ -328,6 +333,7 @@
             let city = $('#city').val();
             let state = $('#state').val();
             let zipcode = $('#zipcode').val();
+            let time_zone = $('#time_zone').val();
 
             $.ajax({
                 type: "POST",
@@ -341,25 +347,26 @@
                     'city': city,
                     'state': state,
                     'zipcode': zipcode,
+                    'time_zone' : time_zone,
                 },
                 dataType: "json",
                 success: function(response) {
                     if (response.message) {
-                        $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error").empty();
+                        $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error,#time_zone-error").empty();
                         iziToast.success({
                             message: response.message,
                             position: "topRight"
                         });
-                        $("#location,#description,#address_1,#address_2,#city,#state,#zipcode").val("");
+                        $("#location,#description,#address_1,#address_2,#city,#state,#zipcode,#time_zone").val("");
                         loadSite();
                     }
                 },
                 error: function(response) {
                     if (response.status == 422) {
                         errors = response.responseJSON.errors;
-                        $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error").empty();
+                        $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error,#time_zone-error").empty();
 
-                        const fieldsToHandle = ["location", "address_1", "address_2", "zipcode", "city", "state", "description"];
+                        const fieldsToHandle = ["location", "address_1", "address_2", "zipcode", "city", "state", "description","time_zone"];
 
                         fieldsToHandle.forEach(field => {
                             if (errors[field]) {

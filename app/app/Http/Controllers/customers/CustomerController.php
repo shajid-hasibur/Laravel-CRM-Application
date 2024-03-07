@@ -63,11 +63,10 @@ class CustomerController extends Controller
             'customer_id' => 'required',
             'location' => 'required',
             'address_1' => 'required',
-            // 'address_2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zipcode' => 'required',
-            // 'description' => 'required',
+            'time_zone' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -111,6 +110,7 @@ class CustomerController extends Controller
         $cusSite->city = $request->city;
         $cusSite->state = $request->state;
         $cusSite->zipcode = $request->zipcode;
+        $cusSite->time_zone = $request->time_zone;
         $cusSite->save();
 
         return response()->json(['message' => 'Site added successfully'], 200);

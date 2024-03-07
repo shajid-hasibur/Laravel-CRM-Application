@@ -4,6 +4,7 @@
     z-index: 9999;
   }
 </style>
+
 <div class="modal fade" id="newSiteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
@@ -37,6 +38,10 @@
           <div class="form-group col-md-6">
             <label for="">Zipcode</label>
             <input type="text" class="form-control" id="siteZipcode" readonly>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="">Timezone</label>
+            <input type="text" class="form-control" id="siteTimezone" readonly>
           </div>
         </div>
         {{-- import site div --}}
@@ -107,6 +112,11 @@
               <label for="">Zipcode</label>
               <input type="text" class="form-control" placeholder="Enter zipcode" name="zipcode" id="zipcode">
               <span style="color:red; font-size:16px" id="zipcode-error"></span>
+            </div>
+            <div class="form-group col-4">
+              <label for="">Timezone</label>
+              <input type="text" class="form-control" placeholder="Enter timezone" name="timezone" id="timezone">
+              <span style="color:red; font-size:16px" id="timezone-error"></span>
             </div>
             <div class="form-group col-12">
               <label for="">Property Description</label>
@@ -185,9 +195,9 @@
         success: function(data) {
           $('#newSitesModalSpinner').addClass('d-none');
           if (data.success) {
-            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error,#timezone-error').empty();
 
-            $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description').val("");
+            $('#customer_id,#company_name,#site_id,#location,#state,#address_1,#address_2,#city,#zipcode,#description,#timezone').val("");
             iziToast.success({
               message: data.success,
               position: "topRight"
@@ -198,13 +208,12 @@
           if (data.status === 422) {
             $('#newSitesModalSpinner').addClass('d-none');
             errors = data.responseJSON.errors;
-            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error').empty();
+            $('#customer_id-error,#company_name-error,#site_id-error,#location-error,#state-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#description-error,#timezone-error').empty();
 
-            const fieldsToHandle = ['customer_id', 'company_name', 'site_id', 'location', 'state', 'address_1', 'address_2', 'city', 'zipcode', 'description'];
+            const fieldsToHandle = ['customer_id', 'company_name', 'site_id', 'location', 'state', 'address_1', 'address_2', 'city', 'zipcode', 'description','timezone'];
 
             fieldsToHandle.forEach(field => {
               if (errors[field]) {
-                console.log(errors[field]);
                 $('#' + field + '-error').text(errors[field]);
               }
             });
@@ -288,6 +297,7 @@
           $('#siteCity').val(data.result.city);
           $('#siteState').val(data.result.state);
           $('#siteZipcode').val(data.result.zipcode);
+          $('#siteTimezone').val(data.result.time_zone);
         }
       });
     }

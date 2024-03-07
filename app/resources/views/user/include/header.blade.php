@@ -1,16 +1,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-
-<!-- CSS -->
-{{-- <link href="./css/richText_editor.css" rel=" stylesheet"> --}}
-<!--FontAwesome-->
 <script src="https://kit.fontawesome.com/76c40a5f57.js" crossorigin="anonymous"></script>
 <link href="https://pro.fontawesome.com/releases/v5.1.0/css/all.css" rel=" stylesheet">
-<!--Jquery-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-{{-- <script src="./js/richText_editor.js"></script> --}}
 <style>
     @media screen and (max-width: 767px) {
         .logo img {

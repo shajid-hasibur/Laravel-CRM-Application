@@ -1,4 +1,4 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ladda-bootstrap/0.9.4/spin.min.js"></script>
+
 <script>
     var customerId = "";
     $(document).ready(function() {
@@ -8,7 +8,6 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
         var route = "";
         $('#workOrderCreateReqDate').datepicker();
         $('#completedByCreateForm').datepicker();
@@ -326,12 +325,18 @@
                 url: '/user/get/site/history/' + id,
                 method: 'GET',
                 success: function(data) {
-                    $('#assignedTechMessage').text(data.message);
+                    $('#fTechTabDiv').removeClass('d-none');
+                    $('#siteHistoryTabDiv').removeClass('d-none');
+                    $('#assignedTechMessage').text(data.tech_message);
+                    $('#siteHistoryMessage').text(data.site_message);
                     setSiteData(data.result);
                 },
                 error: function(xhr, status, error) {
                     if (xhr.status == 404) {
-                        $('#assignedTechMessage').text(xhr.responseJSON.errors);
+                        $('#fTechTabDiv').addClass('d-none');
+                        $('#siteHistoryTabDiv').addClass('d-none');
+                        $('#assignedTechMessage').text(xhr.responseJSON.tech_error);
+                        $('#siteHistoryMessage').text(xhr.responseJSON.site_error);
                         $('#ftech_id').text("");
                         $('#ftech_email').text("");
                         $('#ftech_address').text("");
@@ -382,7 +387,8 @@
             $('#checkInOutTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'check/in/out/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.table.checkInOut',['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -433,7 +439,8 @@
             $('#sub_ticket_table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/sub/ticket/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.table.sub.ticket',['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -442,7 +449,6 @@
                     {
                         data: 'tech_support_note'
                     },
-
                     {
                         data: null,
                         render: function(data, type, row) {
@@ -455,7 +461,6 @@
                     {
                         data: 'formatted_updated_at'
                     },
-
                     {
                         render: function(data, type, row) {
                             return '<i data-id="" class="fas fa-edit"></i>';
@@ -477,7 +482,8 @@
             $('#closeout-notes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/closeout/notes/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.workOrder.closeoutNotes', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -521,7 +527,8 @@
             $('#general-notes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/general/notes/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.workOrder.generalNotes', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -565,7 +572,8 @@
             $('#dispatch-notes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/dispatch/notes/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.workOrder.dispatchNotes', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -609,7 +617,8 @@
             $('#billing-notes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/billing/notes/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.workOrder.billingNotes', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -653,7 +662,8 @@
             $('#techSupport-notes-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: 'work/order/tech/support/notes/' + id,
+                autoWidth: false,
+                ajax: "{{ route('user.workOrder.techSupportNotes', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -863,6 +873,7 @@
 
         $("#check_out").click(function() {
             const orderId = $('#workOrderId').val();
+            getTechCompany(orderId);
             if (orderId == "") {
                 ifNullWorkOrder(orderId);
             } else {
@@ -877,6 +888,19 @@
                 $("#tech_distance_view").addClass('d-none');
             }
         });
+
+        function getTechCompany(id){
+            $.ajax({
+                url: "{{ route('user.order.site.history',['id' => ':id']) }}".replace(':id', id),
+                type: "GET",
+                success:function(response){
+                    console.log(response.result);
+                    $('#Check_in_ftech_company').val(response.result.fcompany_name);
+                    $('#time_zone').val(response.result.time_zone);
+                    $('#check_in_w_id').val(response.result.w_id);
+                }
+            });
+        }
         // $("#tech_distance").click(function() {
         //     findWorkOrder();
         //     $('#workOrderSearchForm').addClass('d-none');
@@ -893,39 +917,45 @@
         $("#Wsearch").click(function() {
             $("#defualtWorkOrder").removeClass('d-none');
             $("#workOrderCreateForm").addClass('d-none');
+            $("#allRecord").addClass('d-none');
             $('#notes-container').addClass('d-none');
             $("#workOrderSearchForm").removeClass('d-none');
             $('#site_history_view').addClass('d-none');
             $("#parts_view").addClass('d-none');
             $("#ticket_view").addClass('d-none');
-            $("#fieldTech_view").addClass('d-none');
-            $("#check_out_view").addClass('d-none');
-
         });
         //search work order end 
 
         //service create script
         $('#serviceButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.service") }}';
             createWorkOrder(route);
         });
 
         //project create script
         $('#projectButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.project") }}';
             createWorkOrder(route);
         });
 
         //install create script
         $('#installButton').click(function() {
+            $("#tech_distance_view").addClass('d-none');
+            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.install") }}';
             createWorkOrder(route);
         });
 
         function createWorkOrder(route) {
+            $('#site_history_view').addClass('d-none');
             $("#tech_distance_view").addClass('d-none');
             $("#defualtWorkOrder").addClass('d-none');
             $('#notes-container').addClass('d-none');
+            $('#check_out_view').addClass('d-none');
             $("#workOrderCreateForm").removeClass("d-none");
 
             $.ajax({
@@ -1256,7 +1286,7 @@
             button.find('.button-text').text('Please Wait !');
 
             $.ajax({
-                url: 'work/order/update',
+                url: "{{ route('user.work.order.update') }}",
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -1346,7 +1376,7 @@
             var formData = $(this).serialize();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
-                url: 'create/check/in',
+                url: "{{ route('user.checkin') }}",
                 type: 'POST',
                 data: formData,
                 headers: {
@@ -1358,17 +1388,26 @@
                         message: response.message,
                         position: "center"
                     });
+                    $('#check-in-out-tech_name-error').text("");
                 },
                 error: function(xhr, status, error) {
-                    let errorMessage = "";
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMessage = xhr.responseJSON.error;
+                    if(xhr.status == 400){
+                        iziToast.warning({
+                            message: xhr.responseJSON.errors,
+                            position: 'center'
+                        });
                     }
-                    iziToast.error({
-                        title: 'Error',
-                        message: errorMessage,
-                        position: 'center'
-                    });
+
+                    if(xhr.status == 422){
+                        $('#check-in-out-tech_name-error').text(xhr.responseJSON.errors.tech_name);
+                    }
+
+                    if(xhr.status == 404){
+                        iziToast.warning({
+                            message: xhr.responseJSON.techNotFound,
+                            position: 'center'
+                        });
+                    }
                 }
             });
         });
@@ -1397,7 +1436,7 @@
         function initiateCheckOut(id, type) {
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
-                url: 'create/check/out/' + id,
+                url: "{{ route('user.checkout', ['id' => ':id']) }}".replace(':id', id),
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken
@@ -1585,7 +1624,32 @@
 
             dynamicInput.insertAfter(placement);
         }
-        //ready callback end block all the code should be written above.  
+
+        $('.filerPageOrderId').click(function(){
+            let orderId = $(this).closest('tr').attr('data-id');
+            let order_id = $(this).text();
+            $('#workOrderSearchInput').val(order_id);
+            $('#workOrderId').val(orderId);
+            workOrderData(orderId);
+            $('#allRecord').hide();
+        });
+
+
+        // $('.filerPageOrderId').hover(
+        //     function() {
+        //         $(this).css('cursor', 'pointer');
+        //         $(this).css('background-color', '#55aa29');
+        //         $(this).css('border-radius', '12px');
+        //         $(this).css('padding', '2px');
+        //     },
+        //     function() {
+        //         $(this).css('cursor', 'auto');
+        //         $(this).css('background-color', '');
+        //         $(this).css('border-radius', '');
+        //         $(this).css('padding', '2px');
+        //     }
+        // );
+
     });
 </script>
 

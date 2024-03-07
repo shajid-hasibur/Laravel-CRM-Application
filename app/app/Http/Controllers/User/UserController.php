@@ -256,8 +256,20 @@ class UserController extends Controller
 
     public function checkIn(Request $request)
     {
-        $company = WorkOrder::where('id', $request->work_order_id)->with('technician')->first();
-        $companyName = $company->technician->company_name;
+        $validator = Validator::make($request->all(), [
+            'tech_name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        if ($request->work_order_id) {
+            $company = WorkOrder::where('id', $request->work_order_id)->with('technician')->first();
+            $companyName = $company->technician->company_name;
+        } else {
+            return response()->json(['techNotFound' => 'Technician not found. Please assign a technician first.'], 404);
+        }
 
         $currentTime = Carbon::now()->toTimeString();
 
@@ -265,13 +277,14 @@ class UserController extends Controller
             ->where('tech_name', $request->tech_name)
             ->whereDate('created_at', Carbon::today())
             ->first();
+
         if ($existingCheckIn) {
             $response = [
-                'message' => 'Technician has already checked in within the past 24 hours',
-                'existing_check_in' => $existingCheckIn
+                'errors' => 'This technician has already checked in within the past 24 hours',
             ];
             return response()->json($response, 400);
         }
+
         $checkIn = new CheckInOut();
         $checkIn->work_order_id = $request->work_order_id;
         $checkIn->time_zone = $request->time_zone;
@@ -289,6 +302,7 @@ class UserController extends Controller
             'message' => 'Check In successfully',
             'id' => $request->work_order_id
         ];
+
         return response()->json($response);
     }
 
@@ -367,7 +381,12 @@ class UserController extends Controller
     {
         $grab = WorkOrder::with('technician')->findOrFail($id);
         if ($grab->technician === null) {
-            return response()->json(['errors' => 'Currently no tech is assigned to this order.'], 404);
+            $errors = [
+                'tech_error' => 'Currently no tech is assigned to this order.',
+                'site_error' => 'No site history found.',
+
+            ];
+            return response()->json($errors, 404);
         }
         $siteId = $grab->site_id;
         $site = CustomerSite::with('customer', 'workOrder.technician')->where('id', $siteId)->first();
@@ -396,7 +415,14 @@ class UserController extends Controller
             'wT' => @$site->workOrder->where('site_id', $siteId)->count(),
             'wC' => @$site->workOrder->where('site_id', $siteId)->where('status', $i)->count(),
         ];
-        return response()->json(['result' => $siteIdMain, 'message' => "Technician Assigned."]);
+
+        $response = [
+            'result' => $siteIdMain,
+            'tech_message' => "",
+            'site_message' => "",
+        ];
+
+        return response()->json($response, 200);
     }
 
 
@@ -630,11 +656,10 @@ class UserController extends Controller
             'location' => 'required',
             'address_1' => 'required',
             'site_id' => 'required',
-            // 'address_2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zipcode' => 'required',
-            // 'description' => 'required',
+            'timezone' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -651,6 +676,7 @@ class UserController extends Controller
         $site->city = $request->city;
         $site->state = $request->state;
         $site->zipcode = $request->zipcode;
+        $site->time_zone = $request->timezone;
         $site->save();
         return response()->json(['success' => 'Site created successfully.'], 200);
     }
@@ -664,6 +690,7 @@ class UserController extends Controller
             'state' => $site->state,
             'zipcode' => $site->zipcode,
             'customer' => $site->customer->company_name,
+            'time_zone' => $site->time_zone,
         ];
 
         return response()->json(['result' => $response], 200);
