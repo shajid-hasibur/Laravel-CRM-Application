@@ -37,7 +37,7 @@
     border: 1px solid rgba(0, 0, 0, 0.3);
   }
 </style>
-<div class="container mt-2" id="allRecord">
+<div class="container-fluid mt-2" id="allRecord">
   <div class="row justify-content-center">
     <div class="col-md-12">
       <div class="card">
@@ -86,13 +86,18 @@
                 <td><span class="badge bg-secondary">COMPLETE</span></td>
                 @endif
                 <td>
-                  <a href="{{url('pdf/user/work/order/download/')}}/{{$w->id}}" class="btn btn-primary btn-sm"> <i class="fas fa-file-pdf"></i> Download </a>
+                  <button class="btn btn-primary" onclick="window.location.href='{{url('pdf/user/work/order/view/')}}/{{$w->id}}'"><i class="fas fa-eye"></i> View</button>
+
                 </td>
                 <td class="action-dropdown">
                   <div class="dropdown">
-                    <i style="cursor: pointer;" class="fas fa-ellipsis-v dropdown-toggle" onclick="toggleDropdown(this)" aria-haspopup="true" aria-expanded="false"></i>
+                    <i style="cursor: pointer;" class="fas fa-ellipsis-v " onclick="toggleDropdown(this)" aria-haspopup="true" aria-expanded="false"></i>
                     <div class="dropdown-menu">
-                      <a href="{{url('pdf/user/work/order/view/')}}/{{$w->id}}" class="dropdown-item"><i class="fas fa-eye"></i> View</a>
+
+
+                      <a href="{{url('pdf/user/work/order/download/')}}/{{$w->id}}" class="dropdown-item"> <i class="fas fa-file-pdf"></i> Download </a>
+
+
                       <a href="{{url('user/order/delete')}}/{{$w->id}}" class="dropdown-item"><i class="fas fa-trash-alt"></i> Delete</a>
                     </div>
                   </div>
@@ -154,7 +159,7 @@
         <p class="mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic officia quod natus, non dicta perspiciatis, quae repellendus ea illum aut debitis sint amet? Ratione voluptates beatae numquam. <a href="{{ route('user.kyc.data') }}">@lang('See KYC Data')</a></p>
       </div>
       @endif
-      <div class="card shadow whole-card " style=" border-radius:0px; border-top:none ">
+      <div class="card shadow whole-card " style="border-radius:0px; border-top:none">
         <form id="defaultWO" enctype="multipart/form-data">
           @csrf
           <div class="card-body mt-4 p-4">
@@ -1033,8 +1038,16 @@
 @endsection
 
 @push('breadcrumb-plugins')
-<p class="font-weight-light p-2 mt-3">Do Search by Work Order Id/Company Name/customer zip-code/site zip-code/site location :</p>
-<x-search-form dateSearch='yes' />
+<div class="container-fluid mt-5">
+  <div class="row align-items-center">
+    <div class="col">
+      <p class="mt-2 text-success" style="font-size: 15px;">Search by Work Order Id/Company Name/customer zip-code/site zip-code/site location :</p>
+    </div>
+    <div class="col">
+      <x-search-form dateSearch="yes" />
+    </div>
+  </div>
+</div>
 @endpush
 
 @push('custom_script')

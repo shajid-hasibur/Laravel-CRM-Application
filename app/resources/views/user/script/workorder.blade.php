@@ -83,13 +83,19 @@
                         "query": request.term,
                     },
                     success: function(data) {
-                        console.log(data);
                         response($.map(data.results, function(item) {
-                            
-                            return {
-                                label: item.order_id + "-" + item.company_name,
-                                value: item.order_id,
-                                workOrderId: item.id,
+                            if(item.company_name == null){
+                                return {
+                                    label: item.order_id,
+                                    value: item.order_id,
+                                    workOrderId: item.id,
+                                }
+                            }else{
+                                return {
+                                    label: item.order_id + "-" + item.company_name,
+                                    value: item.order_id,
+                                    workOrderId: item.id,
+                                }
                             }
                         }));
                     }
@@ -855,6 +861,7 @@
 
         $("#ticket").click(function() {
             const orderId = $('#workOrderId').val();
+            $('#w_id').val(orderId);
             if (orderId == "") {
                 ifNullWorkOrder(orderId);
                 $("#ticket_view").addClass('d-none');
@@ -894,7 +901,6 @@
                 url: "{{ route('user.order.site.history',['id' => ':id']) }}".replace(':id', id),
                 type: "GET",
                 success:function(response){
-                    console.log(response.result);
                     $('#Check_in_ftech_company').val(response.result.fcompany_name);
                     $('#time_zone').val(response.result.time_zone);
                     $('#check_in_w_id').val(response.result.w_id);
@@ -928,29 +934,25 @@
 
         //service create script
         $('#serviceButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.service") }}';
             createWorkOrder(route);
         });
 
         //project create script
         $('#projectButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.project") }}';
             createWorkOrder(route);
         });
 
         //install create script
         $('#installButton').click(function() {
-            $("#tech_distance_view").addClass('d-none');
-            $("#allRecord").addClass('d-none');
             route = '{{ route("user.work.order.install") }}';
             createWorkOrder(route);
         });
 
         function createWorkOrder(route) {
+            $("#tech_distance_view").addClass('d-none');
+            $("#allRecord").addClass('d-none');
             $('#site_history_view').addClass('d-none');
             $("#tech_distance_view").addClass('d-none');
             $("#defualtWorkOrder").addClass('d-none');
@@ -1342,7 +1344,7 @@
             var formData = $(this).serialize();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
-                url: 'sub/ticket/create',
+                url: "{{ route('user.sub.ticket') }}",
                 type: 'POST',
                 data: formData,
                 headers: {

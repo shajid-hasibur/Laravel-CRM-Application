@@ -236,6 +236,7 @@ class UserController extends Controller
     }
     public function subTicket(Request $request)
     {
+        // dd($request->all());
         try {
             $subTicket = new SubTicket();
             $subTicket->work_order_id = $request->work_order_id;

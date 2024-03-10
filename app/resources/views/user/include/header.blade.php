@@ -36,23 +36,49 @@
 </style>
 
 <header class="fixed-top">
+
+    <style>
+        .shadow-circle {
+            border-radius: 12px;
+            /* box-shadow: 0px 0px 10px rgba(102, 160, 202, 0.5); */
+        }
+
+        .shadow-circle:hover {
+            box-shadow: 0px 0px 15px rgba(102, 160, 202, 0.7);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            padding-right: 70px;
+            /* padding-bottom: 40px; */
+            padding-left: 10px;
+        }
+    </style>
     <div class="p-1 d-flex justify-content-end " style="background: #AFE1AF	;  position: relative">
         <a class="" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
             <span>
-                <h6 style="font-size:15px;" class="mx-3 "> <i class="fas fa-user-circle text-success" style="margin-right: 10px;"></i>{{ @Auth::user()->fullname }}</h6>
+                <h6 style="font-size: 15px;" class="mx-3">
+
+                    <button class="btn btn-outline-light shadow-circle text-dark" style="margin-left: 10px;"> <i class="fas fa-user-circle text-success" style="margin-right: 10px; "></i>
+                        {{ @Auth::user()->fullname }}</button>
+                </h6>
             </span>
+
         </a>
         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="position: absolute;">
-            <a class="dropdown-item" href="{{ route('user.change.password') }}">
-                @lang('Change Password')
-            </a>
+
             <a class="dropdown-item" href="{{ route('user.profile.setting') }}">
                 @lang('Profile Setting')
             </a>
-            <a class="dropdown-item" href="{{ route('user.twofactor') }}">
+            <a class="dropdown-item mt-3" href="{{ route('user.twofactor') }}">
                 @lang('2FA Security')
             </a>
-            <a class="dropdown-item" href="{{ route('user.logout') }}" onclick="event.preventDefault();
+            <a class="dropdown-item mt-3" href="{{ route('user.change.password') }}">
+                @lang('Change Password')
+            </a>
+
+            <hr>
+            <a class="dropdown-item mt-3 text-danger" href="{{ route('user.logout') }}" onclick="event.preventDefault();
                 document.getElementById('logout-form').submit();">
                 {{ __('Logout') }}
             </a>
@@ -61,6 +87,18 @@
             </form>
         </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
     <div class="header-main shadow bg-white">
         <div class=" d-flex align-items-center ">
             <div class="logo">
@@ -119,7 +157,7 @@
                             <ul>
                                 <li><a href='#' id="siteNewButton"><i class="fa-solid fa-envelope-open"></i> <span class="mx-3">New</span></a></li>
                                 <li><a href='#' id="siteSearchButton"><i class="fas fa-search"></i> <span class="mx-3">Search</span></a>
-                                {{-- <li><a href='#' id="siteImportButton"><i class="fa-solid fa-file-import"></i> <span class="mx-3">import</span></a>
+                                    {{-- <li><a href='#' id="siteImportButton"><i class="fa-solid fa-file-import"></i> <span class="mx-3">import</span></a>
                                 </li> --}}
                             </ul>
                         </li>
@@ -127,7 +165,7 @@
                             <ul>
                                 <li><a href='#' id="techNewButton"><i class="fa-solid fa-envelope-open"></i> <span class="mx-3">New</span></a></li>
                                 <li><a href='#' id="techSearchButton"> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a>
-                                {{-- <li><a href='#' id="techImportButton"><i class="fa-solid fa-file-import"></i><span class="mx-3">Import</span></a> --}}
+                                    {{-- <li><a href='#' id="techImportButton"><i class="fa-solid fa-file-import"></i><span class="mx-3">Import</span></a> --}}
                                     {{-- <li><a href='#' id="techDistanceButton"><i class="fa-solid fas fa-clone"></i><span class="mx-1">TechByDistance</span></a>
                                 </li> --}}
                             </ul>

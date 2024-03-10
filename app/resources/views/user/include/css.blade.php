@@ -11,6 +11,7 @@
        h6 {
            color: black;
        }
+
        a,
        a:hover,
        a:focus,
@@ -559,12 +560,12 @@
            background: white;
        }
 
-     
 
-       #general-notes-table td,
+
+       /* #general-notes-table td,
        th {
            text-align: center;
-       }
+       } */
 
        #dispatch-notes-table td,
        th {
@@ -625,5 +626,48 @@
        .filerPageOrderId:hover {
            text-decoration: underline;
            color: blue;
+       }
+
+
+       table.dataTable>thead>tr>th,
+       table.dataTable>thead>transliterator_create_inverse {
+           padding: 10px;
+           border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+           border-top: 1px solid rgba(0, 0, 0, 0.3);
+       }
+
+
+
+       .dataTables_wrapper .dataTables_length select {
+           padding: 5px;
+
+           margin-bottom: 20px;
+       }
+
+       table.dataTable th,
+       table.dataTable td {
+           box-sizing: content-box;
+           border: 1px solid rgba(0, 0, 0, 0.3);
+       }
+
+       /* Add your custom CSS styles here */
+       .table-bordered {
+           width: 100%;
+           border-collapse: collapse;
+       }
+
+       .table-bordered th,
+       .table-bordered td {
+           border: 1px solid #ddd;
+           padding: 8px;
+           text-align: left;
+       }
+
+       .table-bordered th {
+           background-color: #f2f2f2;
+       }
+
+       .table-bordered tbody tr:nth-child(even) {
+           background-color: #f2f2f2;
        }
    </style>

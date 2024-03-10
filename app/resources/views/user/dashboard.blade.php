@@ -1,39 +1,5 @@
 @extends('layouts.app')
 @section('content')
-
-<style>
-  table.dataTable>thead>tr>th,
-  table.dataTable>thead>transliterator_create_inverse {
-    padding: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-    border-top: 1px solid rgba(0, 0, 0, 0.3);
-  }
-
-  .dataTables_wrapper .dataTables_filter input {
-    border: 1px solid #aaa;
-    border-radius: 3px;
-    padding: 1px;
-    background-color: transparent;
-    color: inherit;
-    margin-left: 6px;
-    margin-top: -6px;
-  }
-
-  .dataTables_wrapper .dataTables_length select {
-    border: 1px solid white;
-    border-radius: 3px;
-    padding: 5px;
-    background-color: transparent;
-    color: inherit;
-    padding: 4px;
-  }
-
-  table.dataTable th,
-  table.dataTable td {
-    box-sizing: content-box;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-  }
-</style>
 <div class="container-fluid navigation" style="margin-top: 30px;" id="defualtWorkOrder">
   <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist" style="background-color:#AFE1AF;">
     <li class="nav-item" role="presentation">
@@ -277,189 +243,190 @@
       </div>
     </div>
   </div>
-
+</div>
 
   <!-- new work order  -->
   <div class="container-fluid" style="margin-top: 50px;">
-    <div class="row justify-content-center d-none" id="workOrderCreateForm">
-      <div class="col-md-12">
-        @if(auth()->user()->kv == 0)
-        <div class="alert alert-info" role="alert">
-          <h4 class="alert-heading">@lang('KYC Verification required')</h4>
-          <hr>
-          <p class="mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic officia quod natus, non dicta perspiciatis, quae repellendus ea illum aut debitis sint amet? Ratione voluptates beatae numquam. <a href="{{ route('user.kyc.form') }}">@lang('Click Here to Verify')</a></p>
-        </div>
-        @elseif(auth()->user()->kv == 2)
-        <div class="alert alert-warning" role="alert">
-          <h4 class="alert-heading">@lang('KYC Verification pending')</h4>
-          <hr>
-          <p class="mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic officia quod natus, non dicta perspiciatis, quae repellendus ea illum aut debitis sint amet? Ratione voluptates beatae numquam. <a href="{{ route('user.kyc.data') }}">@lang('See KYC Data')</a></p>
-        </div>
-        @endif
+  <div class="row justify-content-center d-none" id="workOrderCreateForm">
+    <div class="col-md-12">
+      @if(auth()->user()->kv == 0)
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">@lang('KYC Verification required')</h4>
+        <hr>
+        <p class="mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic officia quod natus, non dicta perspiciatis, quae repellendus ea illum aut debitis sint amet? Ratione voluptates beatae numquam. <a href="{{ route('user.kyc.form') }}">@lang('Click Here to Verify')</a></p>
+      </div>
+      @elseif(auth()->user()->kv == 2)
+      <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">@lang('KYC Verification pending')</h4>
+        <hr>
+        <p class="mb-0">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic officia quod natus, non dicta perspiciatis, quae repellendus ea illum aut debitis sint amet? Ratione voluptates beatae numquam. <a href="{{ route('user.kyc.data') }}">@lang('See KYC Data')</a></p>
+      </div>
+      @endif
 
-        <div class="card shadow whole-card p-3">
-          <form id="WOFORM">
-            @csrf
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <h6>Work Order</h6>
-                  <input type="text" class="form-control" id="workOrderCreateInput" readonly>
-                  <input type="hidden" name="workOrderId" id="workOrderCreateId">
-                  <span id="createFormWoIdErrors" style="font-size: 14px; color:red;"></span>
-                </div>
-                <div class="col">
-                  <h6>Requested Date</h6>
-                  <input name="open_date" type="text" class="form-control" value="" id="workOrderCreateReqDate" readonly autocomplete="off">
-                </div>
-                <div class="col">
-                  <h6>Requested By</h6>
-                  <input name="requested_by" type="text" class="form-control">
-                </div>
-                <div class="col">
-                  <h6>Request Type</h6>
-                  <select class="form-select form-select-sm" name="request_type" aria-label=".form-select-sm example" id="dashboardEmailPhoneSelect">
-                    <option value="Email">Email</option>
-                    <option value="Phone">Phone</option>
-                  </select>
-                </div>
-                <div class="col">
-                  <h6>Priority</h6>
-                  <select class="form-select form-select-sm" name="priority" aria-label=".form-select-sm example">
-                    <option value="1">P1</option>
-                    <option value="2">P2</option>
-                    <option value="3">P3</option>
-                    <option value="3">P4</option>
-                    <option value="3">P5</option>
-                  </select>
-                </div>
-                <div class="col">
-                  <h6>Complete By</h6>
-                  <input name="complete_by" type="text" id="completedByCreateForm" class="form-control" autocomplete="off">
-                </div>
-                <div class="col">
-                  <h6>Status</h6>
-                  <select name="status" class="form-select form-select-sm" aria-label=".form-select-sm example" id="workOrderCreateStatus">
-                    <option value="7">New</option>
-                    <option value="1">Open</option>
-                    <option value="2">Dispatched</option>
-                    <option value="3">Onsite</option>
-                    <option value="5">Hold</option>
-                    <option value="6">Closed</option>
-                    <option value="4">Invoiced</option>
-                  </select>
-                </div>
+      <div class="card shadow whole-card p-3">
+        <form id="WOFORM">
+          @csrf
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <h6>Work Order</h6>
+                <input type="text" class="form-control" id="workOrderCreateInput" readonly>
+                <input type="hidden" name="workOrderId" id="workOrderCreateId">
+                <span id="createFormWoIdErrors" style="font-size: 14px; color:red;"></span>
               </div>
-              <div class="row mt-3">
-                <div class="col-md-6">
-                  <h6>Project Manager</h6>
-                  <input type="text" class="form-control" id="customerPmCreateForm">
-                </div>
-                <div class="col-md-6">
-                  <h6>Sales Person</h6>
-                  <input type="text" class="form-control" id="customerSpCreateForm">
-                </div>
-                <div class="col-md-6">
-                  <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
-                  <input type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
-                  <input type="hidden" name="customer_id" id="customer_idCreateForm">
-                  <span id="createFormCusIdErrors" style="font-size: 14px; color:red;"></span>
-                </div>
-                <div class="col-md-6">
-                  <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
-                  <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
-                  <input type="hidden" name="site_id" id="site_idCreateForm">
-                  <span id="siteIdCreateFormErrors" style="font-size: 14px; color:red;"></span>
-                </div>
-                <div class="col-md-6">
-                  <h6>Address</h6>
-                  <input type="text" class="form-control" id="customerAddressCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>Address</h6>
-                  <input type="text" class="form-control" id="siteAddressCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>City</h6>
-                  <input type="text" class="form-control" id="customerCityCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>City</h6>
-                  <input type="text" class="form-control" id="siteCityCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>State</h6>
-                  <input type="text" class="form-control" style="width: 200px;" id="customerStateCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>State</h6>
-                  <input type="text" class="form-control" style="width: 200px;" id="siteStateCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>Zip Code</h6>
-                  <input type="text" class="form-control" style="width: 200px;" id="customerZipcodeCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>Zip Code</h6>
-                  <input type="text" class="form-control" style="width: 200px;" id="siteZipcodeCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>Phone</h6>
-                  <input type="text" class="form-control" style="width: 200px;" id="customerPhoneCreateForm" readonly>
-                </div>
-                <div class="col-md-6">
-                  <h6>Phone</h6>
-                  <input type="text" class="form-control" style="width: 200px;" readonly>
-                </div>
-                <div class="col-md-3 ">
-                  <h6>Site Contact</h6>
-                  <input name="site_contact_name" type="text" class="form-control" id="dashboardSiteContact">
-                </div>
-                <div class="col-md-2 ">
-                  <h6>Site Contact Phone</h6>
-                  <input name="site_contact_phone" type="text" class="form-control" id="dashboardSiteContactPhone">
-                </div>
-                <div class="col-md-2 ">
-                  <h6>Site Hours Of Operation</h6>
-                  <input name="h_operation" type="text" class="form-control" id="dashboardSiteHoursOp">
-                </div>
-                <div class="col-md-2 ">
-                  <h6>On Site By</h6>
-                  <input name="on_site_by" type="text" class="form-control" id="dashboardOnsiteBy">
-                </div>
-                <div class="col-md-3 ">
-                  <h6>Number of Techs Required</h6>
-                  <input name="num_tech_required" type="text" class="form-control" id="dashboardNumOfTech">
-                </div>
-                <div class="col-12 ">
-                  <h6>Scope Of Work</h6>
-                  <textarea name="scope_work" class="form-control summernote" rows="10" id="dashboardScopeOfWork"></textarea>
-                </div>
-                <div class="col-md-12 ">
-                  <h6>Deliverables</h6>
-                  <textarea name="deliverables" class="form-control summernote" id="dashboardDeliverables"></textarea>
-                </div>
-                <div class="col-md-12 ">
-                  <h6>Tools Required</h6>
-                  <textarea name="r_tools" class="form-control summernote" id="dashboardToolsRequired"></textarea>
-                </div>
-                <div class="col-md-12 ">
-                  <h6>Dispatch Instructions</h6>
-                  <textarea name="instruction" class="form-control summernote" id="dashboardDispatchIns"></textarea>
-                </div>
+              <div class="col">
+                <h6>Requested Date</h6>
+                <input name="open_date" type="text" class="form-control" value="" id="workOrderCreateReqDate" readonly autocomplete="off">
+              </div>
+              <div class="col">
+                <h6>Requested By</h6>
+                <input name="requested_by" type="text" class="form-control">
+              </div>
+              <div class="col">
+                <h6>Request Type</h6>
+                <select class="form-select form-select-sm" name="request_type" aria-label=".form-select-sm example" id="dashboardEmailPhoneSelect">
+                  <option value="Email">Email</option>
+                  <option value="Phone">Phone</option>
+                </select>
+              </div>
+              <div class="col">
+                <h6>Priority</h6>
+                <select class="form-select form-select-sm" name="priority" aria-label=".form-select-sm example">
+                  <option value="1">P1</option>
+                  <option value="2">P2</option>
+                  <option value="3">P3</option>
+                  <option value="3">P4</option>
+                  <option value="3">P5</option>
+                </select>
+              </div>
+              <div class="col">
+                <h6>Complete By</h6>
+                <input name="complete_by" type="text" id="completedByCreateForm" class="form-control" autocomplete="off">
+              </div>
+              <div class="col">
+                <h6>Status</h6>
+                <select name="status" class="form-select form-select-sm" aria-label=".form-select-sm example" id="workOrderCreateStatus">
+                  <option value="7">New</option>
+                  <option value="1">Open</option>
+                  <option value="2">Dispatched</option>
+                  <option value="3">Onsite</option>
+                  <option value="5">Hold</option>
+                  <option value="6">Closed</option>
+                  <option value="4">Invoiced</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <h6>Project Manager</h6>
+                <input type="text" class="form-control" id="customerPmCreateForm">
+              </div>
+              <div class="col-md-6">
+                <h6>Sales Person</h6>
+                <input type="text" class="form-control" id="customerSpCreateForm">
+              </div>
+              <div class="col-md-6">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
+                <input type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
+                <input type="hidden" name="customer_id" id="customer_idCreateForm">
+                <span id="createFormCusIdErrors" style="font-size: 14px; color:red;"></span>
+              </div>
+              <div class="col-md-6">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
+                <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">
+                <input type="hidden" name="site_id" id="site_idCreateForm">
+                <span id="siteIdCreateFormErrors" style="font-size: 14px; color:red;"></span>
+              </div>
+              <div class="col-md-6">
+                <h6>Address</h6>
+                <input type="text" class="form-control" id="customerAddressCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>Address</h6>
+                <input type="text" class="form-control" id="siteAddressCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>City</h6>
+                <input type="text" class="form-control" id="customerCityCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>City</h6>
+                <input type="text" class="form-control" id="siteCityCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>State</h6>
+                <input type="text" class="form-control" style="width: 200px;" id="customerStateCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>State</h6>
+                <input type="text" class="form-control" style="width: 200px;" id="siteStateCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>Zip Code</h6>
+                <input type="text" class="form-control" style="width: 200px;" id="customerZipcodeCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>Zip Code</h6>
+                <input type="text" class="form-control" style="width: 200px;" id="siteZipcodeCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>Phone</h6>
+                <input type="text" class="form-control" style="width: 200px;" id="customerPhoneCreateForm" readonly>
+              </div>
+              <div class="col-md-6">
+                <h6>Phone</h6>
+                <input type="text" class="form-control" style="width: 200px;" readonly>
+              </div>
+              <div class="col-md-3 ">
+                <h6>Site Contact</h6>
+                <input name="site_contact_name" type="text" class="form-control" id="dashboardSiteContact">
+              </div>
+              <div class="col-md-2 ">
+                <h6>Site Contact Phone</h6>
+                <input name="site_contact_phone" type="text" class="form-control" id="dashboardSiteContactPhone">
+              </div>
+              <div class="col-md-2 ">
+                <h6>Site Hours Of Operation</h6>
+                <input name="h_operation" type="text" class="form-control" id="dashboardSiteHoursOp">
+              </div>
+              <div class="col-md-2 ">
+                <h6>On Site By</h6>
+                <input name="on_site_by" type="text" class="form-control" id="dashboardOnsiteBy">
+              </div>
+              <div class="col-md-3 ">
+                <h6>Number of Techs Required</h6>
+                <input name="num_tech_required" type="text" class="form-control" id="dashboardNumOfTech">
+              </div>
+              <div class="col-12 ">
+                <h6>Scope Of Work</h6>
+                <textarea name="scope_work" class="form-control summernote" rows="10" id="dashboardScopeOfWork"></textarea>
+              </div>
+              <div class="col-md-12 ">
+                <h6>Deliverables</h6>
+                <textarea name="deliverables" class="form-control summernote" id="dashboardDeliverables"></textarea>
+              </div>
+              <div class="col-md-12 ">
+                <h6>Tools Required</h6>
+                <textarea name="r_tools" class="form-control summernote" id="dashboardToolsRequired"></textarea>
+              </div>
+              <div class="col-md-12">
+                <h6>Dispatch Instructions</h6>
+                <textarea name="instruction" class="form-control summernote" id="dashboardDispatchIns"></textarea>
+              </div>
+              <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton2">
                   <i class="d-none fa fa-spinner fa-spin" style="font-size:16px"></i>
                   <span class="button-text2">Submit</span>
                 </button>
               </div>
             </div>
+          </div>
         </div>
-        </form>
-      </div>
       </form>
     </div>
   </div>
 </div>
+
 <div class="container-fluid d-none" id="notes-container">
   <div class="card shadow" style="margin-top:-60px; border-top:none; border-radius:0px">
     <div class="card-body mt-4 p-4">
@@ -470,7 +437,7 @@
               <h5>General Notes</h5>
             </div>
             <div class="card-body">
-              <table class="table table-bordered" id="general-notes-table" style="width: 100%">
+              <table class="table table-bordered" id="general-notes-table">
                 <thead class="text-nowrap">
                   <tr>
                     <th>#</th>
@@ -483,6 +450,7 @@
                 </thead>
                 <tbody></tbody>
               </table>
+
             </div>
           </div>
         </div>
