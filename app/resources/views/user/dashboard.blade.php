@@ -213,23 +213,23 @@
 
               <div class="col-md-12   d-none" id="generalNote">
                 <h6>General Notes:</h6><button type="submit" class="btn btn-primary m-2">Save</button>
-                <textarea name="general_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="general_notes" class="form-control col-mb-12"></textarea>
               </div>
               <div class="col-md-12   d-none" id="closeOut">
                 <h6>Closeout Notes:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="close_out_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="close_out_notes" class="form-control col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="dNote">
                 <h6>Dispatch Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="dispatch_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="dispatch_notes" class="form-control col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="bNote">
                 <h6>Billing Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="billing_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="billing_notes" class="form-control col-mb-12"></textarea>
               </div>
               <div class="col-md-12  d-none" id="tNote">
                 <h6>Tech Support Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="tech_support_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="tech_support_notes" class="form-control col-mb-12"></textarea>
               </div>
               <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton">
@@ -450,7 +450,6 @@
                 </thead>
                 <tbody></tbody>
               </table>
-
             </div>
           </div>
         </div>

@@ -25,7 +25,6 @@ class DistanceMatrixController extends Controller
     public function getResponse(Request $request)
     {
         $input = $request->all();
-
         $rules = [
             'destination' => 'required',
             // 'mode' => 'required'
@@ -201,13 +200,22 @@ class DistanceMatrixController extends Controller
             $distances[$location->id] = $distance * 0.621371;
         }
 
-        asort($distances);
+        $filteredArray = [];
+
+        foreach ($distances as $key => $value) {
+            if ($value <= 150) {
+                $filteredArray[$key] = $value;
+            }
+        }
+
+        asort($filteredArray);
 
         $closestDistances = Technician::select(
             'id',
             DB::raw('ST_X(co_ordinates) as longitude'),
             DB::raw('ST_Y(co_ordinates) as latitude')
-        )->whereIn('id', array_slice(array_keys($distances), 0, 3))->get();
+        )->whereIn('id', array_slice(array_keys($filteredArray), 0, 10))->get();
+
 
         $technicians = [];
         foreach ($closestDistances as $closestDistance) {
@@ -229,11 +237,13 @@ class DistanceMatrixController extends Controller
                 $addressData['state'],
                 $addressData['zip_code']
             ]);
+
             $origins[] = [
                 'technician_id' => $technician->id,
                 'origin' => $formattedOrigin,
             ];
         }
+
         $originsString = implode('|', array_column($origins, 'origin'));
 
         $distances = new DistanceMatrixService();

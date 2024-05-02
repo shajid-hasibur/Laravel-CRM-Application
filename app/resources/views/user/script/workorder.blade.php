@@ -122,6 +122,7 @@
                     "id": $('#workOrderId').val()
                 },
                 success: function(data) {
+                    console.log(data);
                     closestTech(data);
                     $("#tech_distance_view").removeClass('d-none');
                 },
@@ -202,6 +203,7 @@
                     $('#tbody').html(html);
                 },
                 error: function(xhr, status, error) {
+                    $('#loader').addClass('d-none');
                     if (xhr.status === 404) {
                         $('#tech_distance_view').addClass('d-none');
                         iziToast.warning({
@@ -1233,7 +1235,7 @@
             button.find('.button-text2').text('Please Wait !');
             
             $.ajax({
-                url: 'work/order/update',
+                url: "{{ route('user.work.order.update') }}",
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -1307,6 +1309,12 @@
                         message: response.message,
                         position: "center"
                     });
+
+                    $('textarea[name="general_notes"]').val("");
+                    $('textarea[name="close_out_notes"]').val("");
+                    $('textarea[name="dispatch_notes"]').val("");
+                    $('textarea[name="billing_notes"]').val("");
+                    $('textarea[name="tech_support_notes"]').val("");
                 },
                 error: function(xhr) {
                     icon.addClass('d-none');

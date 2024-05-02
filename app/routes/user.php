@@ -88,7 +88,6 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::get('ftech/skillsets', 'skills')->name('ftech.skills');
                 Route::post('new/ftech/registration', 'newTech')->name('ftech.new');
                 Route::post('ftech/skillsets/new', 'newSkill')->name('skillsets.new');
-                Route::get('free/geocode', 'geocode')->name('free.geocode');
                 Route::get('ftech/autocomplete/data', 'ftechAuto')->name('technician.autocomplete');
                 Route::get('ftech/details', 'techData')->name('ftech.data');
                 Route::post('ftech/import', 'techImport')->name('ftech.import');

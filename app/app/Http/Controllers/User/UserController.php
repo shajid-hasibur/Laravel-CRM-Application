@@ -31,10 +31,18 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
+use App\Services\UserService;
+use Illuminate\Support\Facades\DB;
 use PDF;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
     public function home()
     {
         $pageTitle = "Tech Yeah User";
@@ -1359,24 +1367,6 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function geocode()
-    {
-        $client = new Client();
-        $address = 'Uttara+Sector+7+Park+Dhaka+Bangladesh';
-        try {
-            $response = $client->request('GET', 'https://geocode.maps.co/search?q={$address}&api_key=65965e39afdc6447994546gcz5fbdb1');
-            $statusCode = $response->getStatusCode();
-
-            if ($statusCode == 200) {
-                $data = $response->getBody()->getContents();
-                return response()->json(['data' => $data]);
-            } else {
-                return response()->json(['error' => 'Failed to fetch data'], $statusCode);
-            }
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            return response()->json(['error' => $e->getMessage()], $e->getCode());
-        }
-    }
 
     public function getResponse(Request $request)
     {
@@ -1428,7 +1418,7 @@ class UserController extends Controller
             }
 
             $addressParts = [
-                $site->address_1,
+                // $site->address_1,
                 $site->city,
                 $site->state,
                 $site->zipcode,
@@ -1467,21 +1457,69 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $destination = $request->input('destination');
-
-        $technicians = Technician::AvailableFtech()->get(['id', 'address_data']);
-        if ($technicians->isEmpty()) {
+        $technicians_available = Technician::AvailableFtech()->get(['id', 'address_data']);
+        if ($technicians_available->isEmpty()) {
             return response()->json(['errors' => "No available technicians found!"], 404);
         }
+
+        $latLong = $this->userService->getLatLong($input);
+
+        if (!is_string($latLong)) {
+            return response()->json(['geocode-error' => 'Geocoding error.'], 503);
+        }
+
+        $destination = $latLong;
+
+        $coordinate = explode(',', $latLong);
+        $destination_latitude = $coordinate[0];
+        $destination_longitude = $coordinate[1];
+
+        $locations = Technician::select(
+            'id',
+            DB::raw('ST_X(co_ordinates) as longitude'),
+            DB::raw('ST_Y(co_ordinates) as latitude')
+        )->get();
+
+        $manual_distances = [];
+
+        foreach ($locations as $location) {
+            $manual_distance = $location->greatCircleDistance($destination_latitude, $destination_longitude);
+            $manual_distances[$location->id] = $manual_distance * 0.621371;
+        }
+
+        $filteredArray = [];
+
+        foreach ($manual_distances as $key => $value) {
+            if ($value <= 150) {
+                $filteredArray[$key] = $value;
+            }
+        }
+
+        asort($filteredArray);
+        // dd($manual_distances);
+
+        $manualClosestDistances = Technician::select(
+            'id',
+            DB::raw('ST_X(co_ordinates) as longitude'),
+            DB::raw('ST_Y(co_ordinates) as latitude')
+        )->whereIn('id', array_slice(array_keys($filteredArray), 0, 10))->get();
+
+        $technicians = [];
+        foreach ($manualClosestDistances as $manualClosestDistance) {
+            $technicians[] = Technician::availableFtech()->select('id', 'address_data')
+                ->where('id', $manualClosestDistance->id)->get();
+        }
+
+        $mergedTechnicians = collect($technicians)->flatten();
+
         $origins = [];
 
         // processing the origin data as acceptable format for api
-        foreach ($technicians as $technician) {
+        foreach ($mergedTechnicians as $technician) {
             $addressData['country'] = $technician->address_data->country;
             $addressData['city'] = $technician->address_data->city;
             $addressData['state'] = $technician->address_data->state;
             $addressData['zip_code'] = $technician->address_data->zip_code;
-
             $formattedOrigin = implode(', ', [
                 $addressData['country'],
                 $addressData['city'],
@@ -1494,9 +1532,9 @@ class UserController extends Controller
                 'origin' => $formattedOrigin,
             ];
         }
+
         $originsString = implode('|', array_column($origins, 'origin'));
 
-        // dd($originsString);
         $distances = new DistanceMatrixService();
         $data = $distances->getDistance($originsString, $destination);
         // dd($data);
@@ -1513,31 +1551,32 @@ class UserController extends Controller
                     $distanceTextKm = str_replace([' km', ' ', ','], '', $distanceText);
                     $distanceTextKm = (float)$distanceTextKm;
 
-                    // Convert km to miles
                     $distanceTextMiles = $distanceTextKm * 0.621371;
 
-                    $isWithinRadius = $ftech->radius > $distanceTextMiles;
-                    if ($isWithinRadius) {
-                        $isWithinRadius = "Yes";
-                    } else {
-                        $isWithinRadius = "No";
-                    }
+                    if ($distanceTextMiles <= 150) {
+                        $isWithinRadius = $ftech->radius > $distanceTextMiles;
+                        if ($isWithinRadius) {
+                            $isWithinRadius = "Yes";
+                        } else {
+                            $isWithinRadius = "No";
+                        }
 
-                    $completeInfo[] = [
-                        'id' => $ftech->id,
-                        'technician_id' => $ftech->technician_id,
-                        'email' => $ftech->email,
-                        'phone' => $ftech->phone,
-                        'company_name' => $ftech->company_name,
-                        'distance' => $distanceTextMiles,
-                        'status' => $ftech->status,
-                        'rate' => $ftech->rate,
-                        'travel_fee' => $ftech->travel_fee,
-                        'preference' => $ftech->preference,
-                        'duration' => $durationText,
-                        'radius' => $isWithinRadius,
-                        'skills' => $ftech->skills->pluck('skill_name')->toArray(),
-                    ];
+                        $completeInfo[] = [
+                            'id' => $ftech->id,
+                            'technician_id' => $ftech->technician_id,
+                            'email' => $ftech->email,
+                            'phone' => $ftech->phone,
+                            'company_name' => $ftech->company_name,
+                            'distance' => $distanceTextMiles,
+                            'status' => $ftech->status,
+                            'rate' => $ftech->rate,
+                            'travel_fee' => $ftech->travel_fee,
+                            'preference' => $ftech->preference,
+                            'duration' => $durationText,
+                            'radius' => $isWithinRadius,
+                            'skills' => $ftech->skills->pluck('skill_name')->toArray(),
+                        ];
+                    }
                 }
             }
         }
