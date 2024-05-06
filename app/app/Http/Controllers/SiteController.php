@@ -74,36 +74,29 @@ class SiteController extends Controller
 
     public function contactSubmit(Request $request)
     {
-        $tech = User::where('email', $request->email)->first();
-        if (!$tech) {
-            $this->validate($request, [
-                'name' => 'required',
-                'email' => 'required',
-                'subject' => 'required|string|max:255',
-                'message' => 'required',
-            ]);
-        } else {
-            $this->validate($request, [
-                'email' => 'required',
-                'subject' => 'required|string|max:255',
-                'message' => 'required',
-            ]);
-        }
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required',
+            'subject' => 'required|string|max:255',
+            'message' => 'required',
+        ]);
+
+        // if(!verifyCaptcha()){
+        //     $notify[] = ['error','Invalid captcha provided'];
+        //     return back()->withNotify($notify);
+        // }
 
         $request->session()->regenerateToken();
 
         $random = getNumber();
 
         $ticket = new SupportTicket();
-        $ticket->user_id = auth()->id() ?? $tech->id ?? 0;
-        $ticket->site_id = $request->site_id ?? 0;
-        $ticket->name = $request->name ?? $tech->firstname . $tech->lastname;
+        $ticket->user_id = auth()->id() ?? 0;
+        $ticket->name = $request->name;
         $ticket->email = $request->email;
-        if ($tech) {
-            $ticket->priority = Status::PRIORITY_HIGH;
-        } else {
-            $ticket->priority = Status::PRIORITY_MEDIUM;
-        }
+        $ticket->priority = Status::PRIORITY_MEDIUM;
+
+
         $ticket->ticket = $random;
         $ticket->subject = $request->subject;
         $ticket->last_reply = Carbon::now();
@@ -113,7 +106,7 @@ class SiteController extends Controller
         $adminNotification = new AdminNotification();
         $adminNotification->user_id = auth()->user() ? auth()->user()->id : 0;
         $adminNotification->title = 'A new support ticket has opened ';
-        $adminNotification->click_url = urlPath('admin.ticket.view', $ticket->id);
+        $adminNotification->click_url = urlPath('admin.ticket.view',$ticket->id);
         $adminNotification->save();
 
         $message = new SupportMessage();
@@ -121,22 +114,9 @@ class SiteController extends Controller
         $message->message = $request->message;
         $message->save();
 
-        if ($tech) {
-            notify($tech, 'ADMIN_ASSIGN_SUPPORT_TICKET', [
-                'ticket_id' => $ticket->ticket,
-                'ticket_subject' => $ticket->subject,
-                'reply' => $request->message,
-                'link' => route('ticket.view', $ticket->ticket),
-            ]);
-        }
+        $notify[] = ['success', 'Ticket created successfully!'];
 
-        if ($tech) {
-            $notify[] = ['success', 'Ticket created successfully!'];
-        } else {
-            $notify[] = ['success', 'Data submitted successfully!'];
-        }
-
-        return back()->withNotify($notify);
+        return to_route('ticket.view', [$ticket->ticket])->withNotify($notify);
     }
 
     public function test()

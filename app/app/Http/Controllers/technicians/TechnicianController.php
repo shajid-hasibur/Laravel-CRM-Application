@@ -10,6 +10,7 @@ use App\Models\CheckInOut;
 use App\Models\Review;
 use App\Models\SkillCategory;
 use App\Models\Technician;
+use App\Services\GeocodingService;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -26,9 +27,11 @@ use PDF;
 class TechnicianController extends Controller
 {
     protected $technicianService;
-    public function __construct(TechnicianService $technicianService)
+    protected $geocodingService;
+    public function __construct(TechnicianService $technicianService, GeocodingService $geocodingService)
     {
         $this->technicianService = $technicianService;
+        $this->geocodingService = $geocodingService;
     }
     public function index()
     {
@@ -501,16 +504,12 @@ class TechnicianController extends Controller
         echo "<pre>$json</pre>";
     }
 
-    public function getLocation(Request $request)
+    public function getCoordinate(Request $request)
     {
-        $apiKey = config('services.locationiq.api_key');
         $address = $request->input('address');
-        $encodedAddress = urlencode($address);
-        $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
-
-        $response = file_get_contents($url);
-
-        return response()->json(json_decode($response, true));
+        $geoCode = new GeocodingService();
+        $response = $geoCode->geocodeAddress($address);
+        return response()->json($response);
     }
 
 
@@ -557,30 +556,34 @@ class TechnicianController extends Controller
 
     public function multiAssignCoordinate()
     {
-        $apiKey = config('services.locationiq.api_key');
         $technicians = Technician::whereRaw("ST_X(co_ordinates) IS NULL OR ST_Y(co_ordinates) IS NULL")->get(['id', 'address_data']);
+        $address_array = [];
 
         if (count($technicians) != 0) {
             foreach ($technicians as $technician) {
-                $address['zipcode'] = $technician->address_data->zip_code;
                 $address['city'] = $technician->address_data->city;
                 $address['state'] = $technician->address_data->state;
+                $address['zipcode'] = $technician->address_data->zip_code;
                 $address['country'] = $technician->address_data->country;
 
                 $address_string = implode(", ", $address);
-                $encodedAddress = urlencode($address_string);
 
-                $url = "https://us1.locationiq.com/v1/search?key={$apiKey}&q={$encodedAddress}&format=json";
-                $response = file_get_contents($url);
-                $coordinates = json_decode($response, true);
-
-                $latitude = $coordinates[0]['lat'];
-                $longitude = $coordinates[0]['lon'];
-
-                Technician::where('id', $technician->id)->update([
-                    'co_ordinates' => DB::raw("ST_GeomFromText('POINT($longitude $latitude)', 4326)"),
-                ]);
+                $address_array[] = [
+                    'id' => $technician->id,
+                    'address' => $address_string
+                ];
             }
+
+            $coordinates = $this->geocodingService->geocodeAddresses($address_array);
+
+            if ($coordinates != null) {
+                foreach ($coordinates as $value) {
+                    Technician::where('id', $value['id'])->update([
+                        'co_ordinates' => DB::raw("ST_GeomFromText('POINT(" . $value['lng'] . " " . $value['lat'] . ")', 4326)"),
+                    ]);
+                }
+            }
+
             return response()->json(['message' => 'Coordinates updated successfully'], 200);
         } else {
             return response()->json(['warning' => 'No technician found with empty coordinates !'], 422);

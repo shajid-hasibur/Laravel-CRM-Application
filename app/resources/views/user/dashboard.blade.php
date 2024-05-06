@@ -213,23 +213,23 @@
 
               <div class="col-md-12   d-none" id="generalNote">
                 <h6>General Notes:</h6><button type="submit" class="btn btn-primary m-2">Save</button>
-                <textarea name="general_notes" class="form-control col-mb-12"></textarea>
+                <textarea name="general_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12   d-none" id="closeOut">
                 <h6>Closeout Notes:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="close_out_notes" class="form-control col-mb-12"></textarea>
+                <textarea name="close_out_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="dNote">
                 <h6>Dispatch Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="dispatch_notes" class="form-control col-mb-12"></textarea>
+                <textarea name="dispatch_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="bNote">
                 <h6>Billing Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="billing_notes" class="form-control col-mb-12"></textarea>
+                <textarea name="billing_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="tNote">
                 <h6>Tech Support Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="tech_support_notes" class="form-control col-mb-12"></textarea>
+                <textarea name="tech_support_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton">
@@ -317,6 +317,12 @@
               </div>
             </div>
             <div class="row mt-3">
+             <div class="col-md-12">
+                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
+                <input type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
+                <input type="hidden" name="customer_id" id="customer_idCreateForm">
+                <span id="createFormCusIdErrors" style="font-size: 14px; color:red;"></span>
+              </div>
               <div class="col-md-6">
                 <h6>Project Manager</h6>
                 <input type="text" class="form-control" id="customerPmCreateForm">
@@ -325,12 +331,7 @@
                 <h6>Sales Person</h6>
                 <input type="text" class="form-control" id="customerSpCreateForm">
               </div>
-              <div class="col-md-6">
-                <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Customer</b></h5>
-                <input type="text" class="form-control" id="CustomerIdCreateForm" autocomplete="off" placeholder="Search with Customer Name / Customer Id / Zipcode">
-                <input type="hidden" name="customer_id" id="customer_idCreateForm">
-                <span id="createFormCusIdErrors" style="font-size: 14px; color:red;"></span>
-              </div>
+              
               <div class="col-md-6">
                 <h5><b><i class="fas fa-magnifying-glass" style="font-size: 16px"></i>&nbsp;Site</b></h5>
                 <input name="site_id" type="text" class="form-control" id="siteIdCreateForm" autocomplete="off" placeholder="Search with Location Name / Site Id / Zipcode">

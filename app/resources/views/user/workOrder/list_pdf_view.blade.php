@@ -42,7 +42,20 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header" style="background-color: #55aa29;">
-          <h3 class="text-white">Recently Created</h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="text-white">Recently Created</h3>
+                </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                          <a href="{{route('user.work.order.view.new')}}" class="btn btn-primary m-1">New</a>
+                          <a href="{{route('user.work.order.view.dispatch')}}" class="btn btn-warning m-1">Dispatched</a>
+                          <a href="{{route('user.work.order.view.onsite')}}" class="btn btn-success m-1">Onsite</a>
+                          <a href="{{route('user.work.order.view.invoiced')}}" class="btn btn-info m-1">Invoiced</a>
+                          <a href="{{route('user.work.order.view.complete')}}" class="btn btn-secondary m-1">Complete</a>
+                          <a href="{{route('user.work.order.view.closed')}}" class="btn btn-danger m-1">Closed</a>
+                    </div>
+            </div>
         </div>
         <div class="card-body">
           <table class="table">
@@ -86,18 +99,13 @@
                 <td><span class="badge bg-secondary">COMPLETE</span></td>
                 @endif
                 <td>
-                  <button class="btn btn-primary" onclick="window.location.href='{{url('pdf/user/work/order/view/')}}/{{$w->id}}'"><i class="fas fa-eye"></i> View</button>
-
+                  <button class="btn btn-primary" onclick="window.location.href='{{url('pdf/work/order/view/')}}/{{$w->id}}'"><i class="fas fa-eye"></i> View</button>
                 </td>
                 <td class="action-dropdown">
                   <div class="dropdown">
                     <i style="cursor: pointer;" class="fas fa-ellipsis-v " onclick="toggleDropdown(this)" aria-haspopup="true" aria-expanded="false"></i>
                     <div class="dropdown-menu">
-
-
-                      <a href="{{url('pdf/user/work/order/download/')}}/{{$w->id}}" class="dropdown-item"> <i class="fas fa-file-pdf"></i> Download </a>
-
-
+                      <a href="{{url('pdf/work/order/download/')}}/{{$w->id}}" class="dropdown-item"> <i class="fas fa-file-pdf"></i> Download </a>
                       <a href="{{url('user/order/delete')}}/{{$w->id}}" class="dropdown-item"><i class="fas fa-trash-alt"></i> Delete</a>
                     </div>
                   </div>
@@ -117,7 +125,7 @@
   </div>
 </div>
 
-<div class="container-fluid navigation" style="margin-top: 30px;" id="defualtWorkOrder">
+<div class="container-fluid navigation d-none" style="margin-top: 30px;" id="defualtWorkOrder">
   <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist" style="background-color:#AFE1AF;">
     <li class="nav-item" role="presentation">
       <button class="nav-link active mt-4" id="work-order-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
@@ -331,23 +339,23 @@
 
               <div class="col-md-12   d-none" id="generalNote">
                 <h6>General Notes:</h6><button type="submit" class="btn btn-primary m-2">Save</button>
-                <textarea name="general_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="general_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12   d-none" id="closeOut">
                 <h6>Closeout Notes:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="close_out_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="close_out_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="dNote">
                 <h6>Dispatch Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="dispatch_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="dispatch_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="bNote">
                 <h6>Billing Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="billing_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="billing_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-md-12  d-none" id="tNote">
                 <h6>Tech Support Note:</h6><button class="btn btn-primary m-2" type="submit">Save</button>
-                <textarea name="tech_support_notes" class="form-control summernote col-mb-12"></textarea>
+                <textarea name="tech_support_notes" class="form-control col-mb-12" rows="4" cols="50"></textarea>
               </div>
               <div class="col-12">
                 <button class="btn btn-primary w-100 mt-3" type="submit" id="orderSubmitButton">

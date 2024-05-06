@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Imports\SitesImport;
+use App\Services\GeocodingService;
 use Illuminate\Http\Request;
 use App\Lib\GoogleAuthenticator;
 use App\Lib\FormProcessor;
@@ -31,6 +32,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
+use App\Mail\MyTestMail_sample;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use PDF;
@@ -38,10 +40,12 @@ use PDF;
 class UserController extends Controller
 {
     protected $userService;
+    protected $geocodingService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, GeocodingService $geocodingService)
     {
         $this->userService = $userService;
+        $this->geocodingService = $geocodingService;
     }
     public function home()
     {
@@ -51,8 +55,59 @@ class UserController extends Controller
     public function userViewPdf()
     {
 
+        $pageTitle = "All WorkOrder";
+        $work = $this->woData();
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusNew()
+    {
         $pageTitle = "New WorkOrder";
-        $work = WorkOrder::latest()->with('customer', 'site')
+        $work = $this->woData('NewTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusComplete()
+    {
+        $pageTitle = "Complete WorkOrder";
+        $work = $this->woData('CompleteTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusDispatched()
+    {
+        $pageTitle = "Dispatch WorkOrder";
+        $work = $this->woData('DispatchedTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusOnsite()
+    {
+        $pageTitle = "Onsite WorkOrder";
+        $work = $this->woData('OnsiteTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusInvoiced()
+    {
+        $pageTitle = "Invoice WorkOrder";
+        $work = $this->woData('InvoicedTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+    public function statusClosed()
+    {
+        $pageTitle = "Closed WorkOrder";
+        $work = $this->woData('ClosedTicket');
+        return $this->allRecord($pageTitle, $work);
+    }
+
+    private function allRecord($pageTitle, $work)
+    {
+        return view('user.workOrder.list_pdf_view', compact('pageTitle', 'work'));
+    }
+    public function woData($scope = null)
+    {
+        if ($scope) {
+            $w = WorkOrder::$scope();
+        } else {
+            $w = WorkOrder::query();
+        }
+        return $w->latest()->with('customer', 'site')
             ->searchable([
                 'order_id',
                 'customer:company_name',
@@ -60,13 +115,12 @@ class UserController extends Controller
                 'site:zipcode',
                 'site:location',
                 'site:address_1',
-            ])->dateFilter()->paginate(getPaginate());
-        return view('user.workOrder.list_pdf_view', compact('pageTitle', 'work'));
+            ])->orderBy('id', 'desc')->paginate(getPaginate());
     }
     public function service()
     {
         $orderId = WorkOrder::orderBy('id', 'desc')->first();
-        $rand = rand(101, 999);
+        $rand = rand(10, 99);
 
         if ($orderId == null) {
             $id = 0;
@@ -76,9 +130,9 @@ class UserController extends Controller
             $f = $p + 1;
         }
         $date = date('mdy');
-        $id = $date . "-" . $rand;
+        $id = $date . $rand;
         $service = new WorkOrder();
-        $service->order_id = "S" . $f . $id;
+        $service->order_id = "S1" . $id . $f;
         $service->open_date = date('m/d/y');
         $service->order_type = Status::SERVICE;
         $service->status = Status::NEW;
@@ -92,7 +146,7 @@ class UserController extends Controller
     public function project()
     {
         $orderId = WorkOrder::orderBy('id', 'desc')->first();
-        $rand = rand(101, 999);
+        $rand = rand(10, 99);
 
         if ($orderId == null) {
             $id = 0;
@@ -103,9 +157,9 @@ class UserController extends Controller
         }
 
         $date = date('mdy');
-        $id = $date . "-" . $rand;
+        $id = $date . $rand;
         $project = new WorkOrder();
-        $project->order_id = "P" . $f . $id;
+        $project->order_id = "P1" . $id . $f;
         $project->open_date = date('m/d/y');
         $project->order_type = Status::PROJECT;
         $project->status = Status::NEW;
@@ -119,7 +173,7 @@ class UserController extends Controller
     public function install()
     {
         $orderId = WorkOrder::orderBy('id', 'desc')->first();
-        $rand = rand(101, 999);
+        $rand = rand(10, 99);
 
         if ($orderId == null) {
             $id = 0;
@@ -129,9 +183,9 @@ class UserController extends Controller
             $f = $p + 1;
         }
         $date = date('mdy');
-        $id = $date . "-" . $rand;
+        $id = $date . $rand;
         $install = new WorkOrder();
-        $install->order_id = "I" . $f . $id;
+        $install->order_id = "I1" . $id . $f;
         $install->open_date = date('m/d/y');
         $install->order_type = Status::INSTALL;
         $install->status = Status::NEW;
@@ -1316,6 +1370,7 @@ class UserController extends Controller
 
         $addressData = [
             'address' => $request->address,
+            'address2' => $request->address2,
             'country' => $request->country,
             'city' => $request->city,
             'state' => $request->state,
@@ -1441,7 +1496,7 @@ class UserController extends Controller
 
     public function distanceResponse(Request $request)
     {
-        $input = $request->all();
+        $destination = $request->all();
 
         $rules = [
             'destination' => 'required',
@@ -1451,7 +1506,7 @@ class UserController extends Controller
             'destination.required' => 'Project site address is required.',
         ];
 
-        $validator = Validator::make($input, $rules, $message);
+        $validator = Validator::make($destination, $rules, $message);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -1462,17 +1517,14 @@ class UserController extends Controller
             return response()->json(['errors' => "No available technicians found!"], 404);
         }
 
-        $latLong = $this->userService->getLatLong($input);
+        $coordinate = $this->geocodingService->geocodeAddress($destination['destination']);
 
-        if (!is_string($latLong)) {
+        if ($coordinate == null) {
             return response()->json(['geocode-error' => 'Geocoding error.'], 503);
         }
 
-        $destination = $latLong;
-
-        $coordinate = explode(',', $latLong);
-        $destination_latitude = $coordinate[0];
-        $destination_longitude = $coordinate[1];
+        $destination_latitude = $coordinate['lat'];
+        $destination_longitude = $coordinate['lng'];
 
         $locations = Technician::select(
             'id',
@@ -1496,7 +1548,6 @@ class UserController extends Controller
         }
 
         asort($filteredArray);
-        // dd($manual_distances);
 
         $manualClosestDistances = Technician::select(
             'id',
@@ -1536,9 +1587,10 @@ class UserController extends Controller
         $originsString = implode('|', array_column($origins, 'origin'));
 
         $distances = new DistanceMatrixService();
-        $data = $distances->getDistance($originsString, $destination);
+        $data = $distances->getDistance($originsString, $destination['destination']);
         // dd($data);
         $completeInfo = [];
+        $techniciansFound = false;
         foreach ($data['rows'] as $index => $row) {
             if ($row['elements'][0]['status'] === "OK") {
                 $technicianId = $origins[$index]['technician_id'];
@@ -1576,9 +1628,15 @@ class UserController extends Controller
                             'radius' => $isWithinRadius,
                             'skills' => $ftech->skills->pluck('skill_name')->toArray(),
                         ];
+
+                        $techniciansFound = true;
                     }
                 }
             }
+        }
+
+        if (!$techniciansFound) {
+            return response()->json(['errors' => 'No technicians found in 150 miles radius.'], 404);
         }
 
         usort($completeInfo, function ($a, $b) {
@@ -1601,7 +1659,7 @@ class UserController extends Controller
         $workOrder->status = Status::DISPATCHED;
         $workOrder->save();
         $tAvailable = Technician::find($workOrder->ftech_id);
-        $tAvailable->available = Status::DISABLE;
+        // $tAvailable->available = Status::DISABLE;
         $tAvailable->save();
 
         $id = [
@@ -1618,12 +1676,13 @@ class UserController extends Controller
         return response()->json($response, 200);
     }
 
-    private function sendWorkOrder($orderId, $techEmail)
+    public function sendWorkOrder($orderId, $techEmail)
     {
         //mail sending code
+
         $to = $techEmail;
         $sub = "Work order details of TechYeah";
-        $body = 'http://127.0.0.1:8000/user/pdf/user/work/order/download/' . $orderId;
+        $body = 'https://techyeah.codetreebd.com/pdf/work/order/download/' . $orderId;
         $sender = "Tech Yeah";
 
         $emailData = [
@@ -1657,7 +1716,7 @@ class UserController extends Controller
         ];
 
         try {
-            Mail::to($to)->send(new MyTestMail($emailData));
+            Mail::to($to)->send(new MyTestMail_sample($emailData));
             return response()->json(['message' => 'Email sent successfully']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Email failed to send', 'error' => $e->getMessage()], 500);

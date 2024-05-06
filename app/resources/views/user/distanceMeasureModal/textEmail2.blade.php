@@ -63,8 +63,7 @@
         <h2>{{ $emailData['subject'] }}</h2>
         <p>From: {{ $emailData['sender'] }}</p>
         <div class="content">
-            <p>Click here to see the Work Order details</p>
-            <a href="{{ $emailData['body'] }}" target="_blank" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">View PDF</a>
+            <p>{{ $emailData['body'] }}</p>
         </div>
         <div class="footer">
             <img src="https://techyeah.codetreebd.com/assetsNew/dist/img/sidelogo.png" alt="Company Logo">

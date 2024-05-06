@@ -36,7 +36,6 @@
     <script src="{{asset('assets/global/js/bootstrap.bundle.min.js')}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     @stack('custom_script')

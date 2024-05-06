@@ -69,7 +69,7 @@ Route::middleware('admin')->group(function () {
             Route::get('/technicians/check/in/out', 'checkInOut')->name('check.in.out');
             Route::get('/technicians/pdf/in/out', 'generatePDFCheckInOut')->name('pdf.in.out');
             Route::get('/distance', 'findClosestLocations');
-            Route::get('/coordinates/response', 'getLocation')->name('coordinate.get');
+            Route::get('/coordinates/response', 'getCoordinate')->name('coordinate.get');
             Route::get('/geocode/view', 'geocodeIndex')->name('geocode.index');
             Route::get('/autocomplete', 'techAutocomplete')->name('autocomplete');
             Route::post('/assign/coordinate', 'assignLatLong')->name('assign.coordinate');

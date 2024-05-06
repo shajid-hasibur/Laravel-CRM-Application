@@ -53,6 +53,12 @@ Route::middleware('auth')->name('user.')->group(function () {
                 Route::Post('work/order/update', 'updateWorkOrder')->name('work.order.update');
                 Route::get('work/order/onsite', 'Onsite')->name('work.order.onsite');
                 Route::get('work/order/view/pdf/user/dashboard', 'userViewPdf')->name('work.order.view.pdf');
+                Route::get('work/order/view/pdf/new', 'statusNew')->name('work.order.view.new');
+                Route::get('work/order/view/pdf/dispatch', 'statusDispatched')->name('work.order.view.dispatch');
+                Route::get('work/order/view/pdf/onsite', 'statusOnsite')->name('work.order.view.onsite');
+                Route::get('work/order/view/pdf/invoiced', 'statusInvoiced')->name('work.order.view.invoiced');
+                Route::get('work/order/view/pdf/complete', 'statusComplete')->name('work.order.view.complete');
+                Route::get('work/order/view/pdf/closed', 'statusClosed')->name('work.order.view.closed');
                 Route::post('onsite/order/ticket/update', 'ticketUpdate')->name('onsite.ticketUpdate');
                 Route::get('work/order/details/{orderId}', 'detailsOrder')->name('work.order.details');
                 Route::get('customer/autocomplete', 'autoComplete')->name('customer.autocomplete');

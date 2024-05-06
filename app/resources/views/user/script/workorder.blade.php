@@ -1,4 +1,4 @@
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.11.14/jquery.timepicker.min.js"></script>
 <script>
     var customerId = "";
     $(document).ready(function() {
@@ -19,6 +19,7 @@
             timeFormat: 'H:i:s'
         });
         $('#dashboardCompletedBy').datepicker();
+        $('#dashboardOnsiteBy').datepicker();
         $('#workOrderSearchForm').removeClass('d-none');
 
         //all modal draggable code
@@ -50,7 +51,8 @@
                     },
                     {
                         render: function(data, type, row) {
-                            return '<i data-id="' + row.id + '" class="fas fa-edit ticketID"></i>';
+                            return '<i data-id="' + row.id +
+                                '" class="fas fa-edit ticketID"></i>';
                         }
                     }
                 ],
@@ -84,15 +86,17 @@
                     },
                     success: function(data) {
                         response($.map(data.results, function(item) {
-                            if(item.company_name == null){
+
+                            if (item.company_name == null) {
                                 return {
                                     label: item.order_id,
                                     value: item.order_id,
                                     workOrderId: item.id,
                                 }
-                            }else{
+                            } else {
                                 return {
-                                    label: item.order_id + "-" + item.company_name,
+                                    label: item.order_id + "-" + item
+                                        .company_name,
                                     value: item.order_id,
                                     workOrderId: item.id,
                                 }
@@ -197,7 +201,9 @@
                             '<td>' + value.distance + '</td>' +
                             '<td>' + value.duration + '</td>' +
                             '<td>' + value.radius + '</td>' +
-                            '<td>' + '<button id="contact-btn" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Contact</button>' + '</td>' +
+                            '<td>' +
+                            '<button id="contact-btn" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Contact</button>' +
+                            '</td>' +
                             '</tr>';
                     });
                     $('#tbody').html(html);
@@ -359,29 +365,54 @@
         }
 
         function setSiteData(data) {
-            $('#siteHCompany').html('<strong><span style="font-size: 16px;">Site Company :</span></strong> ' + (data.company_name || ''));
-            $('#siteHLocation').html('<strong><span style="font-size: 16px;">Site Location :</span></strong> ' + (data.location || ''));
-            $('#siteHAddress').html('<strong><span style="font-size: 16px;">Site Address :</span></strong> ' + (data.address_1 || ''));
-            $('#siteHZipcode').html('<strong><span style="font-size: 16px;">Site Zipcode :</span></strong> ' + (data.zipcode || ''));
-            $('#siteHCity').html('<strong><span style="font-size: 16px;">Site City :</span></strong> ' + (data.city || ''));
-            $('#siteHState').html('<strong><span style="font-size: 16px;">Site State :</span></strong> ' + (data.state || ''));
-            $('#siteHtech').html('<strong><span style="font-size: 16px;">Technician Required :</span></strong> ' + (data.num_tech_required || ''));
-            $('#siteHname').html('<strong><span style="font-size: 16px;">Site Contact Name :</span></strong> ' + (data.site_contact_name || ''));
-            $('#siteHphone').html('<strong><span style="font-size: 16px;">Site Contact Phone :</span></strong> ' + (data.site_contact_phone || ''));
-            $('#siteHwork').html('<strong><span style="font-size: 16px;">Total Work Order :</span></strong> ' + (data.wT || ''));
-            $('#siteHwcomplete').html('<strong><span style="font-size: 16px;">Total Work Order Complete :</span></strong> ' + (data.wC || ''));
-            $('#r_tools').html('<strong><span style="font-size: 16px;">' + (data.r_tools || '') + '</span></strong>');
-            $('#ftech_company').html('<strong><span style="font-size: 16px;">Company Name :</span></strong> ' + (data.fcompany_name || ''));
+            $('#siteHCompany').html('<strong><span style="font-size: 16px;">Site Company :</span></strong> ' + (
+                data.company_name || ''));
+            $('#siteHLocation').html('<strong><span style="font-size: 16px;">Site Location :</span></strong> ' +
+                (data.location || ''));
+            $('#siteHAddress').html('<strong><span style="font-size: 16px;">Site Address :</span></strong> ' + (
+                data.address_1 || ''));
+            $('#siteHZipcode').html('<strong><span style="font-size: 16px;">Site Zipcode :</span></strong> ' + (
+                data.zipcode || ''));
+            $('#siteHCity').html('<strong><span style="font-size: 16px;">Site City :</span></strong> ' + (data
+                .city || ''));
+            $('#siteHState').html('<strong><span style="font-size: 16px;">Site State :</span></strong> ' + (data
+                .state || ''));
+            $('#siteHtech').html(
+                '<strong><span style="font-size: 16px;">Technician Required :</span></strong> ' + (data
+                    .num_tech_required || ''));
+            $('#siteHname').html('<strong><span style="font-size: 16px;">Site Contact Name :</span></strong> ' +
+                (data.site_contact_name || ''));
+            $('#siteHphone').html(
+                '<strong><span style="font-size: 16px;">Site Contact Phone :</span></strong> ' + (data
+                    .site_contact_phone || ''));
+            $('#siteHwork').html('<strong><span style="font-size: 16px;">Total Work Order :</span></strong> ' +
+                (data.wT || ''));
+            $('#siteHwcomplete').html(
+                '<strong><span style="font-size: 16px;">Total Work Order Complete :</span></strong> ' + (
+                    data.wC || ''));
+            $('#r_tools').html('<strong><span style="font-size: 16px;">' + (data.r_tools || '') +
+                '</span></strong>');
+            $('#ftech_company').html('<strong><span style="font-size: 16px;">Company Name :</span></strong> ' +
+                (data.fcompany_name || ''));
             $('#Check_in_ftech_company').val((data.fcompany_name || ''));
-            $('#Header_time_zone').html('<strong><span style="font-size: 16px;">Time Zone :</span></strong> ' + (data.time_zone || ''));
+            $('#Header_time_zone').html('<strong><span style="font-size: 16px;">Time Zone :</span></strong> ' +
+                (data.time_zone || ''));
             $('#time_zone').val((data.time_zone || ''));
-            $('#ftech_id').html('<strong><span style="font-size: 16px;">Feild Technician ID :</span></strong> ' + (data.technician_id || ''));
-            $('#ftech_email').html('<strong><span style="font-size: 16px;">Email :</span></strong> ' + (data.ftech_email || ''));
-            $('#ftech_address').html('<strong><span style="font-size: 16px;">Address :</span></strong> ' + (data.ftech_address || ''));
-            $('#ftech_country').html('<strong><span style="font-size: 16px;">Country :</span></strong> ' + (data.ftech_country || ''));
-            $('#ftech_city').html('<strong><span style="font-size: 16px;">City :</span></strong> ' + (data.ftech_city || ''));
-            $('#ftech_state').html('<strong><span style="font-size: 16px;">State :</span></strong> ' + (data.ftech_state || ''));
-            $('#ftech_zipcode').html('<strong><span style="font-size: 16px;">Zipcode :</span></strong> ' + (data.ftech_zipcode || ''));
+            $('#ftech_id').html(
+                '<strong><span style="font-size: 16px;">Feild Technician ID :</span></strong> ' + (data
+                    .technician_id || ''));
+            $('#ftech_email').html('<strong><span style="font-size: 16px;">Email :</span></strong> ' + (data
+                .ftech_email || ''));
+            $('#ftech_address').html('<strong><span style="font-size: 16px;">Address :</span></strong> ' + (data
+                .ftech_address || ''));
+            $('#ftech_country').html('<strong><span style="font-size: 16px;">Country :</span></strong> ' + (data
+                .ftech_country || ''));
+            $('#ftech_city').html('<strong><span style="font-size: 16px;">City :</span></strong> ' + (data
+                .ftech_city || ''));
+            $('#ftech_state').html('<strong><span style="font-size: 16px;">State :</span></strong> ' + (data
+                .ftech_state || ''));
+            $('#ftech_zipcode').html('<strong><span style="font-size: 16px;">Zipcode :</span></strong> ' + (data
+                .ftech_zipcode || ''));
             $('#w_id').val(data.w_id);
             $('#check_in_w_id').val(data.w_id);
         }
@@ -396,7 +427,7 @@
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                ajax: "{{ route('user.table.checkInOut',['id' => ':id']) }}".replace(':id', id),
+                ajax: "{{ route('user.table.checkInOut', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -448,7 +479,7 @@
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                ajax: "{{ route('user.table.sub.ticket',['id' => ':id']) }}".replace(':id', id),
+                ajax: "{{ route('user.table.sub.ticket', ['id' => ':id']) }}".replace(':id', id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -581,7 +612,8 @@
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                ajax: "{{ route('user.workOrder.dispatchNotes', ['id' => ':id']) }}".replace(':id', id),
+                ajax: "{{ route('user.workOrder.dispatchNotes', ['id' => ':id']) }}".replace(':id',
+                    id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -671,7 +703,8 @@
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-                ajax: "{{ route('user.workOrder.techSupportNotes', ['id' => ':id']) }}".replace(':id', id),
+                ajax: "{{ route('user.workOrder.techSupportNotes', ['id' => ':id']) }}".replace(':id',
+                    id),
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
@@ -898,11 +931,11 @@
             }
         });
 
-        function getTechCompany(id){
+        function getTechCompany(id) {
             $.ajax({
-                url: "{{ route('user.order.site.history',['id' => ':id']) }}".replace(':id', id),
+                url: "{{ route('user.order.site.history', ['id' => ':id']) }}".replace(':id', id),
                 type: "GET",
-                success:function(response){
+                success: function(response) {
                     $('#Check_in_ftech_company').val(response.result.fcompany_name);
                     $('#time_zone').val(response.result.time_zone);
                     $('#check_in_w_id').val(response.result.w_id);
@@ -936,19 +969,19 @@
 
         //service create script
         $('#serviceButton').click(function() {
-            route = '{{ route("user.work.order.service") }}';
+            route = '{{ route('user.work.order.service') }}';
             createWorkOrder(route);
         });
 
         //project create script
         $('#projectButton').click(function() {
-            route = '{{ route("user.work.order.project") }}';
+            route = '{{ route('user.work.order.project') }}';
             createWorkOrder(route);
         });
 
         //install create script
         $('#installButton').click(function() {
-            route = '{{ route("user.work.order.install") }}';
+            route = '{{ route('user.work.order.install') }}';
             createWorkOrder(route);
         });
 
@@ -1013,7 +1046,9 @@
                     success: function(data) {
                         response($.map(data.results, function(item) {
                             return {
-                                label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                label: item.customer_id + "-" + item
+                                    .company_name + "-" + item.address
+                                    .zip_code,
                                 value: item.customer_id,
                                 cusId: item.id,
                             }
@@ -1046,7 +1081,8 @@
                         $('#dashboardSiteIdErrors').text("");
                         response($.map(data.results, function(item) {
                             return {
-                                label: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                label: item.site_id + "-" + item.location +
+                                    "-" + item.zipcode,
                                 value: item.site_id,
                                 siteID: item.id,
                             }
@@ -1081,7 +1117,9 @@
                     success: function(data) {
                         response($.map(data.results, function(item) {
                             return {
-                                label: item.customer_id + "-" + item.company_name + "-" + item.address.zip_code,
+                                label: item.customer_id + "-" + item
+                                    .company_name + "-" + item.address
+                                    .zip_code,
                                 value: item.customer_id,
                                 cusId: item.id,
                             }
@@ -1113,7 +1151,8 @@
                         $('#siteIdCreateFormErrors').text("");
                         response($.map(data.results, function(item) {
                             return {
-                                label: item.site_id + "-" + item.location + "-" + item.zipcode,
+                                label: item.site_id + "-" + item.location +
+                                    "-" + item.zipcode,
                                 value: item.site_id,
                                 siteID: item.id,
                             }
@@ -1136,7 +1175,7 @@
 
         function loadSite(id, type) {
             $.ajax({
-                url: "{{ route('user.get.site' )}}",
+                url: "{{ route('user.get.site') }}",
                 type: "GET",
                 data: {
                     "id": id
@@ -1233,7 +1272,7 @@
             var icon = button.find('i');
             icon.removeClass('d-none');
             button.find('.button-text2').text('Please Wait !');
-            
+
             $.ajax({
                 url: "{{ route('user.work.order.update') }}",
                 type: 'POST',
@@ -1273,14 +1312,16 @@
                             });
                         });
 
-                        $('#createFormWoIdErrors').text(xhr.responseJSON.errors.workOrderId);
+                        $('#createFormWoIdErrors').text(xhr.responseJSON.errors
+                            .workOrderId);
                         $('#siteIdCreateFormErrors').text(xhr.responseJSON.errors.site_id);
-                        $('#createFormCusIdErrors').text(xhr.responseJSON.errors.customer_id);
+                        $('#createFormCusIdErrors').text(xhr.responseJSON.errors
+                            .customer_id);
                     }
                 }
             });
         });
-        
+
         $('#defaultWO').on('submit', function(event) {
             event.preventDefault();
             var formData = new FormData(this);
@@ -1298,7 +1339,7 @@
                 success: function(response) {
                     icon.addClass('d-none');
                     button.find('.button-text').text('Submit');
-                
+
                     $("#generalNote").addClass('d-none');
                     $("#closeOut").addClass('d-none');
                     $("#dNote").addClass('d-none');
@@ -1329,9 +1370,11 @@
                             });
                         });
 
-                        $('#dashboardOrderIdErrors').text(xhr.responseJSON.errors.workOrderId);
+                        $('#dashboardOrderIdErrors').text(xhr.responseJSON.errors
+                            .workOrderId);
                         $('#dashboardSiteIdErrors').text(xhr.responseJSON.errors.site_id);
-                        $('#dashboardCustomerIdErrors').text(xhr.responseJSON.errors.customer_id);
+                        $('#dashboardCustomerIdErrors').text(xhr.responseJSON.errors
+                            .customer_id);
                     }
                 },
             });
@@ -1401,18 +1444,19 @@
                     $('#check-in-out-tech_name-error').text("");
                 },
                 error: function(xhr, status, error) {
-                    if(xhr.status == 400){
+                    if (xhr.status == 400) {
                         iziToast.warning({
                             message: xhr.responseJSON.errors,
                             position: 'center'
                         });
                     }
 
-                    if(xhr.status == 422){
-                        $('#check-in-out-tech_name-error').text(xhr.responseJSON.errors.tech_name);
+                    if (xhr.status == 422) {
+                        $('#check-in-out-tech_name-error').text(xhr.responseJSON.errors
+                            .tech_name);
                     }
 
-                    if(xhr.status == 404){
+                    if (xhr.status == 404) {
                         iziToast.warning({
                             message: xhr.responseJSON.techNotFound,
                             position: 'center'
@@ -1504,7 +1548,7 @@
             var r_id = $("#edit_id").val();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
-                url: 'check/in/out/update/' + r_id,
+                url: "{{ route('user.checkout.edit', ['id' => ':id']) }}".replace(':id', r_id),
                 type: 'POST',
                 data: formData,
                 headers: {
@@ -1635,7 +1679,8 @@
             dynamicInput.insertAfter(placement);
         }
 
-        $('.filerPageOrderId').click(function(){
+        $('.filerPageOrderId').click(function() {
+            $("#defualtWorkOrder").removeClass("d-none");
             let orderId = $(this).closest('tr').attr('data-id');
             let order_id = $(this).text();
             $('#workOrderSearchInput').val(order_id);
@@ -1643,22 +1688,6 @@
             workOrderData(orderId);
             $('#allRecord').hide();
         });
-
-
-        // $('.filerPageOrderId').hover(
-        //     function() {
-        //         $(this).css('cursor', 'pointer');
-        //         $(this).css('background-color', '#55aa29');
-        //         $(this).css('border-radius', '12px');
-        //         $(this).css('padding', '2px');
-        //     },
-        //     function() {
-        //         $(this).css('cursor', 'auto');
-        //         $(this).css('background-color', '');
-        //         $(this).css('border-radius', '');
-        //         $(this).css('padding', '2px');
-        //     }
-        // );
 
     });
 </script>

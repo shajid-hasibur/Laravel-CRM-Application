@@ -35,6 +35,13 @@
                                 <span style="color:red; font-size:14px" id="cus_address_error"></span>
                             </div>
                             <div class="form-group col-4">
+                                <label for="address2">
+                                    <h6>Address 2</h6>
+                                </label>
+                                <input type="text" class="form-control" name="address2" placeholder="Enter address 2">
+                                <span style="color:red; font-size:14px" id="cus_address2_error"></span>
+                            </div>
+                            <div class="form-group col-4">
                                 <label for="country">
                                     <h6>Country</h6>
                                 </label>

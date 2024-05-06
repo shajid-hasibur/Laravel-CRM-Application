@@ -40,6 +40,10 @@ class WorkOrder extends Model
     {
         return $query->where('status', Status::NEW);
     }
+    public function scopeCompleteTicket($query)
+    {
+        return $query->where('status', Status::COMPLETE);
+    }
     public function scopeOpenTicket($query)
     {
         return $query->where('status', Status::OPEN);

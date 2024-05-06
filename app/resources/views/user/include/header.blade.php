@@ -146,9 +146,8 @@
                                         <li><a href="#" id="projectButton"><i class="fa-solid fa-bars-progress"></i> <span class="mx-3"> Project</span></a></li>
                                         <li><a href="#" id="installButton"><i class="fa-brands fa-instalod"></i> <span class="mx-3"> install</span></a></li>
                                     </ul>
-                                <li><a href='#' id="Wsearch"> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a></li>
-                                <li><a href="{{route('user.work.order.view.pdf')}}"> <i class="fas fa-list"></i> <span class="mx-3">All Record</span></a>
-                                </li>
+                                <li><a href='{{route('user.work.order.view.pdf')}}' id=""> <i class="fas fa-search"></i> <span class="mx-3">Search</span></a></li>
+                                
                                 <li><a href="{{route('user.home')}}"> <i class="fas fa-home"></i> <span class="mx-3">Home</span></a></li>
                             </ul>
                         </li>

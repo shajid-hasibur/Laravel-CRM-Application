@@ -44,7 +44,7 @@ class DistanceMatrixController extends Controller
         $destination = $request->input('destination');
         $mode = $request->input('mode');
 
-        $technicians = Technician::AvailableFtech()->get(['id', 'address_data']);
+        $technicians = Technician::AvailableFtech()->where('radius', '<=', 150)->get(['id', 'address_data']);
         $origins = [];
 
         // processing the origin data as acceptable format for api
