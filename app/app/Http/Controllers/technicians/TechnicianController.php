@@ -343,7 +343,7 @@ class TechnicianController extends Controller
     {
         $excelFile = $request->all();
         $rules = [
-            'excel_file' => 'required|mimes:csv|max:5120',
+            'excel_file' => 'required|max:5120',
         ];
 
         $message = [

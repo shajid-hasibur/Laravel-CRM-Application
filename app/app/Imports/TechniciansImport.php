@@ -23,7 +23,6 @@ class TechniciansImport implements ToCollection
     {
         $originalMaxExecutionTime = ini_get('max_execution_time');
 
-
         $newMaxExecutionTime = 800;
         ini_set('max_execution_time', $newMaxExecutionTime);
 

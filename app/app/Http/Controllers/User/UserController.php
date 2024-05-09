@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Imports\SitesImport;
 use App\Services\GeocodingService;
+use Geodesy\Distance\EllipticDistance;
+use Geodesy\Distance\HubenyFormula;
+use Geodesy\Distance\VincentyFormula;
 use Illuminate\Http\Request;
 use App\Lib\GoogleAuthenticator;
 use App\Lib\FormProcessor;
@@ -34,8 +37,15 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
 use App\Mail\MyTestMail_sample;
 use App\Services\UserService;
+use Geodesy\Distance\AndoyerLambert;
+use Geodesy\Distance\ForsytheCorrection;
+use Geodesy\Distance\HaversineFormula;
+use Geodesy\Distance\ThomasFormula;
 use Illuminate\Support\Facades\DB;
 use PDF;
+use Geodesy\Location\LatLong;
+use Geodesy\Unit\KiloMetre;
+use Geodesy\Unit\Mile;
 
 class UserController extends Controller
 {
@@ -1513,6 +1523,7 @@ class UserController extends Controller
         }
 
         $technicians_available = Technician::AvailableFtech()->get(['id', 'address_data']);
+
         if ($technicians_available->isEmpty()) {
             return response()->json(['errors' => "No available technicians found!"], 404);
         }
@@ -1532,11 +1543,22 @@ class UserController extends Controller
             DB::raw('ST_Y(co_ordinates) as latitude')
         )->get();
 
+        $destination_obj = new LatLong();
+        $destination_obj->setLatitude($destination_latitude);
+        $destination_obj->setLongitude($destination_longitude);
+
         $manual_distances = [];
 
         foreach ($locations as $location) {
-            $manual_distance = $location->greatCircleDistance($destination_latitude, $destination_longitude);
-            $manual_distances[$location->id] = $manual_distance * 0.621371;
+            // $manual_distance = $location->greatCircleDistance($destination_latitude, $destination_longitude);
+            // $manual_distances[$location->id] = $manual_distance * 0.621371;
+            $origin_obj = new LatLong();
+            $origin_obj->setLatitude($location->latitude);
+            $origin_obj->setLongitude($location->longitude);
+
+            $vincenty = new HaversineFormula($origin_obj, $destination_obj);
+            $vincenty->setUnit(new Mile);
+            $manual_distances[$location->id] = $vincenty->getDistance();
         }
 
         $filteredArray = [];
@@ -1728,5 +1750,26 @@ class UserController extends Controller
         $w->delete();
         $notify[] = ['success', 'delete success'];
         return back()->withNotify($notify);
+    }
+
+    public function test()
+    {
+        $lat1 = "32.7269669";
+        $lon1 = "-117.1647094";
+
+        $lat2 = "36.171563";
+        $lon2 = "-115.1391009";
+
+        $loc1 = new LatLong();
+        $loc1->setLatitude($lat1);
+        $loc1->setLongitude($lon1);
+
+        $loc2 = new LatLong();
+        $loc2->setLatitude($lat2);
+        $loc2->setLongitude($lon2);
+
+        $distance = new VincentyFormula($loc1, $loc2);
+        $distance->setUnit(new Mile);
+        print_r($distance->getDistance());
     }
 }

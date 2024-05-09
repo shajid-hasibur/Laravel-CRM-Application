@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiControllers\DistanceMatrixController;
+use App\Http\Controllers\technicians\TechnicianController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/clear', function () {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 });
+
+Route::get('test/vin', [UserController::class, 'test']);
 
 Route::get('/api', [DistanceMatrixController::class, 'results']);
 

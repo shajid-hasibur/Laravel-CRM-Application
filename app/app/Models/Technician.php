@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use App\Constants\Status;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class Technician extends Model
@@ -67,4 +68,11 @@ class Technician extends Model
 
         return $distance;
     }
+
+    // public function setMsaExpireDateAttribute($value)
+    // {
+    //     $date = Carbon::createFromFormat('d-m-Y', $value);
+    //     $formattedDate = $date->format('Y-m-d');
+    //     $this->attributes['msa_expire_date'] = $formattedDate;
+    // }
 }
