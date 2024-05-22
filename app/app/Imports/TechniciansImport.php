@@ -2,146 +2,149 @@
 
 namespace App\Imports;
 
-use App\Events\ImportProgressUpdate;
 use App\Models\Review;
 use App\Models\Technician;
 use App\Models\SkillCategory;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Broadcast;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Pusher\Pusher;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Validators\Failure;
 
-class TechniciansImport implements ToCollection
+class TechniciansImport implements
+
+    ToModel,
+    WithValidation,
+    WithHeadingRow,
+    WithBatchInserts,
+    WithChunkReading,
+    SkipsOnFailure
 {
-    /**
-     * @param Collection $collection
-     */
-    public function collection(Collection $rows)
+    use Importable, SkipsFailures;
+
+    public function model(array $row)
     {
-        $originalMaxExecutionTime = ini_get('max_execution_time');
+        $result = [];
+        $companyName = $row['company_name'];
+        $addressData = [
+            'address' => $row['address'],
+            'country' => $row['country'],
+            'city' => $row['city'],
+            'state' => $row['state'],
+            'zip_code' => $row['zip_code'],
+        ];
+        $email = $row['email'];
+        $primary_contact_email = $row['primary_contact_email'];
+        $phone = $row['phone'];
+        $primaryContact = $row['primary_contact'];
+        $title = $row['title'];
+        $cellPhone = $row['cell_phone'];
+        $rate = explode(",", $row['rate']);
 
-        $newMaxExecutionTime = 800;
-        ini_set('max_execution_time', $newMaxExecutionTime);
-
-        $skipFirstRow = true;
-        $totalRows = $rows->count();
-        $progress = 0;
-        $batchSize = 50;
-        $currentRow = 0;
-
-        $pusher = new Pusher(
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            [
-                'cluster' => env('PUSHER_APP_CLUSTER'),
-                'useTLS' => true
-            ]
-        );
-
-        foreach ($rows as $index => $row) {
-            $currentRow++;
-
-            if ($skipFirstRow) {
-                $skipFirstRow = false;
-                continue;
-            }
-
-            $companyName = $row[0];
-            $addressData = [
-                'address' => $row[1],
-                'country' => $row[2],
-                'city' => $row[3],
-                'state' => $row[4],
-                'zip_code' => $row[5],
-            ];
-            $email = $row[6];
-            $primary_contact_email = $row[7];
-            $phone = $row[8];
-            $primaryContact = $row[9];
-            $title = $row[10];
-            $cellPhone = $row[11];
-            $rate = $row[12];
-            $radius = $row[13];
-            $travelFee = $row[14];
-            $status = ucfirst($row[15]);
-            $preference = $row[16];
-            $coi_expire_date = $row[17];
-            $msa_expire_date = $row[18];
-            $nda = $row[19];
-            $terms = $row[20];
-            $skills = $row[21];
-            $skills = str_replace(',', ',', $skills);
-            $skills = preg_replace('/\s*,\s*/', ',', $skills);
-            $skillsArray = explode(',', $skills);
-
-            $technician = new Technician();
-            $technician->company_name = $companyName;
-            $technician->address_data = $addressData;
-            $technician->email = $email;
-            $technician->primary_contact_email = $primary_contact_email;
-            $technician->phone = $phone;
-            $technician->primary_contact = $primaryContact;
-            $technician->title = $title;
-            $technician->cell_phone = $cellPhone;
-            $technician->rate = $rate;
-            $technician->radius = $radius;
-            $technician->travel_fee = $travelFee;
-            $technician->status = $status;
-            $technician->preference = $preference;
-            $technician->coi_expire_date = $coi_expire_date;
-            $technician->msa_expire_date = $msa_expire_date;
-            $technician->nda = $nda;
-            $technician->terms = $terms;
-            $technician->save();
-
-            $generatedId = $technician->id;
-
-            if ($generatedId < 10) {
-                $technician->technician_id = '5000' . $generatedId;
-            } elseif ($generatedId < 100) {
-                $technician->technician_id = '500' . $generatedId;
-            } elseif ($generatedId < 1000) {
-                $technician->technician_id = '50' . $generatedId;
-            } elseif ($generatedId < 10000) {
-                $technician->technician_id = '5' . $generatedId;
-            } elseif ($generatedId < 100000) {
-                $technician->technician_id = '5' . $generatedId;
-            }
-            $technician->save();
-
-            $review = new Review();
-            $review->technician_id = $technician->id;
-            $review->save();
-
-            foreach ($skillsArray as  $value) {
-                $skillSets = SkillCategory::firstOrCreate(['skill_name' => $value]);
-                $technician->skills()->attach($skillSets->id);
-            }
-
-            $progress = $index + 1;
-            $percentage = ($progress / $totalRows) * 100;
-            $formatedPercentage = number_format($percentage, 0);
-
-            // Broadcast progress update
-            // broadcast(new ImportProgressUpdate($formatedPercentage));
-
-            if ($currentRow % $batchSize === 0 || $currentRow === $totalRows) {
-
-                usleep(10000);
-
-                if ($index < $totalRows - 1) {
-                    continue;
-                } else {
-                    break;
-                }
-            }
-
-            $pusher->trigger('excel-import-progress', 'import.progress', ['percentage' => $formatedPercentage]);
+        foreach ($rate as $pair) {
+            list($key, $value) = explode(':', $pair);
+            $key = trim($key);
+            $value = (float)trim(strstr($value, '/', true));
+            $key = str_replace('/', '', $key);
+            $key = strtoupper($key);
+            $result[$key] = $value;
         }
-        ini_set('max_execution_time', $originalMaxExecutionTime);
+
+        $rate = $result;
+        $radius = $row['radius'];
+        $travelFee = $row['travel_fee'];
+        $status = ucfirst($row['status']);
+        $preference = $row['preference'];
+        $coi_expire_date = $row['coi_expire_date'];
+        $msa_expire_date = $row['msa_expire_date'];
+        $nda = $row['nda'];
+        $terms = $row['terms'];
+        $skills = $row['skillsets'];
+        $skills = str_replace(',', ',', $skills);
+        $skills = preg_replace('/\s*,\s*/', ',', $skills);
+        $skillsArray = explode(',', $skills);
+
+        $technician = new Technician();
+        $technician->company_name = $companyName;
+        $technician->address_data = $addressData;
+        $technician->email = $email;
+        $technician->primary_contact_email = $primary_contact_email;
+        $technician->phone = $phone;
+        $technician->primary_contact = $primaryContact;
+        $technician->title = $title;
+        $technician->cell_phone = $cellPhone;
+        $technician->rate = $rate;
+        $technician->radius = $radius;
+        $technician->travel_fee = $travelFee;
+        $technician->status = $status;
+        $technician->preference = $preference;
+        $technician->coi_expire_date = $coi_expire_date;
+        $technician->msa_expire_date = $msa_expire_date;
+        $technician->nda = $nda;
+        $technician->terms = $terms;
+        $technician->save();
+
+        $generatedId = $technician->id;
+
+        if ($generatedId < 10) {
+            $technician->technician_id = '5000' . $generatedId;
+        } elseif ($generatedId < 100) {
+            $technician->technician_id = '500' . $generatedId;
+        } elseif ($generatedId < 1000) {
+            $technician->technician_id = '50' . $generatedId;
+        } elseif ($generatedId < 10000) {
+            $technician->technician_id = '5' . $generatedId;
+        } elseif ($generatedId < 100000) {
+            $technician->technician_id = '5' . $generatedId;
+        }
+        $technician->save();
+
+        $review = new Review();
+        $review->technician_id = $technician->id;
+        $review->save();
+
+        foreach ($skillsArray as  $value) {
+            $skillSets = SkillCategory::firstOrCreate(['skill_name' => $value]);
+            $technician->skills()->attach($skillSets->id);
+        }
+    }
+
+    public function rules(): array
+    {
+        return [
+            '*.company_name' => 'required',
+            '*.address' => 'required',
+            '*.country' => 'required',
+            '*.city' => 'required',
+            '*.state' => 'required',
+            '*.zip_code' => 'required',
+            '*.phone' => ['required', 'unique:technicians,phone'],
+            '*.cell_phone' => ['required', 'unique:technicians,cell_phone'],
+            '*.rate' => 'required',
+            '*.radius' => 'required',
+            '*.travel_fee' => 'required',
+            '*.status' => 'required',
+            '*.coi_expire_date' => 'date|nullable',
+            '*.msa_expire_date' => 'date|nullable',
+            '*.email' => ['required', 'email', 'unique:technicians,email'],
+        ];
+    }
+
+    public function batchSize(): int
+    {
+        return 300;
+    }
+
+    public function chunkSize(): int
+    {
+        return 300;
+    }
+
+    public function onFailure(Failure ...$failures)
+    {
     }
 }

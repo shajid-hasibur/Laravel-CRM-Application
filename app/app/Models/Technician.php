@@ -16,6 +16,7 @@ class Technician extends Model
 
     protected $casts = [
         'address_data' => 'object',
+        'rate' => 'object',
     ];
 
     public function skills()

@@ -1561,6 +1561,8 @@ class UserController extends Controller
             $manual_distances[$location->id] = $vincenty->getDistance();
         }
 
+    
+
         $filteredArray = [];
 
         foreach ($manual_distances as $key => $value) {

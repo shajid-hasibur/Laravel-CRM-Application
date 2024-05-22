@@ -42,20 +42,20 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header" style="background-color: #55aa29;">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <h3 class="text-white">Recently Created</h3>
-                </div>
-                    <div class="col-md-6 d-flex justify-content-end">
-                          <a href="{{route('user.work.order.view.new')}}" class="btn btn-primary m-1">New</a>
-                          <a href="{{route('user.work.order.view.dispatch')}}" class="btn btn-warning m-1">Dispatched</a>
-                          <a href="{{route('user.work.order.view.onsite')}}" class="btn btn-success m-1">Onsite</a>
-                          <a href="{{route('user.work.order.view.invoiced')}}" class="btn btn-info m-1">Invoiced</a>
-                          <a href="{{route('user.work.order.view.complete')}}" class="btn btn-secondary m-1">Complete</a>
-                          <a href="{{route('user.work.order.view.closed')}}" class="btn btn-danger m-1">Closed</a>
-                    </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <h3 class="text-white">Recently Created</h3>
             </div>
+            <div class="col-md-6 d-flex justify-content-end">
+              <a href="{{route('user.work.order.view.new')}}" class="btn btn-primary m-1">New</a>
+              <a href="{{route('user.work.order.view.dispatch')}}" class="btn btn-warning m-1">Dispatched</a>
+              <a href="{{route('user.work.order.view.onsite')}}" class="btn btn-success m-1">Onsite</a>
+              <a href="{{route('user.work.order.view.invoiced')}}" class="btn btn-info m-1">Invoiced</a>
+              <a href="{{route('user.work.order.view.complete')}}" class="btn btn-secondary m-1">Complete</a>
+              <a href="{{route('user.work.order.view.closed')}}" class="btn btn-danger m-1">Closed</a>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <table class="table">
@@ -115,12 +115,12 @@
             </tbody>
           </table>
         </div>
+        @if ($work->hasPages())
+        <div class="card-footer py-4">
+          <p class="text-italic">Click below to see next page</p> @php echo paginateLinks($work) @endphp
+        </div>
+        @endif
       </div>
-      @if ($work->hasPages())
-      <div class="card-footer py-4">
-        <p class="text-italic">Click below to see next page</p> @php echo paginateLinks($work) @endphp
-      </div>
-      @endif
     </div>
   </div>
 </div>

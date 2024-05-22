@@ -1199,7 +1199,7 @@
         //load customer for both workorder search panel and create wo panel when user search for a customer
         function loadCustomer(id, type) {
             $.ajax({
-                url: "get/customer/details",
+                url: "{{ route('user.fetch.customer') }}",
                 type: "GET",
                 data: {
                     "id": id

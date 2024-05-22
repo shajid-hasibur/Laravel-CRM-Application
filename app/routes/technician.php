@@ -61,6 +61,7 @@ Route::middleware('admin')->group(function () {
             Route::get('/bulk/import/view', 'importView')->name('import.view');
             Route::post('/import/excel', 'import')->name('excel.import');
             Route::get('/download/sample/excel', 'sampleExcel')->name('download.sampleExcel');
+            Route::get('database/backup', 'databaseBackup')->name('backup');
 
             //technicians exports
             Route::get('/export-fake-technicians', 'export')->name('fake.export');

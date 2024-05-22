@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\TechnicianService;
 use Exception;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\DB;
 use PDF;
 
@@ -341,15 +343,20 @@ class TechnicianController extends Controller
 
     public function import(Request $request)
     {
+        $max_exec_time = ini_get('max_execution_time');
+
+        ini_set('max_execution_time', 300);
+
         $excelFile = $request->all();
+
         $rules = [
-            'excel_file' => 'required|max:5120',
+            'excel_file' => 'required|max:5120|mimes:csv',
         ];
 
         $message = [
             'excel_file.required' => 'Please select a file to upload.',
             'excel_file.mimes' => 'The uploaded file must be in CSV format.',
-            'excel_file.max' => 'The file size cannot exceed 2MB.',
+            'excel_file.max' => 'The file size cannot exceed 5MB.',
         ];
 
         $file = $request->file('excel_file');
@@ -359,7 +366,10 @@ class TechnicianController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         } else {
-            Excel::import(new TechniciansImport, $file, 'csv');
+            // Excel::import(new TechniciansImport, $file, 'csv');
+            $import = new TechniciansImport();
+            $import->import($file);
+            ini_set('max_execution_time', $max_exec_time);
             return response()->json(['success' => 'Your file was successfully imported.'], 200);
         }
     }
@@ -404,6 +414,53 @@ class TechnicianController extends Controller
             'data' => $data,
         ]);
         return $pdf->download($request->date . "-" . $request->company_name . "-" . 'checkIn_Out.pdf');
+    }
+
+    public function databaseBackup()
+    {
+        // Define the path to mysqldump executable
+        $mysqldumpPath = 'D:\\xampp\\mysql\\bin\\mysqldump.exe';
+
+        // Generate a unique filename for the backup file
+        $timestamp = now()->format('Ymd_His');
+        $outputPath = storage_path("app/backups/techyeah_backup_{$timestamp}.sql");
+        $backupDir = dirname($outputPath);
+
+        // Ensure the backup directory exists
+        if (!File::exists($backupDir)) {
+            File::makeDirectory($backupDir, 0755, true);
+        }
+
+        // Construct the mysqldump command
+        $command = sprintf(
+            '"%s" -h%s -u%s -p%s %s --ignore-table=%s.admin_notifications > "%s"',
+            $mysqldumpPath,
+            env('DB_HOST', '127.0.0.1'),  // Correctly set the host
+            env('DB_USERNAME', 'root'),  // Fetch the database username
+            env('DB_PASSWORD', ''),      // Fetch the database password
+            env('DB_DATABASE', 'techyeah'),  // Fetch the database name
+            env('DB_DATABASE', 'techyeah'),  // Ignore the table from the correct database
+            $outputPath
+        );
+
+        try {
+            // Execute the command
+            $process = Process::fromShellCommandline($command);
+            $process->run();
+
+            // Check if the process was successful
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            // Return the backup file as a download response
+            return response()->download($outputPath)->deleteFileAfterSend(true);
+        } catch (ProcessFailedException $exception) {
+            // Return an error response if the process fails
+            return response()->json([
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
     }
 
     public function findClosestLocations(Request $request)
