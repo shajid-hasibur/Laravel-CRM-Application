@@ -401,6 +401,14 @@
                                 </a>
                             </li>
                         </ul>
+                    <li class="nav-item menu-open">
+                        <a href="{{ route('backup') }}" class="nav-link ">
+                            <i class="fas fa-database" style="color: teal;"></i>
+                            <p>
+                                Database Backup
+                            </p>
+                        </a>
+                    </li>
                     </li>
                 @elseif(auth()->guard('admin')->user()->role_id == Status::SALES_TEAM ||
                         auth()->guard('admin')->user()->role_id == Status::DISPATCH_TEAM)
@@ -432,6 +440,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <!-- <li class="nav-header">Others Content</li> -->
             </ul>
             @endif

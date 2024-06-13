@@ -5,8 +5,6 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Imports\SitesImport;
 use App\Services\GeocodingService;
-use Geodesy\Distance\EllipticDistance;
-use Geodesy\Distance\HubenyFormula;
 use Geodesy\Distance\VincentyFormula;
 use Illuminate\Http\Request;
 use App\Lib\GoogleAuthenticator;
@@ -37,14 +35,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\MyTestMail;
 use App\Mail\MyTestMail_sample;
 use App\Services\UserService;
-use Geodesy\Distance\AndoyerLambert;
-use Geodesy\Distance\ForsytheCorrection;
 use Geodesy\Distance\HaversineFormula;
-use Geodesy\Distance\ThomasFormula;
 use Illuminate\Support\Facades\DB;
-use PDF;
 use Geodesy\Location\LatLong;
-use Geodesy\Unit\KiloMetre;
 use Geodesy\Unit\Mile;
 
 class UserController extends Controller
@@ -538,12 +531,12 @@ class UserController extends Controller
         $view = WorkOrder::with('site', 'customer', 'technician')->find($id);
         return response()->json(['view' => @$view]);
     }
-    public function depositHistory(Request $request)
-    {
-        $pageTitle = 'Deposit History';
-        $deposits = auth()->user()->deposits()->searchable(['trx'])->with(['gateway'])->orderBy('id', 'desc')->paginate(getPaginate());
-        return view('user.deposit_history', compact('pageTitle', 'deposits'));
-    }
+    // public function depositHistory(Request $request)
+    // {
+    //     $pageTitle = 'Deposit History';
+    //     $deposits = auth()->user()->deposits()->searchable(['trx'])->with(['gateway'])->orderBy('id', 'desc')->paginate(getPaginate());
+    //     return view('user.deposit_history', compact('pageTitle', 'deposits'));
+    // }
 
     public function userData()
     {
@@ -1262,11 +1255,17 @@ class UserController extends Controller
     public function techData(Request $request)
     {
         $technician = Technician::with('skills')->findOrFail($request->id);
+        $rateString = '';
 
+        foreach ($technician->rate as $key => $value) {
+            $rateString .= "$key : $value, ";
+        }
+
+        $rateString = rtrim($rateString, ", ");
         $skill_sets = $technician->skills->pluck('skill_name')->toArray();
         $imploded = implode(", ", $skill_sets);
         $response = collect($technician)->except('created_at', 'updated_at', 'available', 'co_ordinates');
-
+        $response = $response->put('rate', $rateString);
         $array = [
             'tech' => $response,
             'skills' => $imploded
@@ -1533,9 +1532,9 @@ class UserController extends Controller
         if ($coordinate == null) {
             return response()->json(['geocode-error' => 'Geocoding error.'], 503);
         }
-
-        $destination_latitude = $coordinate['lat'];
-        $destination_longitude = $coordinate['lng'];
+        // dd($coordinate);
+        $destination_latitude = $coordinate['geometry']['location']['lat'];
+        $destination_longitude = $coordinate['geometry']['location']['lng'];
 
         $locations = Technician::select(
             'id',
@@ -1556,12 +1555,10 @@ class UserController extends Controller
             $origin_obj->setLatitude($location->latitude);
             $origin_obj->setLongitude($location->longitude);
 
-            $vincenty = new HaversineFormula($origin_obj, $destination_obj);
-            $vincenty->setUnit(new Mile);
-            $manual_distances[$location->id] = $vincenty->getDistance();
+            $haverSine = new HaversineFormula($origin_obj, $destination_obj);
+            $haverSine->setUnit(new Mile);
+            $manual_distances[$location->id] = $haverSine->getDistance();
         }
-
-    
 
         $filteredArray = [];
 
@@ -1637,6 +1634,16 @@ class UserController extends Controller
                             $isWithinRadius = "No";
                         }
 
+                        if (isset($ftech->rate)) {
+                            $rateJson = json_encode($ftech->rate);
+                            $rateArray = json_decode($rateJson, true);
+                            $pairs = [];
+                            foreach ($rateArray as $key => $value) {
+                                $pairs[] = "$key: $value";
+                            }
+                            $rateString = implode(", ", $pairs);
+                        }
+
                         $completeInfo[] = [
                             'id' => $ftech->id,
                             'technician_id' => $ftech->technician_id,
@@ -1645,9 +1652,9 @@ class UserController extends Controller
                             'company_name' => $ftech->company_name,
                             'distance' => $distanceTextMiles,
                             'status' => $ftech->status,
-                            'rate' => $ftech->rate,
-                            'travel_fee' => $ftech->travel_fee,
-                            'preference' => $ftech->preference,
+                            'rate' => $rateString,
+                            'travel_fee' => isset($ftech->travel_fee) ? $ftech->travel_fee : "",
+                            'preference' => isset($ftech->preference) ? $ftech->preference : "",
                             'duration' => $durationText,
                             'radius' => $isWithinRadius,
                             'skills' => $ftech->skills->pluck('skill_name')->toArray(),
@@ -1752,26 +1759,5 @@ class UserController extends Controller
         $w->delete();
         $notify[] = ['success', 'delete success'];
         return back()->withNotify($notify);
-    }
-
-    public function test()
-    {
-        $lat1 = "32.7269669";
-        $lon1 = "-117.1647094";
-
-        $lat2 = "36.171563";
-        $lon2 = "-115.1391009";
-
-        $loc1 = new LatLong();
-        $loc1->setLatitude($lat1);
-        $loc1->setLongitude($lon1);
-
-        $loc2 = new LatLong();
-        $loc2->setLatitude($lat2);
-        $loc2->setLongitude($lon2);
-
-        $distance = new VincentyFormula($loc1, $loc2);
-        $distance->setUnit(new Mile);
-        print_r($distance->getDistance());
     }
 }

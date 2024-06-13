@@ -6,7 +6,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{$pageTitle}}</title>
+    <title>{{ $pageTitle }}</title>
     @stack('style-lib')
     @include('admin.includeNew.css')
     @yield('script')
@@ -22,7 +22,6 @@
 
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="">
-
         @include('admin.includeNew.preloader')
         @include('admin.includeNew.topbar')
         <div class="m-2">@include('admin.partials.breadcrumb')</div>

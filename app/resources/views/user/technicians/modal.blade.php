@@ -19,11 +19,6 @@
     }
 </style>
 
-<script>
-    document.getElementById('addSetsBtn').addEventListener('click', function() {
-        document.getElementById('techSkillsForm').classList.toggle('d-none');
-    });
-</script>
 
 <div class="modal fade" id="newTechnicianModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -58,12 +53,8 @@
                     </div>
                 </div>
             </div>
-
-
-
             <script>
                 document.getElementById('addSetsBtn').addEventListener('click', function() {
-                    // Toggle the visibility of the form when the button is clicked
                     document.getElementById('techSkillsForm').classList.toggle('d-none');
                 });
             </script>

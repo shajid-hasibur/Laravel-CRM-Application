@@ -670,4 +670,12 @@
        .table-bordered tbody tr:nth-child(even) {
            background-color: #f2f2f2;
        }
+
+
+
+       /* for summernote */
+
+       .note-editor.fullscreen {
+           background-color: white !important;
+       }
    </style>

@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 
 class GeocodingService
 {
-
     //for multiple address conversion use this method
     public function geocodeAddresses(array $addresses)
     {
@@ -17,7 +16,6 @@ class GeocodingService
         foreach ($addresses as $addressData) {
             $id = $addressData['id'];
             $address = $addressData['address'];
-
             $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json', [
                 'query' => [
                     'address' => urlencode($address),
@@ -26,8 +24,6 @@ class GeocodingService
             ]);
 
             $data = json_decode($response->getBody(), true);
-
-
             if ($data['status'] == 'OK' && isset($data['results'][0]['geometry']['location'])) {
                 $coordinates[] = [
                     'id' => $id,
@@ -38,7 +34,6 @@ class GeocodingService
                 return null;
             }
         }
-
         return $coordinates;
     }
 
@@ -47,9 +42,7 @@ class GeocodingService
     public function geocodeAddress($address)
     {
         $apiKey = config('services.google.api_key');
-
         $client = new Client();
-
         $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json', [
             'query' => [
                 'address' => urlencode($address),
@@ -58,11 +51,9 @@ class GeocodingService
         ]);
 
         $data = json_decode($response->getBody(), true);
-
         if ($data['status'] == 'OK' && isset($data['results'][0]['geometry']['location'])) {
-            return $data['results'][0]['geometry']['location'];
+            return $data['results'][0];
         }
-
         return null;
     }
 }

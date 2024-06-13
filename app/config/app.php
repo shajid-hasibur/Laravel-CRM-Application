@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
-// require_once('timezone.php');
 include('timezone.php');
 return [
 

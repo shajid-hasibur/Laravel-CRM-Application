@@ -24,6 +24,7 @@
         "phpoffice/phpspreadsheet": "^1.21",
         "pusher/pusher-php-server": "^7.2",
         "sendgrid/sendgrid": "^7.6",
+        "spatie/laravel-backup": "^8.8",
         "textmagic/sdk": "dev-master",
         "twilio/sdk": "^6.23",
         "vonage/client": "^2.4",

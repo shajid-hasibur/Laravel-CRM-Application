@@ -61,7 +61,7 @@ Route::middleware('admin')->group(function () {
             Route::get('/bulk/import/view', 'importView')->name('import.view');
             Route::post('/import/excel', 'import')->name('excel.import');
             Route::get('/download/sample/excel', 'sampleExcel')->name('download.sampleExcel');
-            Route::get('database/backup', 'databaseBackup')->name('backup');
+
 
             //technicians exports
             Route::get('/export-fake-technicians', 'export')->name('fake.export');
@@ -75,7 +75,6 @@ Route::middleware('admin')->group(function () {
             Route::get('/autocomplete', 'techAutocomplete')->name('autocomplete');
             Route::post('/assign/coordinate', 'assignLatLong')->name('assign.coordinate');
             Route::get('/multi/assign/coordinate', 'multiAssignCoordinate')->name('multiAssign.coordinate');
-            Route::get('/reverse/geocoding', 'geoReverse')->name('reverse.geocode');
         });
     });
 });

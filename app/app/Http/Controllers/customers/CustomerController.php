@@ -13,8 +13,8 @@ use App\Models\VendorCareList;
 use App\Models\WorkOrder;
 use App\Models\CustomerInvoice;
 use App\Models\workOrderPerformed;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
-use PDF;
 use Yajra\DataTables\Facades\DataTables;
 
 

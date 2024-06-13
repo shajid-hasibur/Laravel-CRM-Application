@@ -37,8 +37,8 @@
                                     <div class="form-group col-4">
                                         <label for="Longitude">Type an address</label>
                                         <input type="text" id="address-input" class="form-control">
-                                        {{-- <span id="responded-address"
-                                            style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-weight: 400"></span> --}}
+                                        <span id="responded-address"
+                                            style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-weight: 400"></span>
                                     </div>
                                     <div class="form-group col-4">
                                         <button type="button" class="btn btn-primary" id="coordinate-btn"
@@ -173,9 +173,7 @@
             });
 
             $('#coordinate-btn').on('click', function() {
-
                 const address = $('#address-input').val();
-
                 if (address.length > 0) {
                     $('#loader').removeClass('d-none');
                     $.ajax({
@@ -185,8 +183,15 @@
                             address: address
                         },
                         success: function(response) {
-                            $('#latitude').val(response.lat);
-                            $('#longitude').val(response.lng);
+                            let address = "";
+                            address = response.address_components[0].long_name + ", " +
+                                response
+                                .address_components[1].long_name + ", " + response
+                                .address_components[2].long_name + ", " + response
+                                .address_components[3].long_name;
+                            $('#responded-address').text(address);
+                            $('#latitude').val(response.geometry.location.lat);
+                            $('#longitude').val(response.geometry.location.lng);
                             $('#loader').addClass('d-none');
                         },
                         error: function(error) {

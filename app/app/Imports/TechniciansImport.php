@@ -21,15 +21,16 @@ class TechniciansImport implements
     WithValidation,
     WithHeadingRow,
     WithBatchInserts,
-    WithChunkReading,
-    SkipsOnFailure
+    WithChunkReading
 {
-    use Importable, SkipsFailures;
+    use Importable;
 
     public function model(array $row)
     {
         $result = [];
         $companyName = $row['company_name'];
+        $row['country'] = isset($row['country']) ? $row['country'] : "USA";
+
         $addressData = [
             'address' => $row['address'],
             'country' => $row['country'],
@@ -37,6 +38,7 @@ class TechniciansImport implements
             'state' => $row['state'],
             'zip_code' => $row['zip_code'],
         ];
+
         $email = $row['email'];
         $primary_contact_email = $row['primary_contact_email'];
         $phone = $row['phone'];
@@ -45,16 +47,22 @@ class TechniciansImport implements
         $cellPhone = $row['cell_phone'];
         $rate = explode(",", $row['rate']);
 
-        foreach ($rate as $pair) {
-            list($key, $value) = explode(':', $pair);
-            $key = trim($key);
-            $value = (float)trim(strstr($value, '/', true));
-            $key = str_replace('/', '', $key);
-            $key = strtoupper($key);
-            $result[$key] = $value;
+        if (!empty($rate)) {
+            foreach ($rate as $pair) {
+                if (strpos($pair, ':') !== false) {
+                    $parts = explode(':', $pair, 2);
+
+                    if (count($parts) === 2) {
+                        $key = trim($parts[0]);
+                        $value = (float)trim(strstr($parts[1], '/', true) ?: $parts[1]);
+                        $key = str_replace('/', '', $key);
+                        $key = strtoupper($key);
+                        $result[$key] = $value;
+                    }
+                }
+            }
         }
 
-        $rate = $result;
         $radius = $row['radius'];
         $travelFee = $row['travel_fee'];
         $status = ucfirst($row['status']);
@@ -77,7 +85,7 @@ class TechniciansImport implements
         $technician->primary_contact = $primaryContact;
         $technician->title = $title;
         $technician->cell_phone = $cellPhone;
-        $technician->rate = $rate;
+        $technician->rate = $result;
         $technician->radius = $radius;
         $technician->travel_fee = $travelFee;
         $technician->status = $status;
@@ -118,33 +126,34 @@ class TechniciansImport implements
         return [
             '*.company_name' => 'required',
             '*.address' => 'required',
-            '*.country' => 'required',
-            '*.city' => 'required',
+            '*.country' => 'nullable',
+            '*.city' => 'nullable',
             '*.state' => 'required',
             '*.zip_code' => 'required',
-            '*.phone' => ['required', 'unique:technicians,phone'],
-            '*.cell_phone' => ['required', 'unique:technicians,cell_phone'],
-            '*.rate' => 'required',
-            '*.radius' => 'required',
-            '*.travel_fee' => 'required',
-            '*.status' => 'required',
+            '*.phone' => ['unique:technicians,phone', 'nullable'],
+            '*.cell_phone' => ['unique:technicians,cell_phone', 'nullable'],
+            '*.rate' => 'nullable',
+            '*.radius' => 'nullable',
+            '*.travel_fee' => 'nullable',
+            '*.status' => 'nullable',
             '*.coi_expire_date' => 'date|nullable',
             '*.msa_expire_date' => 'date|nullable',
-            '*.email' => ['required', 'email', 'unique:technicians,email'],
+            '*.email' => ['unique:technicians,email'],
         ];
     }
 
     public function batchSize(): int
     {
-        return 300;
+        return 100;
     }
 
     public function chunkSize(): int
     {
-        return 300;
+        return 100;
     }
 
-    public function onFailure(Failure ...$failures)
-    {
-    }
+    // public function onFailure(Failure ...$failures)
+    // {
+
+    // }
 }

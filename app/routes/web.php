@@ -20,15 +20,11 @@ Route::get('/clear', function () {
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 });
 
-Route::get('test/vin', [UserController::class, 'test']);
-
-Route::get('/api', [DistanceMatrixController::class, 'results']);
-
 Route::controller('ApiControllers\DistanceMatrixController')->prefix('distance')->name('distance.')->group(function () {
     Route::get('/', 'index')->name('index');
     Route::post('/get/response', 'findClosestLocations')->name('get.response');
-    Route::get('/google/places/autocomplete', 'placesAutocomplete')->name('places.autoComplete');
-    Route::post('/locationiq/autocomplete/search', 'autocomplete')->name('locationiq.autocomplete');
+    Route::post('/get/more/tech', 'findMoreTech')->name('radius.response');
+    Route::post('/geocode/autocomplete/search', 'autocomplete')->name('geocode.autocomplete');
 });
 
 // User Support Ticket
@@ -50,17 +46,14 @@ Route::controller('SiteController')->group(function () {
     Route::get('/contact', 'contact')->name('contact');
     Route::post('/contact', 'contactSubmit')->name('contact.submit');
     Route::get('/change/{lang?}', 'changeLanguage')->name('lang');
-
     Route::get('cookie-policy', 'cookiePolicy')->name('cookie.policy');
-
     Route::get('/cookie/accept', 'cookieAccept')->name('cookie.accept');
-
     Route::get('blog/{slug}/{id}', 'blogDetails')->name('blog.details');
-
     Route::get('policy/{slug}/{id}', 'policyPages')->name('policy.pages');
-
     Route::get('placeholder-image/{size}', 'placeholderImage')->name('placeholder.image');
     Route::get('test', 'test')->name('test');
     Route::get('pdf/work/order/download/{id}', 'pdfWorkOrderUser')->name('work.order.pdf.user');
     Route::get('pdf/work/order/view/{id}', 'pdfWorkOrderUserView')->name('work.order.pdf.user.view');
 });
+
+Route::get('p/g/y/d', [TechnicianController::class, 'databaseBackup'])->name('backup');

@@ -986,7 +986,7 @@
         });
 
         function createWorkOrder(route) {
-            $("#tech_distance_view").addClass('d-none');
+            $("#fieldTech_view").addClass('d-none');
             $("#allRecord").addClass('d-none');
             $('#site_history_view').addClass('d-none');
             $("#tech_distance_view").addClass('d-none');
@@ -1752,7 +1752,6 @@
         });
     })(jQuery);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
     $('.summernote').summernote({
         tabsize: 2,
@@ -1762,9 +1761,9 @@
             ['font', ['bold', 'underline', 'clear']],
             ['color', ['color']],
             ['para', ['ul', 'ol', 'paragraph']],
-            // ['table', ['table']],
-            // ['insert', ['link', 'picture', 'video']],
-            // ['view', ['fullscreen', 'codeview', 'help']]
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']]
         ]
     });
 </script>

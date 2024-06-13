@@ -28,6 +28,7 @@
         </symbol>
     </svg>
     <div class="content-wrapper" style="background-color: white;">
+        <input type="hidden" id="techResData">
         @include('admin.includeNew.breadcrumb')
         <div class="container-fluid">
             <div class="row">
@@ -40,7 +41,8 @@
                             <div class="form-row">
                                 <div class="form-group col-4">
                                     <label><strong>
-                                            <h6 class="text-dark">Provide your project site address below :</h6>
+                                            <h6 class="text-dark"><strong>Provide your project site address below :</strong>
+                                            </h6>
                                         </strong></label>
                                     <input type="text" id="siteAddress" class="form-control" name="site_address"
                                         placeholder="Enter project site address">
@@ -49,22 +51,31 @@
                                     <span style="color:red; font-size:15px" id="errors-container"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <button type="button" id="submit" class="btn btn-danger"
+                                    <input type="number" class="form-control"
+                                        placeholder="How much tech you want to see in the result?" style="margin-top: 39px;"
+                                        id="numberOfTech" name="numberOfTech">
+                                    <span style="color:red; font-size:15px" id="errors-container2"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <button type="button" id="submit" class="btn btn-success"
                                         style="margin-top:39px; margin-left:10px;"><i
-                                            class="fas fa-play"></i>&nbsp;Start</button>
+                                            class="fa fa-search-plus"></i>&nbsp;Start
+                                        Finding</button>
                                 </div>
                             </div>
                             <div class="d-none" id="loader">
-                                <h6 class="text-dark"><strong>Please wait for the responses from google</strong></h6>
+                                <h6 class="text-dark"><strong>Please wait for the response from google</strong></h6>
                                 <div class="spinner-grow text-danger" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
                             <div class="d-none" id="removable-div">
+                                <p><b>Showing the results of radius : <span id="radiusValue"></span> mi</b></p>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered text-dark" id="">
+                                    <table class="table table-bordered text-dark table-hover">
                                         <thead class="text-nowrap">
                                             <tr>
+                                                <th>#</th>
                                                 <th>Technician ID</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
@@ -82,6 +93,9 @@
                                         <tbody id="tbody" class="text-nowrap"></tbody>
                                     </table>
                                 </div>
+                                <div class="float-right">
+                                    <button ype="button" class="btn btn-primary my-2" id="btn-find-more">Next</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -90,6 +104,10 @@
         </div>
     </div>
     <script>
+        var success = false;
+        var clickCount = 0;
+        var respondedTechnicians = [];
+
         $(document).ready(function() {
             $.ajaxSetup({
                 headers: {
@@ -101,8 +119,8 @@
                 let destination = $('#siteAddress').val();
                 let lat = $('#latitude').val();
                 let lon = $('#longitude').val();
+                let numberOfTech = $('#numberOfTech').val();
                 $('#loader').removeClass('d-none');
-
                 $.ajax({
                     url: "{{ route('distance.get.response') }}",
                     type: "POST",
@@ -110,87 +128,158 @@
                         "destination": destination,
                         "latitude": lat,
                         "longitude": lon,
+                        "respondedTechnicians": respondedTechnicians,
+                        "numberOfTech": numberOfTech,
                     },
                     datatype: "JSON",
                     success: function(data) {
+                        let html = "";
+                        success = true;
                         $('#errors-container').empty();
+                        $('#errors-container2').empty();
                         $('#removable-div').removeClass('d-none');
                         $('#loader').addClass('d-none');
-                        let html = "";
-                        $.each(data.technicians, function(key, value) {
-                            html += '<tr>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .technician_id + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .email + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .phone + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .company_name + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .status + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' +
-                                value
-                                .skills + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .rate + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .travel_fee + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .preference + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .distance + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .duration + '</td>' +
-                                '<td class="text-center align-middle mt-auto">' + value
-                                .radius + '</td>' +
-                                '</tr>';
+                        $("#btn-find-more").off('click').on('click', function() {
+                            findMoreTech();
                         });
-                        $('#tbody').html(html);
+                        updateTechTable(data);
                     },
                     error: function(data) {
+                        success = false;
                         $('#loader').addClass('d-none');
                         if (data.status == 422) {
-                            $('#errors-container').text(data.responseJSON.errors.destination)
+                            $('#errors-container').text(data.responseJSON.errors.destination);
+                            $('#errors-container2').text(data.responseJSON.errors.numberOfTech);
+                        }
+                        if (data.status == 404) {
+                            iziToast.warning({
+                                message: data.responseJSON.errors,
+                                position: "topRight"
+                            });
                         }
                     }
                 });
             });
 
+            function findMoreTech() {
+                clickCount++;
+                let radiusElevator = 50 * clickCount;
+                let numberOfTech = $('#numberOfTech').val();
+                $.ajax({
+                    url: "{{ route('distance.get.response') }}",
+                    type: "POST",
+                    data: {
+                        "latitude": $('#latitude').val(),
+                        "longitude": $('#longitude').val(),
+                        "destination": $('#siteAddress').val(),
+                        "radiusValue": radiusElevator,
+                        "respondedTechnicians": respondedTechnicians,
+                        "numberOfTech": numberOfTech,
+                    },
+                    success: function(data) {
+                        $('#errors-container').empty();
+                        $('#errors-container2').empty();
+                        $('#removable-div').removeClass('d-none');
+                        $('#loader').addClass('d-none');
+                        updateTechTable(data);
+                    },
+                    error: function(data) {
+                        success = false;
+                        $('#loader').addClass('d-none');
+                        if (data.status == 422) {
+                            $('#errors-container').text(data.responseJSON.errors.destination);
+                            $('#errors-container2').text(data.responseJSON.errors.numberOfTech);
+                        }
+                        if (data.status == 404) {
+                            iziToast.warning({
+                                message: data.responseJSON.errors,
+                                position: "topRight"
+                            });
+                        }
+                    }
+                });
+            }
+
+            //tech table populator
+            function updateTechTable(data) {
+                let html = "";
+                $.each(data.technicians, function(key, value) {
+                    html += '<tr>' +
+                        '<td class="text-center align-middle mt-auto">' + (key + 1) +
+                        '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .technician_id + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .email + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .phone + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .company_name + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .status + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' +
+                        value
+                        .skills + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .rate + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .travel_fee + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .preference + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .distance + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .duration + '</td>' +
+                        '<td class="text-center align-middle mt-auto">' + value
+                        .radius + '</td>' +
+                        '</tr>';
+
+                    $('#radiusValue').text(value.radius_value);
+                    respondedTechnicians.push(value.id);
+                });
+                $('#tbody').html(html);
+            }
+
+            //address autocomplete
             $('#siteAddress').autocomplete({
                 source: function(request, response) {
                     $.ajax({
-                        url: "{{ route('distance.locationiq.autocomplete') }}",
+                        url: "{{ route('distance.geocode.autocomplete') }}",
                         method: "POST",
                         data: {
                             query: request.term
                         },
                         success: function(data) {
                             $("#errors-container").text("");
-                            var locations = JSON.parse(data);
-                            if (Array.isArray(locations)) {
-                                response(locations.map(function(item) {
-                                    return {
-                                        label: item.display_name,
-                                        value: item.display_name,
-                                        latitude: item.lat,
-                                        longitude: item.lon
-                                    };
-                                }));
-                            } else {
-                                response([]);
-                                if (locations.error) {
+                            if (data) {
+                                if (data.full_name && data.latitude !== undefined && data
+                                    .longitude !== undefined) {
+                                    var address = data.full_name;
+                                    var latitude = data.latitude;
+                                    var longitude = data.longitude;
+                                    var label = address;
+                                    var value = address;
+                                    response([{
+                                        label: label,
+                                        value: value,
+                                        lat: latitude,
+                                        lng: longitude
+                                    }]);
+                                } else {
                                     $("#errors-container").text(
-                                        "Unable to recognize or find the location.");
+                                        "Incomplete data received from server.");
                                 }
+                            } else {
+                                $("#errors-container").text(
+                                    "No data received from server.");
                             }
                         },
                     });
                 },
-                minLength: 3,
+                minLength: 2,
                 select: function(event, ui) {
-                    $("#latitude").val(ui.item.latitude);
-                    $("#longitude").val(ui.item.longitude);
+                    $("#latitude").val(ui.item.lat);
+                    $("#longitude").val(ui.item.lng);
                 }
             });
         });

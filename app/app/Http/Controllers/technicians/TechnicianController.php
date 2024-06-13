@@ -20,11 +20,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\TechnicianService;
-use Exception;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use PDF;
+use Spatie\DbDumper\Databases\MySql;
+use Exception;
 
 class TechnicianController extends Controller
 {
@@ -35,6 +34,7 @@ class TechnicianController extends Controller
         $this->technicianService = $technicianService;
         $this->geocodingService = $geocodingService;
     }
+
     public function index()
     {
         $pageTitle = 'Technician Details';
@@ -128,7 +128,6 @@ class TechnicianController extends Controller
             'skills' => $skills,
         ]);
     }
-
     public function skills(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -173,7 +172,6 @@ class TechnicianController extends Controller
             return redirect()->route('technician.index')->withNotify($notify);
         }
     }
-
     //begin skill List
     public function skillList()
     {
@@ -303,7 +301,7 @@ class TechnicianController extends Controller
     {
         $tech = Technician::find($id_coi);
 
-        $filePath = 'public/pdfs/' . $tech->coi_file; // Adjust the path to match your storage configuration
+        $filePath = 'public/pdfs/' . $tech->coi_file;
         if (Storage::exists($filePath)) {
             return response()->file(storage_path('app/' . $filePath));
         } else {
@@ -314,7 +312,7 @@ class TechnicianController extends Controller
     {
         $tech = Technician::find($id_msa);
 
-        $filePath = 'public/pdfs/' . $tech->msa_file; // Adjust the path to match your storage configuration
+        $filePath = 'public/pdfs/' . $tech->msa_file;
         if (Storage::exists($filePath)) {
             return response()->file(storage_path('app/' . $filePath));
         } else {
@@ -325,7 +323,7 @@ class TechnicianController extends Controller
     {
         $tech = Technician::find($id_nda);
 
-        $filePath = 'public/pdfs/' . $tech->nda_file; // Adjust the path to match your storage configuration
+        $filePath = 'public/pdfs/' . $tech->nda_file;
         if (Storage::exists($filePath)) {
             return response()->file(storage_path('app/' . $filePath));
         } else {
@@ -350,7 +348,7 @@ class TechnicianController extends Controller
         $excelFile = $request->all();
 
         $rules = [
-            'excel_file' => 'required|max:5120|mimes:csv',
+            'excel_file' => 'required|max:5120',
         ];
 
         $message = [
@@ -418,147 +416,33 @@ class TechnicianController extends Controller
 
     public function databaseBackup()
     {
-        // Define the path to mysqldump executable
-        $mysqldumpPath = 'D:\\xampp\\mysql\\bin\\mysqldump.exe';
-
-        // Generate a unique filename for the backup file
-        $timestamp = now()->format('Ymd_His');
-        $outputPath = storage_path("app/backups/techyeah_backup_{$timestamp}.sql");
-        $backupDir = dirname($outputPath);
-
-        // Ensure the backup directory exists
-        if (!File::exists($backupDir)) {
-            File::makeDirectory($backupDir, 0755, true);
-        }
-
-        // Construct the mysqldump command
-        $command = sprintf(
-            '"%s" -h%s -u%s -p%s %s --ignore-table=%s.admin_notifications > "%s"',
-            $mysqldumpPath,
-            env('DB_HOST', '127.0.0.1'),  // Correctly set the host
-            env('DB_USERNAME', 'root'),  // Fetch the database username
-            env('DB_PASSWORD', ''),      // Fetch the database password
-            env('DB_DATABASE', 'techyeah'),  // Fetch the database name
-            env('DB_DATABASE', 'techyeah'),  // Ignore the table from the correct database
-            $outputPath
-        );
-
         try {
-            // Execute the command
-            $process = Process::fromShellCommandline($command);
-            $process->run();
+            $backupDir = public_path('sql_backup');
 
-            // Check if the process was successful
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
+            if (!File::isDirectory($backupDir)) {
+                File::makeDirectory($backupDir, 0755, true);
             }
 
-            // Return the backup file as a download response
-            return response()->download($outputPath)->deleteFileAfterSend(true);
-        } catch (ProcessFailedException $exception) {
-            // Return an error response if the process fails
-            return response()->json([
-                'error' => $exception->getMessage(),
-            ], 500);
-        }
-    }
+            $dateTime = now()->format('Y-m-d-h-i-s-a');
+            $backup_file_name = $dateTime . ".sql";
+            $backup_file_path = $backupDir . "/" . $backup_file_name;
 
-    public function findClosestLocations(Request $request)
-    {
-        $givenLatitude = '34.5078107';
-        $givenLongitude = '-113.6049543';
-        $destination = $givenLatitude . ',' . $givenLongitude;
-        $locations = Technician::select(
-            'id',
-            DB::raw('ST_X(co_ordinates) as longitude'),
-            DB::raw('ST_Y(co_ordinates) as latitude')
-        )->get();
-        $distances = [];
-        foreach ($locations as $location) {
-            $distance = $location->greatCircleDistance($givenLatitude, $givenLongitude);
-            $distances[$location->id] = $distance * 0.621371;
-        }
-        asort($distances);
-        $closestDistances = Technician::select(
-            'id',
-            DB::raw('ST_X(co_ordinates) as longitude'),
-            DB::raw('ST_Y(co_ordinates) as latitude')
-        )->whereIn('id', array_slice(array_keys($distances), 0, 3))->get();
-        $technicians = [];
-        foreach ($closestDistances as $closestDistance) {
-            $technicians[] = Technician::select('id', 'address_data')
-                ->where('id', $closestDistance->id)->get();
-        }
-        $mergedTechnicians = collect($technicians)->flatten();
-        $origins = [];
-        foreach ($mergedTechnicians as $technician) {
-            // dd($technician);
-            $addressData['country'] = $technician->address_data->country;
-            $addressData['city'] = $technician->address_data->city;
-            $addressData['state'] = $technician->address_data->state;
-            $addressData['zip_code'] = $technician->address_data->zip_code;
-            $formattedOrigin = implode(', ', [
-                $addressData['country'],
-                $addressData['city'],
-                $addressData['state'],
-                $addressData['zip_code']
-            ]);
-            $origins[] = [
-                'technician_id' => $technician->id,
-                'origin' => $formattedOrigin,
-            ];
-        }
-        $originsString = implode('|', array_column($origins, 'origin'));
-        // dd($originsString);
-        $distances = new DistanceMatrixService();
-        $data = $distances->getDistance($originsString, $destination);
-        // dd($data);
-        $completeInfo = [];
-        foreach ($data['rows'] as $index => $row) {
-            if ($row['elements'][0]['status'] === "OK") {
-                $technicianId = $origins[$index]['technician_id'];
-                $distanceText = $row['elements'][0]['distance']['text'];
-                $durationText = $row['elements'][0]['duration']['text'];
+            MySql::create()
+                ->setDumpBinaryPath('D:\xampp\mysql\bin') // need to change path for live server
+                ->setDbName(config('database.connections.mysql.database'))
+                ->setUserName(config('database.connections.mysql.username'))
+                ->setPassword(config('database.connections.mysql.password'))
+                ->setHost(config('database.connections.mysql.host'))
+                ->dumpToFile($backup_file_path);
 
-                $ftech = Technician::with('skills')->findOrFail($technicianId);
-
-                if ($ftech) {
-                    $distanceTextKm = str_replace([' km', ' ', ','], '', $distanceText);
-                    $distanceTextKm = (float)$distanceTextKm;
-                    $distanceTextMiles = $distanceTextKm * 0.621371;
-                    $isWithinRadius = $ftech->radius > $distanceTextMiles;
-                    if ($isWithinRadius) {
-                        $isWithinRadius = "Yes";
-                    } else {
-                        $isWithinRadius = "No";
-                    }
-                    $completeInfo[] = [
-                        'id' => $ftech->id,
-                        'technician_id' => $ftech->technician_id,
-                        'email' => $ftech->email,
-                        'phone' => $ftech->phone,
-                        'company_name' => $ftech->company_name,
-                        'distance' => $distanceTextMiles,
-                        'status' => $ftech->status,
-                        'rate' => $ftech->rate,
-                        'travel_fee' => $ftech->travel_fee,
-                        'preference' => $ftech->preference,
-                        'duration' => $durationText,
-                        'radius' => $isWithinRadius,
-                        'skills' => $ftech->skills->pluck('skill_name')->toArray(),
-                    ];
-                }
+            if (file_exists($backup_file_path)) {
+                return response()->download($backup_file_path);
             }
+
+            return response()->json(['message' => 'Backup created successfully'], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to create backup: ' . $e->getMessage()], 500);
         }
-        usort($completeInfo, function ($a, $b) {
-            return $a['distance'] <=> $b['distance'];
-        });
-        foreach ($completeInfo as &$info) {
-            $info['distance'] = number_format($info['distance'], 2) . ' mi';
-        }
-        // return response()->json(['technicians' => $completeInfo], 200);
-        $json = json_encode($completeInfo, JSON_PRETTY_PRINT);
-        echo "<pre>$json</pre>";
     }
 
     public function getCoordinate(Request $request)
@@ -568,7 +452,6 @@ class TechnicianController extends Controller
         $response = $geoCode->geocodeAddress($address);
         return response()->json($response);
     }
-
 
     public function geocodeIndex()
     {
@@ -645,30 +528,5 @@ class TechnicianController extends Controller
         } else {
             return response()->json(['warning' => 'No technician found with empty coordinates !'], 422);
         }
-    }
-
-    public function geoReverse()
-    {
-        $lat = "23.8698486";
-        $long = "90.3978032";
-        $token = config('services.locationiq.api_key');
-
-        $url = 'https://us1.locationiq.com/v1/reverse?key=' . urlencode($token) . '&lat=' . urlencode($lat) . '&lon=' . urlencode($long) . '&format=json';
-
-        $curl = curl_init($url);
-        curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER    =>  true,
-            CURLOPT_FOLLOWLOCATION    =>  true,
-            CURLOPT_MAXREDIRS         =>  10,
-            CURLOPT_TIMEOUT           =>  30,
-            CURLOPT_CUSTOMREQUEST     =>  'GET',
-        ));
-
-        $response = curl_exec($curl);
-
-        $error = curl_error($curl);
-
-        curl_close($curl);
-        echo $response;
     }
 }
