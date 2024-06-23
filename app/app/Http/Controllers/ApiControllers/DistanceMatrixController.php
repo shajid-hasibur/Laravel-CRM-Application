@@ -32,10 +32,7 @@ class DistanceMatrixController extends Controller
             $numberOfTech = $request->numberOfTech;
         }
 
-        if ($request->has('radiusValue')) {
-            $radius += $request->radiusValue;
-        }
-
+        $incrementStep = $request->has('radiusValue') ? $request->radiusValue : 0;
         $respondedTechnicians = $request->input('respondedTechnicians', []);
         $givenLatitude = $request->input('latitude');
         $givenLongitude = $request->input('longitude');
@@ -43,7 +40,7 @@ class DistanceMatrixController extends Controller
         $input = $request->all();
         $rules = [
             'destination' => 'required',
-            'numberOfTech' => 'required|integer|between:1,10',
+            'numberOfTech' => 'required|integer|between:1,20',
         ];
         $message = [
             'destination.required' => 'Project site address is required.',
@@ -75,7 +72,16 @@ class DistanceMatrixController extends Controller
             }
         }
         asort($filteredArray);
-
+        if (empty($filteredArray)) {
+            $radius += $incrementStep;
+            $filteredArray = [];
+            foreach ($distances as $key => $value) {
+                if ($value <= $radius) {
+                    $filteredArray[$key] = $value;
+                }
+            }
+            asort($filteredArray);
+        }
         $closestDistances = Technician::select(
             'id',
             DB::raw('ST_X(co_ordinates) as longitude'),
@@ -126,38 +132,37 @@ class DistanceMatrixController extends Controller
                     $distanceTextKm = (float)$distanceTextKm;
                     $distanceTextMiles = $distanceTextKm * 0.621371;
 
-                    if ($distanceTextMiles <= $radius) {
-                        $isWithinRadius = $ftech->radius > $distanceTextMiles;
-                        if ($isWithinRadius) {
-                            $isWithinRadius = "Yes";
-                        } else {
-                            $isWithinRadius = "No";
-                        }
-
-                        //formatting rate into string
-                        $rateString = "";
-                        foreach ($ftech->rate as $key => $value) {
-                            $rateString .= "$key : $value, ";
-                        }
-
-                        $completeInfo[] = [
-                            'id' => $ftech->id,
-                            'technician_id' => $ftech->technician_id,
-                            'email' => $ftech->email,
-                            'phone' => $ftech->phone,
-                            'company_name' => $ftech->company_name,
-                            'distance' => $distanceTextMiles,
-                            'status' => $ftech->status,
-                            'rate' => rtrim($rateString, ", "),
-                            'travel_fee' => $ftech->travel_fee,
-                            'preference' => $ftech->preference,
-                            'duration' => $durationText,
-                            'radius' => $isWithinRadius,
-                            'skills' => $ftech->skills->pluck('skill_name')->toArray(),
-                            'radius_value' => $radius,
-                        ];
-                        $techniciansFound = true;
+                    // if ($distanceTextMiles <= $radius) {
+                    $isWithinRadius = $ftech->radius > $distanceTextMiles;
+                    if ($isWithinRadius) {
+                        $isWithinRadius = "Yes";
+                    } else {
+                        $isWithinRadius = "No";
                     }
+
+                    $rateString = "";
+                    foreach ($ftech->rate as $key => $value) {
+                        $rateString .= "$key : $value, ";
+                    }
+
+                    $completeInfo[] = [
+                        'id' => $ftech->id,
+                        'technician_id' => $ftech->technician_id,
+                        'email' => $ftech->email,
+                        'phone' => $ftech->phone,
+                        'company_name' => $ftech->company_name,
+                        'distance' => $distanceTextMiles,
+                        'status' => $ftech->status,
+                        'rate' => rtrim($rateString, ", "),
+                        'travel_fee' => $ftech->travel_fee,
+                        'preference' => $ftech->preference,
+                        'duration' => $durationText,
+                        'radius' => $isWithinRadius,
+                        'skills' => $ftech->skills->pluck('skill_name')->toArray(),
+                        'radius_value' => $radius,
+                    ];
+                    $techniciansFound = true;
+                    // }
                 }
             }
         }
@@ -173,11 +178,6 @@ class DistanceMatrixController extends Controller
         foreach ($completeInfo as &$info) {
             $info['distance'] = number_format($info['distance'], 2) . ' mi';
         }
-
-        // foreach ($completeInfo as $response) {
-        //     StoreResponseJob::dispatch($givenLatitude, $givenLongitude, $destinationAddress, $response)->onQueue('store_responses');
-        // }
-
         return response()->json(['technicians' => $completeInfo], 200);
     }
 
