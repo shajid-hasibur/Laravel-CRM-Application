@@ -38,13 +38,16 @@ class DistanceMatrixController extends Controller
         $givenLongitude = $request->input('longitude');
 
         $input = $request->all();
+
         $rules = [
             'destination' => 'required',
             'numberOfTech' => 'required|integer|between:1,20',
         ];
+
         $message = [
             'destination.required' => 'Project site address is required.',
         ];
+
         $validator = Validator::make($input, $rules, $message);
 
         if ($validator->fails()) {
@@ -72,6 +75,7 @@ class DistanceMatrixController extends Controller
             }
         }
         asort($filteredArray);
+
         if (empty($filteredArray)) {
             $radius += $incrementStep;
             $filteredArray = [];
@@ -82,6 +86,7 @@ class DistanceMatrixController extends Controller
             }
             asort($filteredArray);
         }
+
         $closestDistances = Technician::select(
             'id',
             DB::raw('ST_X(co_ordinates) as longitude'),
@@ -101,12 +106,14 @@ class DistanceMatrixController extends Controller
             $addressData['city'] = $technician->address_data->city;
             $addressData['state'] = $technician->address_data->state;
             $addressData['zip_code'] = $technician->address_data->zip_code;
+
             $formattedOrigin = implode(', ', [
                 $addressData['country'],
                 $addressData['city'],
                 $addressData['state'],
                 $addressData['zip_code']
             ]);
+
             $origins[] = [
                 'technician_id' => $technician->id,
                 'origin' => $formattedOrigin,
@@ -132,7 +139,7 @@ class DistanceMatrixController extends Controller
                     $distanceTextKm = (float)$distanceTextKm;
                     $distanceTextMiles = $distanceTextKm * 0.621371;
 
-                    // if ($distanceTextMiles <= $radius) {
+
                     $isWithinRadius = $ftech->radius > $distanceTextMiles;
                     if ($isWithinRadius) {
                         $isWithinRadius = "Yes";
@@ -162,7 +169,6 @@ class DistanceMatrixController extends Controller
                         'radius_value' => $radius,
                     ];
                     $techniciansFound = true;
-                    // }
                 }
             }
         }

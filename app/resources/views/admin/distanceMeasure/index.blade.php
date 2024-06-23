@@ -204,7 +204,11 @@
             function updateTechTable(data) {
                 let html = "";
                 $.each(data.technicians, function(key, value) {
-                    html += '<tr>' +
+                    let distanceValue = parseFloat(value.distance.split(' ')[0]);
+                    let radiusValue = parseFloat(value.radius_value);
+                    let rowClass = distanceValue > radiusValue ? 'd-none' : '';
+                    html += '<tr class="' +
+                        rowClass + '">' +
                         '<td class="text-center align-middle mt-auto">' + (key + 1) +
                         '</td>' +
                         '<td class="text-center align-middle mt-auto">' + value
