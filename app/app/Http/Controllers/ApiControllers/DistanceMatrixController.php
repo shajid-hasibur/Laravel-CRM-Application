@@ -25,23 +25,22 @@ class DistanceMatrixController extends Controller
 
     public function findClosestLocations(Request $request)
     {
-        $numberOfTech = 1;
         $radius = 150;
-
-        if (isset($request->numberOfTech)) {
-            $numberOfTech = $request->numberOfTech;
+        $numberOfTech = $request->input('numberOfTech');
+        if ($request->has('radiusValue')) {
+            $radius += $request->radiusValue;
         }
-
-        $incrementStep = $request->has('radiusValue') ? $request->radiusValue : 0;
+        // $incrementStep = $request->has('radiusValue') ? $request->radiusValue : 0;
         $respondedTechnicians = $request->input('respondedTechnicians', []);
         $givenLatitude = $request->input('latitude');
         $givenLongitude = $request->input('longitude');
+        $techniciansFound = false;
 
         $input = $request->all();
 
         $rules = [
             'destination' => 'required',
-            'numberOfTech' => 'required|integer|between:1,20',
+            'numberOfTech' => 'required|integer|between:1,10',
         ];
 
         $message = [
@@ -76,16 +75,16 @@ class DistanceMatrixController extends Controller
         }
         asort($filteredArray);
 
-        if (empty($filteredArray)) {
-            $radius += $incrementStep;
-            $filteredArray = [];
-            foreach ($distances as $key => $value) {
-                if ($value <= $radius) {
-                    $filteredArray[$key] = $value;
-                }
-            }
-            asort($filteredArray);
-        }
+        // if (empty($filteredArray)) {
+        //     $radius += $incrementStep;
+        //     $filteredArray = [];
+        //     foreach ($distances as $key => $value) {
+        //         if ($value <= $radius) {
+        //             $filteredArray[$key] = $value;
+        //         }
+        //     }
+        //     asort($filteredArray);
+        // }
 
         $closestDistances = Technician::select(
             'id',
@@ -125,7 +124,7 @@ class DistanceMatrixController extends Controller
         $data = $distances->getDistance($originsString, $destination);
 
         $completeInfo = [];
-        $techniciansFound = false;
+
         foreach ($data['rows'] as $index => $row) {
             if ($row['elements'][0]['status'] === "OK") {
                 $technicianId = $origins[$index]['technician_id'];
@@ -138,43 +137,40 @@ class DistanceMatrixController extends Controller
                     $distanceTextKm = str_replace([' km', ' ', ','], '', $distanceText);
                     $distanceTextKm = (float)$distanceTextKm;
                     $distanceTextMiles = $distanceTextKm * 0.621371;
+                    if ($distanceTextMiles <= $radius) {
+                        $isWithinRadius = $ftech->radius > $distanceTextMiles;
+                        if ($isWithinRadius) {
+                            $isWithinRadius = "Yes";
+                        } else {
+                            $isWithinRadius = "No";
+                        }
 
+                        //formatting rate into string
+                        $rateString = "";
+                        foreach ($ftech->rate as $key => $value) {
+                            $rateString .= "$key : $value, ";
+                        }
 
-                    $isWithinRadius = $ftech->radius > $distanceTextMiles;
-                    if ($isWithinRadius) {
-                        $isWithinRadius = "Yes";
-                    } else {
-                        $isWithinRadius = "No";
+                        $completeInfo[] = [
+                            'id' => $ftech->id,
+                            'technician_id' => $ftech->technician_id,
+                            'email' => $ftech->email,
+                            'phone' => $ftech->phone,
+                            'company_name' => $ftech->company_name,
+                            'distance' => $distanceTextMiles,
+                            'status' => $ftech->status,
+                            'rate' => rtrim($rateString, ", "),
+                            'travel_fee' => $ftech->travel_fee,
+                            'preference' => $ftech->preference,
+                            'duration' => $durationText,
+                            'radius' => $isWithinRadius,
+                            'skills' => $ftech->skills->pluck('skill_name')->toArray(),
+                            'radius_value' => $radius,
+                        ];
+                        $techniciansFound = true;
                     }
-
-                    $rateString = "";
-                    foreach ($ftech->rate as $key => $value) {
-                        $rateString .= "$key : $value, ";
-                    }
-
-                    $completeInfo[] = [
-                        'id' => $ftech->id,
-                        'technician_id' => $ftech->technician_id,
-                        'email' => $ftech->email,
-                        'phone' => $ftech->phone,
-                        'company_name' => $ftech->company_name,
-                        'distance' => $distanceTextMiles,
-                        'status' => $ftech->status,
-                        'rate' => rtrim($rateString, ", "),
-                        'travel_fee' => $ftech->travel_fee,
-                        'preference' => $ftech->preference,
-                        'duration' => $durationText,
-                        'radius' => $isWithinRadius,
-                        'skills' => $ftech->skills->pluck('skill_name')->toArray(),
-                        'radius_value' => $radius,
-                    ];
-                    $techniciansFound = true;
                 }
             }
-        }
-
-        if (!$techniciansFound) {
-            return response()->json(['errors' => 'No technicians found in 150 miles radius.'], 404);
         }
 
         usort($completeInfo, function ($a, $b) {

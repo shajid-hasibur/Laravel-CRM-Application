@@ -163,7 +163,7 @@
 
             function findMoreTech() {
                 clickCount++;
-                let radiusElevator = 50 * clickCount;
+                let radiusElevator = clickCount * 50;
                 let numberOfTech = $('#numberOfTech').val();
                 $.ajax({
                     url: "{{ route('distance.get.response') }}",
@@ -206,9 +206,9 @@
                 $.each(data.technicians, function(key, value) {
                     let distanceValue = parseFloat(value.distance.split(' ')[0]);
                     let radiusValue = parseFloat(value.radius_value);
+                    const isGreaterThanRadius = distanceValue > radiusValue;
                     let rowClass = distanceValue > radiusValue ? 'd-none' : '';
-                    html += '<tr class="' +
-                        rowClass + '">' +
+                    html += '<tr>' +
                         '<td class="text-center align-middle mt-auto">' + (key + 1) +
                         '</td>' +
                         '<td class="text-center align-middle mt-auto">' + value
@@ -237,7 +237,6 @@
                         '<td class="text-center align-middle mt-auto">' + value
                         .radius + '</td>' +
                         '</tr>';
-
                     $('#radiusValue').text(value.radius_value);
                     respondedTechnicians.push(value.id);
                 });

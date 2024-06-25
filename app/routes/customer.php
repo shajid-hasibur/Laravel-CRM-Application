@@ -20,6 +20,7 @@ Route::middleware('admin')->group(function () {
             Route::get('/index/with/order', 'customerWithOrder')->name('index.with.order');
             Route::get('/registration', 'create')->name('create');
             Route::post('/store/customer', 'storeCustomer')->name('store');
+            Route::get('/get/customer', 'getCustomers')->name('get');
             //begin customer site
             Route::post('/store/site', 'sites')->name('site.store');
             Route::get('/list/site', 'siteList')->name('site.list');

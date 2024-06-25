@@ -58,60 +58,33 @@ class CustomerController extends Controller
     //site store
     public function sites(Request $request)
     {
-        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required',
+            'site_id' => 'required|unique:customer_sites,site_id',
             'location' => 'required',
             'address_1' => 'required',
             'city' => 'required',
             'state' => 'required',
-            'zipcode' => 'required',
+            'zipcode' => 'required|integer|digits:5',
             'time_zone' => 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-        // generating unique 5 digit id starting with 7000
-        $site = CustomerSite::latest('id')->first();
-        if ($site == null) {
-            $firstReg = 0;
-            $siteId = $firstReg + 1;
-            if ($siteId < 10) {
-                $sid = '7000' . $siteId;
-            } elseif ($siteId < 100) {
-                $sid = '700' . $siteId;
-            } elseif ($siteId < 1000) {
-                $sid = '70' . $siteId;
-            } elseif ($siteId < 10000) {
-                $sid = '7' . $siteId;
-            }
-        } else {
-            $sid = $site->id;
-            $siteId = $sid + 1;
-            if ($siteId < 10) {
-                $sid = '7000' . $siteId;
-            } elseif ($siteId < 100) {
-                $sid = '700' . $siteId;
-            } elseif ($siteId < 1000) {
-                $sid = '70' . $siteId;
-            } elseif ($siteId < 10000) {
-                $sid = '7' . $siteId;
-            }
-        }
 
-        $cusSite = new CustomerSite();
-        $cusSite->customer_id = $request->customer_id;
-        $cusSite->site_id = $sid;
-        $cusSite->description = $request->description;
-        $cusSite->location = $request->location;
-        $cusSite->address_1 = $request->address_1;
-        $cusSite->address_2 = $request->address_2;
-        $cusSite->city = $request->city;
-        $cusSite->state = $request->state;
-        $cusSite->zipcode = $request->zipcode;
-        $cusSite->time_zone = $request->time_zone;
-        $cusSite->save();
+        $site = new CustomerSite();
+        $site->customer_id = $request->customer_id;
+        $site->site_id = $request->site_id;
+        $site->description = $request->description;
+        $site->location = $request->location;
+        $site->address_1 = $request->address_1;
+        $site->address_2 = $request->address_2;
+        $site->city = $request->city;
+        $site->state = $request->state;
+        $site->zipcode = $request->zipcode;
+        $site->time_zone = $request->time_zone;
+        $site->save();
 
         return response()->json(['message' => 'Site added successfully'], 200);
     }
@@ -120,6 +93,13 @@ class CustomerController extends Controller
     //begin site list
     public function siteList()
     {
+        if (request()->ajax()) {
+            $query = CustomerSite::with('customer:id,company_name,s_rate,e_rate');
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->make(true);
+        }
         $pageTitle = "Customer Site List";
         $sites = CustomerSite::with('customer')->get();
         return view('admin.customers.site', compact('pageTitle', 'sites'));
@@ -336,6 +316,25 @@ class CustomerController extends Controller
 
         $notify[] = ['success', 'Customer Update successful!'];
         return back()->withNotify($notify);
+    }
+
+    public function getCustomers(Request $request)
+    {
+        $search = $request->input('q');
+
+        $customers = Customer::select('id', 'company_name', 'customer_id')
+            ->where('customer_id', 'LIKE', "%$search%")
+            ->orWhere('company_name', 'LIKE', "%$search%")
+            ->get();
+
+        $formatted_customers = $customers->map(function ($customer) {
+            return [
+                'id' => $customer->id,
+                'text' => "{$customer->customer_id} - {$customer->company_name}"
+            ];
+        });
+
+        return response()->json($formatted_customers);
     }
 
     //Ajax get company name

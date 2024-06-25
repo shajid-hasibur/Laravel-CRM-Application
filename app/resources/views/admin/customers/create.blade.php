@@ -29,7 +29,7 @@
                                         Add Customer Site
                                     </div> --}}
                                         <a class="btn btn-primary" href="{{ route('customer.index') }}"><i
-                                                class="fas fa-list"></i> Go to Customer List</a>
+                                                class="fas fa-list"></i> Customer List</a>
                                     </div>
                                 </div>
                             </div>
