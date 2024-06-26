@@ -38,15 +38,15 @@
                                 <b>Action</b>
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item"
-                                        href="{{ url('/customer/edit/customer') }}/{{ $zone->id }}">About Customer
-                                        Edit</a></li>
+                                <li class="text-center"><a class="dropdown-item"
+                                        href="{{ route('customer.edit', ['id' => $zone->id]) }}">Edit
+                                        Customer Info</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                     <h6 class="text-center"><span class="badge-danger">Danger Zone</span></h6>
                                 </li>
                                 <li><a class="dropdown-item"
-                                        href="{{ url('/customer/delete/customer') }}/{{ $zone->id }}">Delete This
+                                        href="{{ route('customer.delete', ['id' => $zone->id]) }}">Delete This
                                         Customer</a></li>
                             </ul>
                         </li>
@@ -145,72 +145,82 @@
             </div>
         </div>
         <!--add Site Modal -->
-        <div class="modal fade text-dark " id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+        <div class="modal fade text-dark" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
             aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header bg-gray d-flex justify-content-between">
+                    <div class="modal-header bg-secondary d-flex justify-content-between">
                         <h5 class="modal-title" id="staticBackdropLabel">Add Site</h5>
                         <button type="button" class="btn-close" id="close-modal" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <input type="hidden" name="customer_id" value="{{ $zone->id }}" id="customer"
-                                readonly>
-                            <div class="form-group col-md-4">
-                                <label for="">Location Name</label>
-                                <input type="text" class="form-control" name="location"
-                                    placeholder="Enter Location name...." id="location">
-                                <span style="color:red; font-size:16px" id="location-error"></span>
+                        <form id="site_reg_form">
+                            @csrf
+                            <div class="row">
+                                <input type="hidden" name="customer_id" value="{{ $zone->id }}">
+                                <div class="form-group col-4">
+                                    <label>Site Id</label>
+                                    <input type="text" id="site_id" class="form-control" name="site_id"
+                                        placeholder="Enter your site id">
+                                    <span class="text-danger" id="siteIdError"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">Location Name</label>
+                                    <input type="text" class="form-control" name="location"
+                                        placeholder="Enter Location name...." id="location">
+                                    <span class="text-danger" id="locationError"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">Address 1</label>
+                                    <input type="text" class="form-control" name="address_1"
+                                        placeholder="Enter address_1...." id="address_1">
+                                    <span class="text-danger" id="address1Error"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">Address 2</label>
+                                    <input type="text" class="form-control" name="address_2"
+                                        placeholder="Enter address_2...." id="address_2">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">City</label>
+                                    <input type="text" class="form-control" name="city"
+                                        placeholder="Enter city...." id="city">
+                                    <span class="text-danger" id="cityError"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">State</label>
+                                    <input type="text" class="form-control" name="state"
+                                        placeholder="Enter state...." id="state">
+                                    <span class="text-danger" id="stateError"></span>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="">Zip Code</label>
+                                    <input type="text" class="form-control" name="zipcode"
+                                        placeholder="Enter zip...." id="zipcode">
+                                    <span class="text-danger" id="zipcodeError"></span>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="">Timezone</label>
+                                    <input type="text" class="form-control" name="time_zone"
+                                        placeholder="Enter timezone...." id="timezone">
+                                    <span class="text-danger" id="timeZoneError"></span>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label for="">Property Description</label>
+                                    <textarea class="form-control" name="description" id="description" cols="10" rows="5"
+                                        placeholder="Enter description...."></textarea>
+                                </div>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="">Address 1</label>
-                                <input type="text" class="form-control" name="address_1"
-                                    placeholder="Enter address_1...." id="address_1">
-                                <span style="color:red; font-size:16px" id="address_1-error"></span>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="">Address 2</label>
-                                <input type="text" class="form-control" name="address_2"
-                                    placeholder="Enter address_2...." id="address_2">
-                                <span style="color:red; font-size:16px" id="address_2-error"></span>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="">Zip Code</label>
-                                <input type="text" class="form-control" name="zipcode" placeholder="Enter zip...."
-                                    id="zipcode">
-                                <span style="color:red; font-size:16px" id="zipcode-error"></span>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="Enter city...."
-                                    id="city">
-                                <span style="color:red; font-size:16px" id="city-error"></span>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="">State</label>
-                                <input type="text" class="form-control" name="state" placeholder="Enter state...."
-                                    id="state">
-                                <span style="color:red; font-size:16px" id="state-error"></span>
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label for="">Timezone</label>
-                                <input type="text" class="form-control" name="time_zone"
-                                    placeholder="Enter timezone...." id="time_zone">
-                                <span style="color:red; font-size:16px" id="time_zone-error"></span>
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label for="">Property Description</label>
-                                <textarea class="form-control" name="description" placeholder="Enter description...." id="description"
-                                    cols="10" rows="5"></textarea>
-                                <span style="color:red; font-size:16px" id="description-error"></span>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn bg-gray btn-block" id="save">Save</button>
+                        <div class="d-flex justify-content-between w-100">
+                            <button type="submit" class="btn bg-primary w-50 me-2">Save</button>
+                            <button type="button" data-bs-dismiss="modal" class="btn bg-secondary w-50"
+                                id="cancel">Cancel</button>
+                        </div>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -364,61 +374,61 @@
             loadWorkOrder();
             workOrderRoute();
 
+            $("#customer").select2({
+                ajax: {
+                    url: "{{ route('customer.get') }}",
+                    type: "GET",
+                    dataType: "JSON",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true,
+                    placeholder: 'Search for a customer',
+                    minimumInputLength: 1,
+                }
+            });
+
             //add site ajax code start
-            $(document).on('click', '#save', function() {
-                let id = $('#customer').val();
-                let location = $('#location').val();
-                let description = $('#description').val();
-                let address_1 = $('#address_1').val();
-                let address_2 = $('#address_2').val();
-                let city = $('#city').val();
-                let state = $('#state').val();
-                let zipcode = $('#zipcode').val();
-                let time_zone = $('#time_zone').val();
+            $('#site_reg_form').submit(function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
 
                 $.ajax({
-                    type: "POST",
                     url: "{{ route('customer.site.store') }}",
-                    data: {
-                        'customer_id': id,
-                        'location': location,
-                        'description': description,
-                        'address_1': address_1,
-                        'address_2': address_2,
-                        'city': city,
-                        'state': state,
-                        'zipcode': zipcode,
-                        'time_zone': time_zone,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        loadSite();
+                        $('#site_reg_form').find('span.text-danger').text("");
+                        $('#customer').val(null).trigger('change');
+                        $('#site_reg_form').find('.form-control').val("");
+                        iziToast.success({
+                            message: res.message,
+                            position: "topRight"
+                        });
                     },
-                    dataType: "json",
-                    success: function(response) {
-                        if (response.message) {
-                            $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error,#time_zone-error")
-                                .empty();
-                            iziToast.success({
-                                message: response.message,
-                                position: "topRight"
-                            });
-                            $("#location,#description,#address_1,#address_2,#city,#state,#zipcode,#time_zone")
-                                .val("");
-                            loadSite();
-                        }
-                    },
-                    error: function(response) {
-                        if (response.status == 422) {
-                            errors = response.responseJSON.errors;
-                            $("#location-error,#address_1-error,#address_2-error,#zipcode-error,#city-error,#state-error,#description-error,#time_zone-error")
-                                .empty();
-
-                            const fieldsToHandle = ["location", "address_1", "address_2",
-                                "zipcode", "city", "state", "description", "time_zone"
-                            ];
-
-                            fieldsToHandle.forEach(field => {
-                                if (errors[field]) {
-                                    $('#' + field + '-error').text(errors[field]);
-                                }
-                            });
+                    error: function(xhr, status, error) {
+                        $('#site_reg_form').find('span.text-danger').text("");
+                        if (xhr.status === 422) {
+                            $('#customerIdError').text(xhr.responseJSON.errors.customer_id);
+                            $('#siteIdError').text(xhr.responseJSON.errors.site_id);
+                            $('#siteIdError').text(xhr.responseJSON.errors.site_id);
+                            $('#locationError').text(xhr.responseJSON.errors.location);
+                            $('#address1Error').text(xhr.responseJSON.errors.address_1);
+                            $('#cityError').text(xhr.responseJSON.errors.city);
+                            $('#stateError').text(xhr.responseJSON.errors.state);
+                            $('#zipcodeError').text(xhr.responseJSON.errors.zipcode);
+                            $('#timeZoneError').text(xhr.responseJSON.errors.time_zone);
                         }
                     }
                 });

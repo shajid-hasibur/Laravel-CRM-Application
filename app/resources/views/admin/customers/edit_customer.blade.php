@@ -247,7 +247,7 @@
                                         @enderror
                                     </div>
                                     <div class="form-group col-12">
-                                        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                                        <button type="submit" class="btn btn-primary btn-block">Update</button>
                                     </div>
                                 </div>
                             </form>

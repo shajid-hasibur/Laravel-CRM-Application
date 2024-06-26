@@ -58,6 +58,7 @@ class CustomerController extends Controller
     //site store
     public function sites(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required',
             'site_id' => 'required|unique:customer_sites,site_id',
@@ -100,6 +101,7 @@ class CustomerController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
+
         $pageTitle = "Customer Site List";
         $sites = CustomerSite::with('customer')->get();
         return view('admin.customers.site', compact('pageTitle', 'sites'));
@@ -113,45 +115,49 @@ class CustomerController extends Controller
         $edit = CustomerSite::with('customer')->get()->find($id);
         return view('admin.customers.edit_site', compact('pageTitle', 'edit'));
     }
-    public function deleteSite($id)
+    public function deleteSite(Request $request, $id)
     {
         $site = CustomerSite::with('customer')->findOrFail($id);
         $customerId = $site->customer->id;
         $site->delete();
         $notify[] = ['success', 'Site deleted successfully'];
+        if ($request->from_site_list == 1) {
+            return to_route('customer.site.list')->withNotify($notify);
+        }
         return redirect()->route('customer.customerZone', ['id' => $customerId])->withNotify($notify);
     }
     public function editSitePost(Request $request, $id)
     {
         $request->validate([
-            'company_name' => 'required',
-            's_rate' => 'required',
-            'e_rate' => 'required',
-            'description' => 'required',
+            'customer_id' => 'required',
+            'site_id' => 'required|unique:customer_sites,site_id,' . $id,
             'location' => 'required',
             'address_1' => 'required',
-            'address_2' => 'required',
             'city' => 'required',
             'state' => 'required',
+            'zipcode' => 'required|integer|digits:5',
+            'time_zone' => 'required',
         ]);
 
-        $update = CustomerSite::find($id);
-
-        $update->description = $request->description;
-        $update->location = $request->location;
-        $update->address_1 = $request->address_1;
-        $update->address_2 = $request->address_2;
-        $update->city = $request->city;
-        $update->state = $request->state;
-        $update->zipcode = $request->zipcode;
-        $update->save();
-        if ($request->s_rate && $request->e_rate && $request->company_name) {
-            $cUpdate = Customer::find($update->customer_id);
-            $cUpdate->company_name = $request->company_name;
-            $cUpdate->s_rate = $request->s_rate;
-            $cUpdate->e_rate = $request->e_rate;
-            $cUpdate->save();
-        }
+        $customerSite = CustomerSite::find($id);
+        $customerSite->description = $request->description;
+        $customerSite->location = $request->location;
+        $customerSite->address_1 = $request->address_1;
+        $customerSite->address_2 = $request->address_2;
+        $customerSite->city = $request->city;
+        $customerSite->state = $request->state;
+        $customerSite->zipcode = $request->zipcode;
+        $customerSite->time_zone = $request->time_zone;
+        $customerSite->site_id = $request->site_id;
+        $customerSite->customer_id = $request->customer_id;
+        $customerSite->save();
+        // if ($request->s_rate && $request->e_rate && $request->company_name) {
+        //     $cUpdate = Customer::find($update->customer_id);
+        //     $cUpdate->company_name = $request->company_name;
+        //     $cUpdate->s_rate = $request->s_rate;
+        //     $cUpdate->e_rate = $request->e_rate;
+        //     $cUpdate->save();
+        // }
         $notify[] = ['success', 'Customer Site updated successful'];
         return back()->withNotify($notify);
     }

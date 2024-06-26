@@ -2,6 +2,8 @@
 
 @section('script')
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
     <link rel="stylesheet" href="{{ asset('assetsNew/main_css/customer/index.css') }}">
 @endsection
 
@@ -9,6 +11,10 @@
     <style>
         .nowrap {
             white-space: nowrap;
+        }
+
+        td {
+            text-align: center;
         }
     </style>
     <div class="content-wrapper" style="background-color: white;">
@@ -36,25 +42,14 @@
                         <table id="customers" class="table table-bordered" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th># SL</th>
-                                    <th>Customer ID</th>
-                                    <th>Company Name</th>
-                                    <th>Customer Type</th>
-                                    {{-- <th>Address</th>
-                                <th>Email</th>
-                                <th>Phone</th> --}}
-                                    <th>Standard Rate</th>
-                                    <th>Emergency Rate</th>
-                                    <th>Travel</th>
-                                    {{-- <th>Billing Term</th>
-                                <th>Type Of Phone System</th>
-                                <th>Type Of POS</th>
-                                <th>Type Of CCTV</th>
-                                <th>Type Of Wireless</th>
-                                <th>Team</th>
-                                <th>Sales Person Assign</th>
-                                <th>Project Manager Assign</th> --}}
-                                    <th>Action</th>
+                                    <th class="text-center"># SL</th>
+                                    <th class="text-center">Customer ID</th>
+                                    <th class="text-center">Company Name</th>
+                                    <th class="text-center">Customer Type</th>
+                                    <th class="text-center">Standard Rate</th>
+                                    <th class="text-center">Emergency Rate</th>
+                                    <th class="text-center">Travel</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -84,82 +79,88 @@
             </div>
         </div>
 
-        <!--add Site Modal -->
         <div class="modal fade text-dark" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
             aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header bg-gray d-flex justify-content-between">
+                    <div class="modal-header bg-secondary d-flex justify-content-between">
                         <h5 class="modal-title" id="staticBackdropLabel">Add Site</h5>
                         <button type="button" class="btn-close" id="close-modal" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="container">
+                        <form id="site_reg_form">
+                            @csrf
                             <div class="row">
                                 <div class="form-group col-4">
-                                    <label class="form-label" for="customer_id">Customer Id:</label>
-                                    <select class="form-control" name="customer_id" id="customer" style="width:100%;">
-                                        <option value="" id="selectId">Select Customer Id</option>
-                                        @foreach ($customers as $cu)
-                                            <option value="{{ $cu->id }}">
-                                                {{ $cu->customer_id }}-{{ $cu->company_name }}</option>
-                                        @endforeach
+                                    <label>Customer</label>
+                                    <select class="form-control" name="customer_id" id="customer" style="width:100%">
+                                        <option value="">Select Customer</option>
                                     </select>
-                                    <span style="color:red; font-size:16px" id="customer_id-error"></span>
+                                    <span class="text-danger" id="customerIdError"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="companyname">Company Name:</label>
-                                    <input type="text" id="companyname" class="form-control" readonly>
+                                    <label>Site Id</label>
+                                    <input type="text" id="site_id" class="form-control" name="site_id"
+                                        placeholder="Enter your site id">
+                                    <span class="text-danger" id="siteIdError"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="location">Location Name:</label>
+                                    <label for="">Location Name</label>
                                     <input type="text" class="form-control" name="location"
                                         placeholder="Enter Location name...." id="location">
-                                    <span style="color:red; font-size:16px" id="location-error"></span>
+                                    <span class="text-danger" id="locationError"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="state">State:</label>
-                                    <input type="text" class="form-control state" name="state"
-                                        placeholder="Enter state...." id="state">
-                                    <span style="color:red; font-size:16px" id="state-error"></span>
-                                </div>
-                                <div class="form-group col-4">
-                                    <label for="address_1">Address 1:</label>
+                                    <label for="">Address 1</label>
                                     <input type="text" class="form-control" name="address_1"
                                         placeholder="Enter address_1...." id="address_1">
-                                    <span style="color:red; font-size:16px" id="address_1-error"></span>
+                                    <span class="text-danger" id="address1Error"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="address_2">Address 2:</label>
+                                    <label for="">Address 2</label>
                                     <input type="text" class="form-control" name="address_2"
                                         placeholder="Enter address_2...." id="address_2">
-                                    <span style="color:red; font-size:16px" id="address_2-error"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="city">City:</label>
+                                    <label for="">City</label>
                                     <input type="text" class="form-control" name="city"
                                         placeholder="Enter city...." id="city">
-                                    <span style="color:red; font-size:16px" id="city-error"></span>
+                                    <span class="text-danger" id="cityError"></span>
                                 </div>
                                 <div class="form-group col-4">
-                                    <label for="zipcode">Zip Code:</label>
+                                    <label for="">State</label>
+                                    <input type="text" class="form-control" name="state"
+                                        placeholder="Enter state...." id="state">
+                                    <span class="text-danger" id="stateError"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">Zip Code</label>
                                     <input type="text" class="form-control" name="zipcode"
                                         placeholder="Enter zip...." id="zipcode">
-                                    <span style="color:red; font-size:16px" id="zipcode-error"></span>
+                                    <span class="text-danger" id="zipcodeError"></span>
+                                </div>
+                                <div class="form-group col-4">
+                                    <label for="">Timezone</label>
+                                    <input type="text" class="form-control" name="time_zone"
+                                        placeholder="Enter timezone...." id="timezone">
+                                    <span class="text-danger" id="timeZoneError"></span>
                                 </div>
                                 <div class="form-group col-12">
-                                    <label for="description">Property Description:</label>
+                                    <label for="">Property Description</label>
                                     <textarea class="form-control" name="description" id="description" cols="10" rows="5"
                                         placeholder="Enter description...."></textarea>
-                                    <span style="color:red; font-size:16px" id="description-error"></span>
                                 </div>
                             </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn bg-gray btn-block" id="save">Save</button>
+                        <div class="d-flex justify-content-between w-100">
+                            <button type="submit" class="btn bg-primary w-50 me-2">Save</button>
+                            <button type="button" data-bs-dismiss="modal" class="btn bg-secondary w-50"
+                                id="cancel">Cancel</button>
+                        </div>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -183,84 +184,60 @@
                 }
             });
 
-            // $("#customer").select2();
-
-            $('#customer').on('change', function() {
-                var selectedCusId = $(this).val();
-                if (selectedCusId == "") {
-                    $('#companyname').val("");
-                }
-                $.ajax({
-                    url: '{{ route('customer.comName', ['id' => ':id']) }}'.replace(':id',
-                        selectedCusId),
-                    type: 'GET',
-                    success: function(data) {
-                        $('#companyname').val(data.company_name);
+            $("#customer").select2({
+                ajax: {
+                    url: "{{ route('customer.get') }}",
+                    type: "GET",
+                    dataType: "JSON",
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
                     },
-                    error: function() {
-                        console.log('Error fetching company name.');
-                    }
-                });
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    cache: true,
+                    placeholder: 'Search for a customer',
+                    minimumInputLength: 1,
+                }
             });
 
             //add site ajax code start
-            $(document).on('click', '#save', function() {
-                let id = $('#customer').val();
-                let location = $('#location').val();
-                let description = $('#description').val();
-                let address_1 = $('#address_1').val();
-                let address_2 = $('#address_2').val();
-                let city = $('#city').val();
-                let state = $('.state').val();
-                let zipcode = $('#zipcode').val();
+            $('#site_reg_form').submit(function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
 
                 $.ajax({
-                    type: "POST",
                     url: "{{ route('customer.site.store') }}",
-                    data: {
-                        'customer_id': id,
-                        'location': location,
-                        'description': description,
-                        'address_1': address_1,
-                        'address_2': address_2,
-                        'city': city,
-                        'state': state,
-                        'zipcode': zipcode,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        $('#site_reg_form').find('span.text-danger').text("");
+                        $('#customer').val(null).trigger('change');
+                        $('#site_reg_form').find('.form-control').val("");
+                        iziToast.success({
+                            message: res.message,
+                            position: "topRight"
+                        });
                     },
-                    dataType: "json",
-                    success: function(response) {
-                        if (response.message) {
-                            iziToast.success({
-                                message: response.message,
-                                position: "topRight"
-                            });
-                            $("#location,#description,#address_1,#address_2,#city,#zipcode,#state")
-                                .val("");
-                            $("#companyname").prop("readonly", false);
-                            $("#companyname").val("");
-                            $("#companyname").prop("readonly", true);
-                            $("#customer_id-error,#location-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#state-error,#description-error")
-                                .text("");
-                            $("#selectId").prop("selected", true);
-                            $("#selectId").change();
-                        }
-                    },
-                    error: function(response) {
-                        if (response.status == 422) {
-                            errors = response.responseJSON.errors;
-
-                            $("#customer_id-error,#location-error,#address_1-error,#address_2-error,#city-error,#zipcode-error,#state-error,#description-error")
-                                .text("");
-
-                            const fieldsToHandle = ["customer_id", "location", "address_1",
-                                "address_2", "city", "zipcode", "state", "description"
-                            ];
-
-                            fieldsToHandle.forEach(field => {
-                                if (errors[field]) {
-                                    $('#' + field + '-error').text(errors[field]);
-                                }
-                            });
+                    error: function(xhr, status, error) {
+                        $('#site_reg_form').find('span.text-danger').text("");
+                        if (xhr.status === 422) {
+                            $('#customerIdError').text(xhr.responseJSON.errors.customer_id);
+                            $('#siteIdError').text(xhr.responseJSON.errors.site_id);
+                            $('#siteIdError').text(xhr.responseJSON.errors.site_id);
+                            $('#locationError').text(xhr.responseJSON.errors.location);
+                            $('#address1Error').text(xhr.responseJSON.errors.address_1);
+                            $('#cityError').text(xhr.responseJSON.errors.city);
+                            $('#stateError').text(xhr.responseJSON.errors.state);
+                            $('#zipcodeError').text(xhr.responseJSON.errors.zipcode);
+                            $('#timeZoneError').text(xhr.responseJSON.errors.time_zone);
                         }
                     }
                 });
@@ -307,7 +284,7 @@
                             render: function(data, type, row) {
                                 return '<div class="button-container d-flex align-items-center">' +
                                     '<div class="dropdown">' +
-                                    '<i class="fas fa-ellipsis-v custom-icon mx-4" id="dropdownMenuButton_' +
+                                    '<i class="fas fa-ellipsis-v custom-icon" style="margin-left: 35px;" id="dropdownMenuButton_' +
                                     row.id +
                                     '" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;"></i>' +
                                     '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton_' +
@@ -323,14 +300,10 @@
                         },
                     ],
                     columnDefs: [{
-                            targets: '_all',
-                            className: 'nowrap'
-                        },
-                        {
-                            "targets": [7],
-                            "orderable": false
-                        }
-                    ]
+                        targets: '_all',
+                        className: 'nowrap',
+                        "orderable": false
+                    }]
                 });
             }
 

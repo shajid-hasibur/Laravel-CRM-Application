@@ -27,7 +27,7 @@ Route::middleware('admin')->group(function () {
             //end customer site
             //begin site edit
             Route::get('/edit/site/{id}', 'editSite')->name('site.edit');
-            Route::get('/delete/site/{id}', 'deleteSite')->name('site.delete');
+            Route::post('/delete/site/{id}', 'deleteSite')->name('site.delete');
             Route::PUT('/site/edit/post/{id}', 'editSitePost')->name('editSitePost');
             //end site edit
             //begin customer edit

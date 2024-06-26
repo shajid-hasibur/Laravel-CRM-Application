@@ -19,7 +19,12 @@
         .select2-container--default .select2-selection--single .select2-selection__arrow b {
             top: 72%;
         }
+
+        td {
+            text-align: center;
+        }
     </style>
+
 
     <div class="content-wrapper" style="background-color: white;">
         <!-- Content Header (Page header) -->
@@ -38,56 +43,25 @@
                                     data-bs-target="#staticBackdrop"> <i class="fas fa-building"></i>
                                     Add Customer Site</div>
                             </div>
-
                         </div>
                     </div>
-
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="siteTable" class="table table-bordered table-hover">
                             <thead>
-                                <tr class="text-center">
-                                    <th>#SL</th>
-                                    <th>Site ID</th>
-                                    <th>Location</th>
-                                    <th>Company Name</th>
-                                    <th>Standard Rate</th>
-                                    <th>Emergency Rate</th>
-                                    <th>Address</th>
-                                    <th>Action</th>
+                                <tr>
+                                    <th class="text-center">#SL</th>
+                                    <th class="text-center">Site ID</th>
+                                    <th class="text-center">Location</th>
+                                    <th class="text-center">Company Name</th>
+                                    <th class="text-center">Standard Rate</th>
+                                    <th class="text-center">Emergency Rate</th>
+                                    <th class="text-center">Address</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {{-- @foreach ($sites as $key => $site)
-                                    <tr class="text-center">
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $site->site_id }}</td>
-                                        <td>{{ @$site->customer->company_name }}</td>
-                                        <td>{{ @$site->customer->s_rate }}</td>
-                                        <td>{{ @$site->customer->e_rate }}</td>
-                                        <td>{{ $site->address_1 }}</td>
-                                        <td class="dropdown">
-                                            <a id="siteActionsDropdown" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
-                                                <i class="fas fa-ellipsis-v custom-icon" style="cursor: pointer;"></i>
-                                            </a>
-                                            <div class="dropdown-menu" aria-labelledby="siteActionsDropdown">
-                                                <a class="dropdown-item"
-                                                    href="{{ url('/customer/edit/site') }}/{{ $site->id }}">
-                                                    <i class="fas fa-pencil-alt"></i> Edit
-                                                </a>
-                                                <a class="dropdown-item text-danger delete-button"
-                                                    href="{{ url('/customer/delete/site') }}/{{ $site->id }}"
-                                                    data-toggle="modal"
-                                                    data-target="#confirmationModal-{{ $site->id }}">
-                                                    <i class="fas fa-trash-alt"></i> Delete
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach --}}
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -99,7 +73,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -108,7 +82,11 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <a href="" class="btn btn-danger confirmDelete">Delete</a>
+                        <form id="deleteSubmission">
+                            @csrf
+                            <input type="hidden" name="from_site_list" value="1">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -119,7 +97,7 @@
             aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header bg-primary d-flex justify-content-between">
+                    <div class="modal-header bg-secondary d-flex justify-content-between">
                         <h5 class="modal-title" id="staticBackdropLabel">Add Site</h5>
                         <button type="button" class="btn-close" id="close-modal" data-bs-dismiss="modal"
                             aria-label="Close"></button>
@@ -135,10 +113,6 @@
                                     </select>
                                     <span class="text-danger" id="customerIdError"></span>
                                 </div>
-                                {{-- <div class="form-group col-4">
-                                    <label for="companyname">Company Name:</label>
-                                    <input type="text" id="companyname" class="form-control" readonly>
-                                </div> --}}
                                 <div class="form-group col-4">
                                     <label>Site Id</label>
                                     <input type="text" id="site_id" class="form-control" name="site_id"
@@ -214,6 +188,11 @@
                 ajax: {
                     url: "{{ route('customer.site.list') }}"
                 },
+                columnDefs: [{
+                        orderable: false,
+                        targets: '_all'
+                    } // Disable sorting for all columns
+                ],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -223,39 +202,41 @@
                     {
                         data: 'site_id',
                         name: 'site_id'
-                    }, // Site ID column
+                    },
 
                     {
                         data: 'location',
                         name: 'location'
-                    }, // Location column
+                    },
                     {
                         data: 'customer.company_name',
                         name: 'customer.company_name'
-                    }, // Customer Company Name column
+                    },
 
                     {
                         data: 'customer.s_rate',
                         name: 'customer.s_rate'
-                    }, // Customer Standard Rate column
+                    },
                     {
                         data: 'customer.e_rate',
                         name: 'customer.e_rate'
-                    }, // Customer Extended Rate column
+                    },
                     {
                         data: 'address_1',
                         name: 'address_1'
-                    }, // Address column
+                    },
                     {
                         data: null,
                         render: function(data, type, row) {
                             return '<div class="button-container d-flex align-items-center">' +
                                 '<div class="dropdown">' +
-                                '<i class="fas fa-ellipsis-v custom-icon mx-4" id="dropdownMenuButton_' +
+                                '<i class="fas fa-ellipsis-v custom-icon" style="margin-left: 30px;" id="dropdownMenuButton_' +
                                 row.id +
                                 '" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;"></i>' +
                                 '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton_' +
                                 row.id + '">' +
+                                '<a class="dropdown-item no-modal view-btn" data-id="' + row
+                                .id + '">View</a>' +
                                 '<a class="dropdown-item no-modal edit-btn" data-id="' + row.id +
                                 '">Edit</a>' +
                                 '<a class="dropdown-item no-modal delete-btn" data-id="' + row
@@ -269,14 +250,25 @@
                 ],
             })
 
+            //view
+            $(document).on('click', '.view-btn', function() {
+                let id = $(this).data('id');
+                let route = "{{ route('customer.site.edit', ':id') }}";
+                route = route.replace(':id', id);
+                window.location.href = route;
+            });
+
+            //delete
             $(document).on('click', '.delete-btn', function() {
                 let id = $(this).data('id');
                 let route = "{{ route('customer.site.delete', ':id') }}";
                 route = route.replace(':id', id);
-                $('#confirmationModal').find('.confirmDelete').attr('href', route);
+                $('#confirmationModal').find('#deleteSubmission').attr('action', route);
+                $('#confirmationModal').find('#deleteSubmission').attr('method', 'POST');
                 $('#confirmationModal').modal('show');
             });
 
+            //edit
             $(document).on('click', '.edit-btn', function() {
                 let id = $(this).data('id');
                 let route = "{{ route('customer.site.edit', ':id') }}";
@@ -310,8 +302,6 @@
 
             $('#site_reg_form').submit(function(e) {
                 e.preventDefault();
-                let errorsContainer = $('#errors-container');
-                let showToast = true;
                 let formData = new FormData(this);
 
                 $.ajax({
@@ -323,7 +313,7 @@
                     success: function(res) {
                         $('#site_reg_form').find('span.text-danger').text("");
                         $('#customer').val(null).trigger('change');
-                        $('#site_reg_form').find('input.form-control').val("");
+                        $('#site_reg_form').find('.form-control').val("");
                         iziToast.success({
                             message: res.message,
                             position: "topRight"
